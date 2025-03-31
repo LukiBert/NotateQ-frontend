@@ -14,12 +14,26 @@ function emitSearchPhrase() {
 </script>
 
 <template>
-  <n-input-group>
-    <n-input round v-model:value="searchPhrase" @keyup.enter="emitSearchPhrase" />
-    <n-button circle @click="emitSearchPhrase">
-      <n-icon>
-        <MdSearch />
-      </n-icon>
-    </n-button>
-  </n-input-group>
+  <div class="wrapper">
+    <n-input-group>
+      <n-input round v-model:value="searchPhrase" @keyup.enter="emitSearchPhrase" />
+      <n-button circle @click="emitSearchPhrase">
+        <n-icon>
+          <MdSearch />
+        </n-icon>
+      </n-button>
+    </n-input-group>
+  </div>
 </template>
+
+<style scoped>
+.wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.n-input-group {
+  max-width: 500px;
+}
+</style>

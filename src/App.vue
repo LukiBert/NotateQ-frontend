@@ -12,7 +12,10 @@ function receiveEmit(receivedText: string) {
 <template>
   <SearchBar @search-phrase="receiveEmit" />
 
-  <main>Input: {{ searchInput }}</main>
+  <main>
+    <p>Input: {{ searchInput }}</p>
+    <div id="categories"></div>
+  </main>
 </template>
 
 <style scoped>
