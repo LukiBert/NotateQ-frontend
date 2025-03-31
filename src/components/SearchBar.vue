@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { MdSearch } from '@vicons/ionicons4'
-import { NInputGroup, NInput, NButton, NIcon } from 'naive-ui'
+import { NFlex, NInputGroup, NInput, NButton, NIcon } from 'naive-ui'
 
 const emit = defineEmits(['search-phrase'])
 
@@ -14,7 +14,7 @@ function emitSearchPhrase() {
 </script>
 
 <template>
-  <div class="wrapper">
+  <n-flex justify="center">
     <n-input-group>
       <n-input round v-model:value="searchPhrase" @keyup.enter="emitSearchPhrase" />
       <n-button circle @click="emitSearchPhrase">
@@ -23,16 +23,10 @@ function emitSearchPhrase() {
         </n-icon>
       </n-button>
     </n-input-group>
-  </div>
+  </n-flex>
 </template>
 
 <style scoped>
-.wrapper {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
 .n-input-group {
   max-width: 500px;
 }
