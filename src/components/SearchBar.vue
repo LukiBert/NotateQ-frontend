@@ -19,7 +19,7 @@ function emitSearchPhrase() {
       <n-input round v-model:value="searchPhrase" @keyup.enter="emitSearchPhrase" />
       <n-button circle @click="emitSearchPhrase">
         <n-icon>
-          <MdSearch />
+          <md-search />
         </n-icon>
       </n-button>
     </n-input-group>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import SearchBar from './components/SearchBar.vue'
-import Category from './components/Category.vue'
+import CategoryHolder from './components/CategoryHolder.vue'
 
 const searchInput = ref('')
 
@@ -15,9 +15,7 @@ function receiveEmit(receivedText: string) {
 
   <main>
     <p>Input: {{ searchInput }}</p>
-    <div id="categories">
-      <Category />
-    </div>
+    <CategoryHolder />
   </main>
 </template>
 
