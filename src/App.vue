@@ -14,13 +14,16 @@ function receiveEmit(receivedText: string) {
   <SearchBar @search-phrase="receiveEmit" />
 
   <main>
-    <p>Input: {{ searchInput }}</p>
     <CategoryHolder />
+    <p>Input: {{ searchInput }}</p>
   </main>
 </template>
 
 <style scoped>
 main {
   color: black;
+}
+.CategoryHolder {
+  margin-top: 5rem;
 }
 </style>

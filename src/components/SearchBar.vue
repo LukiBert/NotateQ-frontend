@@ -16,8 +16,8 @@ function emitSearchPhrase() {
 <template>
   <n-flex justify="center">
     <n-input-group>
-      <n-input round v-model:value="searchPhrase" @keyup.enter="emitSearchPhrase" />
-      <n-button circle @click="emitSearchPhrase">
+      <n-input round size="large" v-model:value="searchPhrase" @keyup.enter="emitSearchPhrase" />
+      <n-button circle size="large" @click="emitSearchPhrase">
         <n-icon>
           <md-search />
         </n-icon>
@@ -29,5 +29,8 @@ function emitSearchPhrase() {
 <style scoped>
 .n-input-group {
   max-width: 500px;
+}
+.n-flex {
+  margin-bottom: 1rem;
 }
 </style>
