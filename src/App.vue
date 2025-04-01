@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import SearchBar from './components/SearchBar.vue'
 import CategoryHolder from './components/CategoryHolder.vue'
-import FileDescriptor from './components/FileDescriptor.vue'
+import FileList from './components/FileList.vue'
 
 const searchInput = ref('')
 
@@ -15,17 +15,14 @@ function receiveEmit(receivedText: string) {
   <SearchBar @search-phrase="receiveEmit" />
 
   <main>
-    <CategoryHolder />
-    <FileDescriptor />
     <p>Input: {{ searchInput }}</p>
+    <CategoryHolder />
+    <FileList />
   </main>
 </template>
 
 <style scoped>
 main {
   color: black;
-}
-.CategoryHolder {
-  margin-top: 5rem;
 }
 </style>

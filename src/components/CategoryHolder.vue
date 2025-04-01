@@ -6,10 +6,10 @@ import { NGrid, NGi, NScrollbar } from 'naive-ui'
 <template>
   <div class="wrapper">
     <p>Przeglądaj kategorie NotateQ</p>
-    <n-scrollbar x-scrollable trigger="none">
+    <n-scrollbar x-scrollable trigger="none" content-style="overflow: hidden;">
       <n-grid collapsed :x-gap="80" :y-gap="10" :collapsed-rows="2" :cols="10">
         <n-gi v-for="n in 20">
-          <CategoryButton categoryName="Polski" />
+          <CategoryButton categoryName="Język Polski" />
         </n-gi>
       </n-grid>
     </n-scrollbar>
@@ -20,7 +20,7 @@ import { NGrid, NGi, NScrollbar } from 'naive-ui'
 .wrapper {
   margin-bottom: 1rem;
   padding: 0.5rem 0;
-  background-color: #f9f9f9;
+  background-color: white;
 }
 p {
   margin-left: 0.5rem;
