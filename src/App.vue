@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import SearchBar from './components/SearchBar.vue'
 import CategoryHolder from './components/CategoryHolder.vue'
+import FileDescriptor from './components/FileDescriptor.vue'
 
 const searchInput = ref('')
 
@@ -15,6 +16,7 @@ function receiveEmit(receivedText: string) {
 
   <main>
     <CategoryHolder />
+    <FileDescriptor />
     <p>Input: {{ searchInput }}</p>
   </main>
 </template>

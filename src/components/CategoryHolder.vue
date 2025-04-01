@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import CategoryButton from './CategoryButton.vue'
 import { NGrid, NGi, NScrollbar } from 'naive-ui'
 </script>
