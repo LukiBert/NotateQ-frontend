@@ -31,6 +31,6 @@ function emitSearchPhrase() {
   max-width: 500px;
 }
 .n-flex {
-  margin-bottom: 1rem;
+  margin: 0 0.5rem 1rem 0.5rem;
 }
 </style>
