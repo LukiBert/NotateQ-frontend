@@ -12,7 +12,9 @@ function receiveEmit(receivedText: string) {
 </script>
 
 <template>
-  <SearchBar @search-phrase="receiveEmit" />
+  <header>
+    <SearchBar @search-phrase="receiveEmit" />
+  </header>
 
   <main>
     <p>Input: {{ searchInput }}</p>
@@ -24,5 +26,8 @@ function receiveEmit(receivedText: string) {
 <style scoped>
 main {
   color: black;
+}
+
+@media (min-width: 1024px) {
 }
 </style>
