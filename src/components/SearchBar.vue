@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { MdSearch } from '@vicons/ionicons4'
-import { NInputGroup, NInput, NButton, NIcon } from 'naive-ui'
+import { NFlex, NInputGroup, NInput, NButton, NIcon } from 'naive-ui'
 
 const emit = defineEmits(['search-phrase'])
 
@@ -14,12 +14,65 @@ function emitSearchPhrase() {
 </script>
 
 <template>
-  <n-input-group>
-    <n-input round v-model:value="searchPhrase" @keyup.enter="emitSearchPhrase" />
-    <n-button circle @click="emitSearchPhrase">
-      <n-icon>
-        <MdSearch />
-      </n-icon>
-    </n-button>
-  </n-input-group>
+  <n-flex justify="center" class="search-flex">
+    <n-input-group class="search-input-group">
+      <n-input
+        round
+        size="large"
+        v-model:value="searchPhrase"
+        @keyup.enter="emitSearchPhrase"
+        class="search-input"
+        placeholder="Search..."
+      />
+      <n-button circle size="large" @click="emitSearchPhrase" class="search-button">
+        <n-icon>
+          <md-search />
+        </n-icon>
+      </n-button>
+    </n-input-group>
+  </n-flex>
 </template>
+
+<style scoped>
+.search-flex {
+  width: 100%;
+  padding: 1rem;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+}
+
+.search-input-group {
+  width: 100%;
+  max-width: 500px;
+  transition: max-width 0.3s ease;
+}
+
+.search-input {
+  font-size: 1rem;
+  transition:
+    font-size 0.3s ease,
+    height 0.3s ease;
+}
+
+.search-button {
+  transition:
+    width 0.3s ease,
+    height 0.3s ease;
+}
+
+@media (min-width: 1024px) {
+  .search-input-group {
+    max-width: 1000px;
+  }
+
+  .search-input {
+    font-size: 1.2rem;
+    height: 52px;
+  }
+
+  .search-button {
+    width: 52px;
+    height: 52px;
+  }
+}
+</style>
