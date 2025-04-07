@@ -1,22 +1,16 @@
 @import './base.css';
 
 #app {
-  max-width: 1280px;
   margin: 0 auto;
   padding: 0.5rem 0;
   font-weight: normal;
   background-color: #f2f2f2;
+  min-height: 100vh;
 }
 
-/* @media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
+@media (min-width: 1024px) {
   #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+    padding: 0;
+    margin: 0;
   }
-} */
+}
