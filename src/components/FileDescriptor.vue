@@ -2,6 +2,8 @@
 import { MdFolderOpen } from '@vicons/ionicons4'
 import { NIcon, NCard } from 'naive-ui'
 
+defineProps(['fileTitle', 'fileDescription', 'fileDownloads', 'fileAuthor', 'fileId'])
+
 function clickMsg() {
   console.log('Clicked')
 }
@@ -14,12 +16,12 @@ function clickMsg() {
         <n-icon size="32" :component="MdFolderOpen" class="icon" />
 
         <div class="card-content">
-          <h3 class="title">Home</h3>
+          <h3 class="title">{{ fileId }} {{ fileTitle }}</h3>
           <h5 class="description">
-            This is a card with an icon on the left.
-            <span class="size-info">4.5MB</span>
+            {{ fileDescription }}
+            <span class="size-info">{{ fileDownloads }}</span>
           </h5>
-          <h5 class="pages">4 stron</h5>
+          <h5 class="pages">{{ fileAuthor }}</h5>
         </div>
       </div>
     </n-card>
@@ -32,7 +34,6 @@ function clickMsg() {
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
-  transition: max-width 0.3s ease;
 }
 
 .responsive-card {
