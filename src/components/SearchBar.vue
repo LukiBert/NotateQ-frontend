@@ -44,20 +44,10 @@ function emitSearchPhrase() {
 .search-input-group {
   width: 100%;
   max-width: 500px;
-  transition: max-width 0.3s ease;
 }
 
 .search-input {
   font-size: 1rem;
-  transition:
-    font-size 0.3s ease,
-    height 0.3s ease;
-}
-
-.search-button {
-  transition:
-    width 0.3s ease,
-    height 0.3s ease;
 }
 
 @media (min-width: 1024px) {

@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import SearchBar from './components/SearchBar.vue'
 import CategoryHolder from './components/CategoryHolder.vue'
 import FileList from './components/FileList.vue'
-import FileUploadForm from './components/FileUploadForm.vue';
+import FileUploadForm from './components/FileUploadForm.vue'
 
 const searchInput = ref('')
 

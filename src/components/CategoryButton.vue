@@ -1,18 +1,11 @@
 <script setup>
 import { LogoTux } from '@vicons/ionicons4'
-import { NButton, NFlex, NCard, NIcon } from 'naive-ui'
+import { NFlex, NCard, NIcon } from 'naive-ui'
 
 defineProps(['categoryName'])
 </script>
 
 <template>
-  <!-- <n-button text class="hover-border-button">
-    <n-flex vertical>
-      <n-icon :size="40" :component="LogoTux" />
-      <p>{{ categoryName }}</p>
-    </n-flex>
-  </n-button> -->
-
   <n-card hoverable class="category-card" content-style="padding: 1rem; text-align: center;">
     <n-flex vertical justify="center">
       <n-icon :size="40" :component="LogoTux" />
