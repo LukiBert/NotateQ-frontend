@@ -21,6 +21,7 @@ function receiveEmit(receivedText: string) {
     <p>Input: {{ searchInput }}</p>
     <CategoryHolder />
     <FileList />
+    <FileUploadForm />
   </main>
 </template>
 
