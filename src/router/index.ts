@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { createDiscreteApi } from 'naive-ui'
 
 import HomeView from '../views/HomeView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
@@ -25,6 +26,21 @@ const router = createRouter({
       component: NotFoundView,
     },
   ],
+})
+
+const { loadingBar } = createDiscreteApi(['loadingBar'])
+
+router.beforeEach((to, from, next) => {
+  loadingBar.start()
+  next()
+})
+
+router.afterEach(() => {
+  loadingBar.finish()
+})
+
+router.onError(() => {
+  loadingBar.error()
 })
 
 export default router
