@@ -5,7 +5,7 @@ import FileDescriptor from './FileDescriptor.vue'
 
 const fetchedFiles = ref([])
 const fetchedFilesArray = computed(() => {
-  return fetchedFiles.value
+  return fetchedFiles.value.sort((a, b) => b.id - a.id)
 })
 
 const fetchFiles = async () => {
@@ -23,8 +23,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="wrapper">
-    <p class="heading">Proponowane dokumenty</p>
+  <div class="file-list-wrapper">
+    <p class="file-list-heading">Proponowane dokumenty</p>
     <div class="file-list">
       <FileDescriptor
         v-for="(item, index) in fetchedFilesArray"
@@ -40,11 +40,11 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.wrapper {
+.file-list-wrapper {
   padding: 1rem;
 }
 
-.heading {
+.fill-list-heading {
   text-align: center;
   font-size: 1.2rem;
   font-weight: bold;
