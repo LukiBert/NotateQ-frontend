@@ -1,10 +1,28 @@
 <script setup lang="ts">
 import { MdFolderOpen } from '@vicons/ionicons4'
-import { NIcon, NCard } from 'naive-ui'
+import { NIcon, NCard, NButton } from 'naive-ui'
+import { ref } from 'vue'
+import DeleteFileModal from './DeleteFileModal.vue'
+
+const deleteModalRef = ref()
+
+// Przykładowe dane pliku:
+const fileId = 4;
+const fileName = "Home";
 
 function clickMsg() {
   console.log('Clicked')
 }
+
+function openDeleteModal() {
+  deleteModalRef.value.open()
+}
+
+function handleFileDeleted(deletedFileId: number) {
+  console.log("Usunięto plik:", deletedFileId);
+  // tutaj możesz np. usunąć plik z widoku
+}
+
 </script>
 
 <template>
@@ -17,12 +35,20 @@ function clickMsg() {
           <h3 class="title">Home</h3>
           <h5 class="description">
             This is a card with an icon on the left.
+            <n-button size="tiny" type="error" @click.stop="openDeleteModal">Usuń</n-button>
             <span class="size-info">4.5MB</span>
           </h5>
           <h5 class="pages">4 stron</h5>
         </div>
       </div>
     </n-card>
+    <!-- modal do usuwania -->
+    <DeleteFileModal
+      ref="deleteModalRef"
+      :file-id="fileId"
+      :file-name="fileName"
+      @deleted="handleFileDeleted"
+    />
   </div>
 </template>
 
@@ -65,6 +91,7 @@ function clickMsg() {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
 }
 
 .size-info {

@@ -13,15 +13,19 @@ function receiveEmit(receivedText: string) {
 </script>
 
 <template>
-  <header>
-    <SearchBar @search-phrase="receiveEmit" />
-  </header>
+  <n-notification-provider>
+    <n-dialog-provider>
+      <header>
+        <SearchBar @search-phrase="receiveEmit" />
+      </header>
 
-  <main>
-    <p>Input: {{ searchInput }}</p>
-    <CategoryHolder />
-    <FileList />
-  </main>
+      <main>
+        <p>Input: {{ searchInput }}</p>
+        <CategoryHolder />
+        <FileList />
+      </main>
+    </n-dialog-provider>
+  </n-notification-provider>
 </template>
 
 <style scoped>

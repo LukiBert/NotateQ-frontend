@@ -1,6 +1,26 @@
 import './assets/main.css'
 
-import { createApp } from 'vue'
+import { createApp, h } from 'vue'
 import App from './App.vue'
+import {
+  NNotificationProvider,
+  NDialogProvider,
+  NConfigProvider
+} from 'naive-ui'
 
-createApp(App).mount('#app')
+const app = createApp({
+  render: () =>
+    h(NConfigProvider, null, {
+      default: () =>
+        h(NNotificationProvider, null, {
+          default: () =>
+            h(NDialogProvider, null, {
+              default: () => h(App)
+            })
+        })
+    })
+})
+
+app.mount('#app')
+
+
