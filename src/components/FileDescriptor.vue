@@ -10,7 +10,7 @@ function clickMsg() {
 </script>
 
 <template>
-  <div class="wrapper">
+  <div class="file-wrapper">
     <n-card hoverable class="responsive-card" @click="clickMsg">
       <div class="custom-card">
         <n-icon size="32" :component="MdFolderOpen" class="icon" />
@@ -29,7 +29,7 @@ function clickMsg() {
 </template>
 
 <style scoped>
-.wrapper {
+.file-wrapper {
   padding: 0.5rem;
   width: 100%;
   max-width: 500px;
@@ -80,7 +80,7 @@ function clickMsg() {
 
 /* Tablet */
 @media (min-width: 768px) {
-  .wrapper {
+  .file-wrapper {
     max-width: 700px;
   }
 
@@ -100,7 +100,7 @@ function clickMsg() {
 
 /* Desktop */
 @media (min-width: 1024px) {
-  .wrapper {
+  .file-wrapper {
     max-width: 900px;
   }
 
