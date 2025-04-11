@@ -1,31 +1,20 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { createDiscreteApi } from 'naive-ui'
 
-import HomeView from '../views/HomeView.vue'
-import NotFoundView from '../views/NotFoundView.vue'
+const routes = [
+  { path: '/', name: 'home', component: () => import('../views/HomeView.vue') },
+  { path: '/upload', name: 'upload', component: () => import('../views/UploadView.vue') },
+  { path: '/file/:id', name: 'filePage', component: () => import('../views/FileContentView.vue') },
+  {
+    path: '/:pathMatch(.*)',
+    name: 'notFound',
+    component: () => import('../views/NotFoundView.vue'),
+  },
+]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: HomeView,
-    },
-    {
-      path: '/upload',
-      name: 'upload',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/UploadView.vue'),
-    },
-    {
-      path: '/:pathMatch(.*)',
-      name: 'NotFound',
-      component: NotFoundView,
-    },
-  ],
+  routes,
 })
 
 const { loadingBar } = createDiscreteApi(['loadingBar'])
