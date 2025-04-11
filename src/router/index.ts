@@ -4,7 +4,7 @@ import { createDiscreteApi } from 'naive-ui'
 const routes = [
   { path: '/', name: 'home', component: () => import('../views/HomeView.vue') },
   { path: '/upload', name: 'upload', component: () => import('../views/UploadView.vue') },
-  { path: '/file/:id', name: 'filePage', component: () => import('../views/FileContentView.vue') },
+  { path: '/files/:id', name: 'filePage', component: () => import('../views/FileContentView.vue') },
   {
     path: '/:pathMatch(.*)',
     name: 'notFound',

@@ -46,13 +46,13 @@ defineProps<{
       <n-descriptions-item label="Autor">{{ fileData.author }} </n-descriptions-item>
 
       <n-descriptions-item label="Dodano">
-        <n-time :time="new Date(fileData.uploadDate)" format="yyyy-MM-dd"></n-time>
+        <n-time :time="new Date(fileData.upload_date)" format="yyyy-MM-dd"></n-time>
       </n-descriptions-item>
 
       <n-descriptions-item label="Kategoria"> {{ fileData.category }} </n-descriptions-item>
 
       <n-descriptions-item label="Tagi" :span="2">
-        <n-tag v-for="(tag, index) in fileData.tags" :key="index" type="info" size="small">
+        <n-tag v-for="(tag, index) in fileData.tag_names" :key="index" type="info" size="small">
           {{ tag }}
         </n-tag>
       </n-descriptions-item>
