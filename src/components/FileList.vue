@@ -2,15 +2,16 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import FileDescriptor from './FileDescriptor.vue'
+import { API_URL, type FileData } from '../constants'
 
-const fetchedFiles = ref([])
-const fetchedFilesArray = computed(() => {
+const fetchedFiles = ref<FileData[]>([])
+const fetchedFilesArray = computed<FileData[]>(() => {
   return fetchedFiles.value.sort((a, b) => b.id - a.id)
 })
 
 const fetchFiles = async () => {
   try {
-    const res = await axios.get('http://20.26.121.115:8000/api/files/')
+    const res = await axios.get(`${API_URL}api/files/`)
     fetchedFiles.value = res.data
   } catch (err) {
     console.error('Error fetching files:', err)
@@ -26,15 +27,7 @@ onMounted(async () => {
   <div class="file-list-wrapper">
     <p class="file-list-heading">Proponowane dokumenty</p>
     <div class="file-list">
-      <FileDescriptor
-        v-for="(item, index) in fetchedFilesArray"
-        :key="index"
-        :file-title="item.title"
-        :file-description="item.description"
-        :file-author="item.author"
-        :file-downloads="item.downloads"
-        :fileId="item.id"
-      />
+      <FileDescriptor v-for="(item, index) in fetchedFilesArray" :key="index" :file="item" />
     </div>
   </div>
 </template>

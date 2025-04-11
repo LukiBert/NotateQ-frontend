@@ -2,13 +2,16 @@
 import { MdFolderOpen } from '@vicons/ionicons4'
 import { NIcon, NCard } from 'naive-ui'
 import { useRouter } from 'vue-router'
+import type { FileData } from '../constants'
 
-const props = defineProps(['fileTitle', 'fileDescription', 'fileDownloads', 'fileAuthor', 'fileId'])
+const props = defineProps<{
+  file: FileData
+}>()
 
 const router = useRouter()
 
 function navToFilePage() {
-  router.push({ name: 'filePage', params: { id: props.fileId } })
+  router.push({ name: 'filePage', params: { id: props.file.id } })
 }
 </script>
 
@@ -19,12 +22,12 @@ function navToFilePage() {
         <n-icon size="32" :component="MdFolderOpen" class="icon" />
 
         <div class="card-content">
-          <h3 class="title">{{ fileId }} {{ fileTitle }}</h3>
-          <h5 class="description">
-            {{ fileDescription }}
-            <span class="size-info">{{ fileDownloads }}</span>
+          <h3 class="card-title">{{ props.file.title }}</h3>
+          <h5 class="card-description">
+            {{ props.file.description }}
+            <span class="size-info">{{ props.file.downloads }}</span>
           </h5>
-          <h5 class="pages">{{ fileAuthor }}</h5>
+          <h5 class="card-author">{{ props.file.author }}</h5>
         </div>
       </div>
     </n-card>
@@ -57,13 +60,13 @@ function navToFilePage() {
   flex: 1;
 }
 
-.title {
+.card-title {
   margin: 0;
   font-size: 16px;
   font-weight: bold;
 }
 
-.description {
+.card-description {
   margin: 4px 0;
   font-size: 14px;
   display: flex;
@@ -76,7 +79,7 @@ function navToFilePage() {
   color: #888;
 }
 
-.pages {
+.card-author {
   font-size: 13px;
   margin: 0;
 }
@@ -87,16 +90,16 @@ function navToFilePage() {
     max-width: 700px;
   }
 
-  .title {
+  .card-title {
     font-size: 18px;
   }
 
-  .description {
+  .card-description {
     font-size: 15px;
   }
 
   .size-info,
-  .pages {
+  .card-author {
     font-size: 14px;
   }
 }
@@ -111,16 +114,16 @@ function navToFilePage() {
     font-size: 36px;
   }
 
-  .title {
+  .card-title {
     font-size: 20px;
   }
 
-  .description {
+  .card-description {
     font-size: 16px;
   }
 
   .size-info,
-  .pages {
+  .card-author {
     font-size: 15px;
   }
 }
