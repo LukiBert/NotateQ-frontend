@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
-import FileContent from '../components/FileContent.vue'
+import FilePage from '../components/FilePage.vue'
 
 const route = useRoute()
 
@@ -18,7 +18,7 @@ async function fetchFileData(id) {
 
   try {
     const res = await axios.get(`http://20.26.121.115:8000/api/files/${id}`)
-    console.log(res.data)
+    // console.log(res.data)
     fetchedFileData.value = res.data
   } catch (err) {
     errorMessage.value = err.toString()
@@ -29,5 +29,5 @@ async function fetchFileData(id) {
 </script>
 
 <template>
-  <FileContent :file-data="fetchedFileData" :loading="loadingStatus" />
+  <FilePage :file-data="fetchedFileData" :loading="loadingStatus" />
 </template>

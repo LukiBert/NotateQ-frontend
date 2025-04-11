@@ -58,7 +58,7 @@ defineProps(['fileData', 'loading'])
       <n-descriptions-item label="Opis">{{ fileData.description }} </n-descriptions-item>
     </n-descriptions>
 
-    <n-button type="primary" tag="a" :href="fileData?.file" target="_blank" download>
+    <n-button type="primary" @click="console.log(`Pobieram ${fileData?.file}`)">
       Pobierz plik
     </n-button>
   </div>
