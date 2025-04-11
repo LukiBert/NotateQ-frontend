@@ -20,4 +20,4 @@ yarn build
 ### Other
 
 - IDE VSCode + Volar
-- Package Manager - yarn
+- Package Manager: yarn

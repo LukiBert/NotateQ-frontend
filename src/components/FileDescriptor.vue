@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import { MdFolderOpen } from '@vicons/ionicons4'
 import { NIcon, NCard } from 'naive-ui'
+import { useRouter } from 'vue-router'
 
-defineProps(['fileTitle', 'fileDescription', 'fileDownloads', 'fileAuthor', 'fileId'])
+const props = defineProps(['fileTitle', 'fileDescription', 'fileDownloads', 'fileAuthor', 'fileId'])
 
-function clickMsg() {
-  console.log('Clicked')
+const router = useRouter()
+
+function navToFilePage() {
+  router.push({ name: 'filePage', params: { id: props.fileId } })
 }
 </script>
 
 <template>
   <div class="file-wrapper">
-    <n-card hoverable class="responsive-card" @click="clickMsg">
+    <n-card hoverable class="responsive-card" @click="navToFilePage">
       <div class="custom-card">
         <n-icon size="32" :component="MdFolderOpen" class="icon" />
 
