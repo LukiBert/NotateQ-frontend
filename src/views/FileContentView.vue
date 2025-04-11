@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
-import { NDescriptions, NDescriptionsItem, NTime, NTag, NButton } from 'naive-ui'
+import { NDescriptions, NDescriptionsItem, NTime, NTag, NButton, NSkeleton } from 'naive-ui'
 
 const route = useRoute()
 
@@ -30,22 +30,58 @@ async function fetchFileData(id) {
 
 <template>
   <div class="file-data-wrapper">
+    <n-descriptions v-if="loadingStatus" class="file-data" label-placement="top" :column="3">
+      <n-descriptions-item label="Autor">
+        <n-skeleton text width="20%"></n-skeleton>
+      </n-descriptions-item>
+
+      <n-descriptions-item label="Dodano">
+        <n-skeleton text width="20%"></n-skeleton>
+      </n-descriptions-item>
+
+      <n-descriptions-item label="Kategoria">
+        <n-skeleton text width="20%"></n-skeleton>
+      </n-descriptions-item>
+
+      <n-descriptions-item label="Tagi" :span="2">
+        <n-skeleton text width="60%"></n-skeleton>
+      </n-descriptions-item>
+
+      <n-descriptions-item label="Pobrano">
+        <n-skeleton text width="20%"></n-skeleton>
+      </n-descriptions-item>
+
+      <n-descriptions-item label="Opis">
+        <n-skeleton text :repeat="3" width="80%"></n-skeleton>
+      </n-descriptions-item>
+    </n-descriptions>
+
     <n-descriptions
+      v-else
       class="file-data"
-      v-if="!loadingStatus"
       label-placement="top"
       :title="fetchedFileData.title"
       :column="3"
     >
       <n-descriptions-item label="Autor">
-        {{ fetchedFileData.author }}
+        <n-skeleton v-if="loadingStatus" text width="20%"></n-skeleton>
+        <p v-else>{{ fetchedFileData.author }}</p>
       </n-descriptions-item>
+
       <n-descriptions-item label="Dodano">
-        <n-time :time="new Date(fetchedFileData.upload_date)" format="yyyy-MM-dd"></n-time>
+        <n-skeleton v-if="loadingStatus" text width="20%"></n-skeleton>
+        <n-time v-else :time="new Date(fetchedFileData.upload_date)" format="yyyy-MM-dd"></n-time>
       </n-descriptions-item>
-      <n-descriptions-item label="Kategoria"> {{ fetchedFileData.category }} </n-descriptions-item>
+
+      <n-descriptions-item label="Kategoria">
+        <n-skeleton v-if="loadingStatus" text width="20%"></n-skeleton>
+        <p v-else>{{ fetchedFileData.category }}</p>
+      </n-descriptions-item>
+
       <n-descriptions-item label="Tagi" :span="2">
+        <n-skeleton v-if="loadingStatus" text width="60%"></n-skeleton>
         <n-tag
+          v-else
           v-for="(tag, index) in fetchedFileData?.tag_names"
           :key="index"
           type="info"
@@ -54,13 +90,18 @@ async function fetchFileData(id) {
           {{ tag }}
         </n-tag>
       </n-descriptions-item>
+
       <n-descriptions-item label="Pobrano">
-        {{ fetchedFileData.downloads }}
+        <n-skeleton v-if="loadingStatus" text width="20%"></n-skeleton>
+        <p v-else>{{ fetchedFileData.downloads }}</p>
       </n-descriptions-item>
+
       <n-descriptions-item label="Opis">
-        {{ fetchedFileData.description }}
+        <n-skeleton v-if="loadingStatus" text :repeat="3" width="80%"></n-skeleton>
+        <p v-else>{{ fetchedFileData.description }}</p>
       </n-descriptions-item>
     </n-descriptions>
+
     <n-button type="primary" tag="a" :href="fetchedFileData?.file" target="_blank" download>
       Pobierz plik
     </n-button>
