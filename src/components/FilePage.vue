@@ -1,7 +1,11 @@
 <script setup lang="ts">
+import type { FileData } from '../constants'
 import { NDescriptions, NDescriptionsItem, NTime, NTag, NButton, NSkeleton } from 'naive-ui'
 
-defineProps(['fileData', 'loading'])
+defineProps<{
+  fileData: FileData
+  loading: boolean
+}>()
 </script>
 
 <template>
@@ -42,13 +46,13 @@ defineProps(['fileData', 'loading'])
       <n-descriptions-item label="Autor">{{ fileData.author }} </n-descriptions-item>
 
       <n-descriptions-item label="Dodano">
-        <n-time :time="new Date(fileData.upload_date)" format="yyyy-MM-dd"></n-time>
+        <n-time :time="new Date(fileData.uploadDate)" format="yyyy-MM-dd"></n-time>
       </n-descriptions-item>
 
       <n-descriptions-item label="Kategoria"> {{ fileData.category }} </n-descriptions-item>
 
       <n-descriptions-item label="Tagi" :span="2">
-        <n-tag v-for="(tag, index) in fileData?.tag_names" :key="index" type="info" size="small">
+        <n-tag v-for="(tag, index) in fileData.tags" :key="index" type="info" size="small">
           {{ tag }}
         </n-tag>
       </n-descriptions-item>
@@ -58,7 +62,7 @@ defineProps(['fileData', 'loading'])
       <n-descriptions-item label="Opis">{{ fileData.description }} </n-descriptions-item>
     </n-descriptions>
 
-    <n-button type="primary" @click="console.log(`Pobieram ${fileData?.file}`)">
+    <n-button type="primary" @click="console.log(`Pobieram ${fileData.file}`)">
       Pobierz plik
     </n-button>
   </div>
