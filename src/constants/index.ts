@@ -39,7 +39,7 @@ export const getFileDataById = async (id: number): Promise<FileData> => {
     const res = await API.get<FileData>(`api/files/${id}`)
     return res.data
   } catch (err) {
-    console.error('Error fetching files [api/files/]:', err)
+    console.error('Error fetching files [api/files/id]:', err)
     throw err
   }
 }
