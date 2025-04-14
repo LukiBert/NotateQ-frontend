@@ -1,25 +1,24 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import axios from 'axios'
+import { NEmpty } from 'naive-ui'
 import FileDescriptor from './FileDescriptor.vue'
-import { API_URL, type FileData } from '../constants'
+import { type FileData, getAllFilesData } from '../constants'
 
 const fetchedFiles = ref<FileData[]>([])
 const fetchedFilesArray = computed<FileData[]>(() => {
   return fetchedFiles.value.sort((a, b) => b.id - a.id)
 })
 
-const fetchFiles = async () => {
-  try {
-    const res = await axios.get(`${API_URL}api/files/`)
-    fetchedFiles.value = res.data
-  } catch (err) {
-    console.error('Error fetching files:', err)
-  }
-}
+const noFiles = computed<boolean>(() => {
+  return fetchedFilesArray.value.length <= 0
+})
 
 onMounted(async () => {
-  fetchFiles()
+  try {
+    fetchedFiles.value = await getAllFilesData()
+  } catch (err) {
+    console.error('Failed to load categories')
+  }
 })
 </script>
 
@@ -27,6 +26,7 @@ onMounted(async () => {
   <div class="file-list-wrapper">
     <p class="file-list-heading">Proponowane dokumenty</p>
     <div class="file-list">
+      <n-empty v-if="noFiles" description="Brak plików do pobrania"></n-empty>
       <FileDescriptor v-for="(item, index) in fetchedFilesArray" :key="index" :file="item" />
     </div>
   </div>
