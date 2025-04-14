@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { NEmpty } from 'naive-ui'
 import FileDescriptor from './FileDescriptor.vue'
 import { type FileData, getAllFilesData } from '../constants'
 
@@ -14,7 +15,7 @@ const noFiles = computed<boolean>(() => {
 
 onMounted(async () => {
   try {
-    //fetchedFiles.value = await getAllFilesData()
+    fetchedFiles.value = await getAllFilesData()
   } catch (err) {
     console.error('Failed to load categories')
   }
@@ -25,7 +26,7 @@ onMounted(async () => {
   <div class="file-list-wrapper">
     <p class="file-list-heading">Proponowane dokumenty</p>
     <div class="file-list">
-      <div v-if="noFiles">Brak plików do pobrania</div>
+      <n-empty v-if="noFiles" description="Brak plików do pobrania"></n-empty>
       <FileDescriptor v-for="(item, index) in fetchedFilesArray" :key="index" :file="item" />
     </div>
   </div>
