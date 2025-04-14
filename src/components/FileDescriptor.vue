@@ -1,25 +1,33 @@
 <script setup lang="ts">
 import { MdFolderOpen } from '@vicons/ionicons4'
 import { NIcon, NCard } from 'naive-ui'
+import { useRouter } from 'vue-router'
+import type { FileData } from '../constants'
 
-function clickMsg() {
-  console.log('Clicked')
+const props = defineProps<{
+  file: FileData
+}>()
+
+const router = useRouter()
+
+function navToFilePage() {
+  router.push({ name: 'filePage', params: { id: props.file.id } })
 }
 </script>
 
 <template>
-  <div class="wrapper">
-    <n-card hoverable class="responsive-card" @click="clickMsg">
+  <div class="file-wrapper">
+    <n-card hoverable class="responsive-card" @click="navToFilePage">
       <div class="custom-card">
         <n-icon size="32" :component="MdFolderOpen" class="icon" />
 
         <div class="card-content">
-          <h3 class="title">Home</h3>
-          <h5 class="description">
-            This is a card with an icon on the left.
-            <span class="size-info">4.5MB</span>
+          <h3 class="card-title">{{ props.file.title }}</h3>
+          <h5 class="card-description">
+            {{ props.file.description }}
+            <span class="size-info">{{ props.file.downloads }}</span>
           </h5>
-          <h5 class="pages">4 stron</h5>
+          <h5 class="card-author">{{ props.file.author }}</h5>
         </div>
       </div>
     </n-card>
@@ -27,12 +35,11 @@ function clickMsg() {
 </template>
 
 <style scoped>
-.wrapper {
+.file-wrapper {
   padding: 0.5rem;
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
-  transition: max-width 0.3s ease;
 }
 
 .responsive-card {
@@ -53,13 +60,13 @@ function clickMsg() {
   flex: 1;
 }
 
-.title {
+.card-title {
   margin: 0;
   font-size: 16px;
   font-weight: bold;
 }
 
-.description {
+.card-description {
   margin: 4px 0;
   font-size: 14px;
   display: flex;
@@ -72,34 +79,34 @@ function clickMsg() {
   color: #888;
 }
 
-.pages {
+.card-author {
   font-size: 13px;
   margin: 0;
 }
 
 /* Tablet */
 @media (min-width: 768px) {
-  .wrapper {
+  .file-wrapper {
     max-width: 700px;
   }
 
-  .title {
+  .card-title {
     font-size: 18px;
   }
 
-  .description {
+  .card-description {
     font-size: 15px;
   }
 
   .size-info,
-  .pages {
+  .card-author {
     font-size: 14px;
   }
 }
 
 /* Desktop */
 @media (min-width: 1024px) {
-  .wrapper {
+  .file-wrapper {
     max-width: 900px;
   }
 
@@ -107,16 +114,16 @@ function clickMsg() {
     font-size: 36px;
   }
 
-  .title {
+  .card-title {
     font-size: 20px;
   }
 
-  .description {
+  .card-description {
     font-size: 16px;
   }
 
   .size-info,
-  .pages {
+  .card-author {
     font-size: 15px;
   }
 }

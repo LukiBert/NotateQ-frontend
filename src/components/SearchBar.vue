@@ -17,12 +17,12 @@ function emitSearchPhrase() {
   <n-flex justify="center" class="search-flex">
     <n-input-group class="search-input-group">
       <n-input
-        round
-        size="large"
-        v-model:value="searchPhrase"
-        @keyup.enter="emitSearchPhrase"
         class="search-input"
         placeholder="Search..."
+        size="large"
+        round
+        v-model:value="searchPhrase"
+        @keyup.enter="emitSearchPhrase"
       />
       <n-button circle size="large" @click="emitSearchPhrase" class="search-button">
         <n-icon>
@@ -44,20 +44,10 @@ function emitSearchPhrase() {
 .search-input-group {
   width: 100%;
   max-width: 500px;
-  transition: max-width 0.3s ease;
 }
 
 .search-input {
   font-size: 1rem;
-  transition:
-    font-size 0.3s ease,
-    height 0.3s ease;
-}
-
-.search-button {
-  transition:
-    width 0.3s ease,
-    height 0.3s ease;
 }
 
 @media (min-width: 1024px) {

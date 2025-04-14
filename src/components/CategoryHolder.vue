@@ -1,15 +1,29 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { type Category, getAllCategories } from '../constants'
+
 import CategoryButton from './CategoryButton.vue'
 import { NGrid, NGi, NScrollbar } from 'naive-ui'
+
+const fetchedCategories = ref<Category[]>([])
+
+onMounted(async () => {
+  try {
+    fetchedCategories.value = await getAllCategories()
+    //console.log('hello ' + fetchedCategories.value)
+  } catch (err) {
+    console.error('Failed to load categories')
+  }
+})
 </script>
 
 <template>
   <div class="category-wrapper">
     <span class="heading">Przeglądaj kategorie NotateQ</span>
     <n-scrollbar x-scrollable trigger="none" content-style="overflow: hidden;">
-      <n-grid collapsed :x-gap="90" :y-gap="10" :collapsed-rows="3" :cols="10">
-        <n-gi v-for="n in 20">
-          <CategoryButton categoryName="Język Polski" />
+      <n-grid collapsed :x-gap="90" :y-gap="10" :cols="10">
+        <n-gi v-for="(category, index) in fetchedCategories" :key="index">
+          <CategoryButton :categoryName="category.name" />
         </n-gi>
       </n-grid>
     </n-scrollbar>
