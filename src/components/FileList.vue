@@ -8,9 +8,13 @@ const fetchedFilesArray = computed<FileData[]>(() => {
   return fetchedFiles.value.sort((a, b) => b.id - a.id)
 })
 
+const noFiles = computed<boolean>(() => {
+  return fetchedFilesArray.value.length <= 0
+})
+
 onMounted(async () => {
   try {
-    fetchedFiles.value = await getAllFilesData()
+    //fetchedFiles.value = await getAllFilesData()
   } catch (err) {
     console.error('Failed to load categories')
   }
@@ -21,6 +25,7 @@ onMounted(async () => {
   <div class="file-list-wrapper">
     <p class="file-list-heading">Proponowane dokumenty</p>
     <div class="file-list">
+      <div v-if="noFiles">Brak plików do pobrania</div>
       <FileDescriptor v-for="(item, index) in fetchedFilesArray" :key="index" :file="item" />
     </div>
   </div>
