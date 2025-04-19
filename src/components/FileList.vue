@@ -4,6 +4,11 @@ import { NEmpty } from 'naive-ui'
 import FileDescriptor from './FileDescriptor.vue'
 import { type FileData, getAllFilesData } from '../constants'
 
+const props = defineProps<{
+  showHeading?: boolean
+}>()
+
+
 const fetchedFiles = ref<FileData[]>([])
 const fetchedFilesArray = computed<FileData[]>(() => {
   return fetchedFiles.value.sort((a, b) => b.id - a.id)
@@ -24,7 +29,7 @@ onMounted(async () => {
 
 <template>
   <div class="file-list-wrapper">
-    <p class="file-list-heading">Proponowane dokumenty</p>
+    <p v-if="showHeading" class="file-list-heading">Proponowane dokumenty</p>
     <div class="file-list">
       <n-empty v-if="noFiles" description="Brak plików do pobrania"></n-empty>
       <FileDescriptor v-for="(item, index) in fetchedFilesArray" :key="index" :file="item" />

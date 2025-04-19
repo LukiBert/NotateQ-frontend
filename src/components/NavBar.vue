@@ -25,7 +25,7 @@ const activeMenuKey = computed(() => {
     case 'upload':
       return 'go-upload-form'
     default:
-      return null // dla np. profile
+      return null
   }
 })
 
