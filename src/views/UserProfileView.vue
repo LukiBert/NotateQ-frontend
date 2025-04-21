@@ -4,7 +4,7 @@ import SearchBar from '../components/SearchBar.vue'
 import FileList from '../components/FileList.vue'
 
 
-const userName = 'janusz_koduje'
+const userName = 'ja52'
 const userAvatarUrl = 'https://api.dicebear.com/7.x/thumbs/svg?seed=Coder'
 const documentsShared = 17
 
@@ -35,7 +35,8 @@ function receiveEmit(phrase: string) {
       <p v-if="searchInput">🔍 Szukasz: "{{ searchInput }}"</p>
 
       <!-- Gotowy komponent z listą -->
-      <FileList :show-heading="false" />
+      <FileList :show-heading="false" :filters="{ author: userName, title: searchInput }" empty-message="Brak plików spełniających kryteria wyszukiwania"
+/>
     </div>
   </div>
 </template>

@@ -6,6 +6,8 @@ import { type FileData, getAllFilesData } from '../constants'
 
 const props = defineProps<{
   showHeading?: boolean
+  filters?: Record<string, string | number | boolean>
+  emptyMessage?: string
 }>()
 
 
@@ -14,13 +16,22 @@ const fetchedFilesArray = computed<FileData[]>(() => {
   return fetchedFiles.value.sort((a, b) => b.id - a.id)
 })
 
-const noFiles = computed<boolean>(() => {
-  return fetchedFilesArray.value.length <= 0
+const filteredFiles = computed(() => {
+  const title = props.filters?.title?.toString().toLowerCase()
+
+  if (!title) return fetchedFilesArray.value
+
+  return fetchedFilesArray.value.filter(file =>
+    file.title.toLowerCase().includes(title)
+  )
 })
+
+
+const noFiles = computed(() => filteredFiles.value.length === 0)
 
 onMounted(async () => {
   try {
-    fetchedFiles.value = await getAllFilesData()
+    fetchedFiles.value = await getAllFilesData(props.filters)
   } catch (err) {
     console.error('Failed to load categories')
   }
@@ -31,8 +42,8 @@ onMounted(async () => {
   <div class="file-list-wrapper">
     <p v-if="showHeading" class="file-list-heading">Proponowane dokumenty</p>
     <div class="file-list">
-      <n-empty v-if="noFiles" description="Brak plików do pobrania"></n-empty>
-      <FileDescriptor v-for="(item, index) in fetchedFilesArray" :key="index" :file="item" />
+      <n-empty v-if="noFiles" :description="props.emptyMessage || 'Brak plików do pobrania'" />
+      <FileDescriptor v-for="(item, index) in filteredFiles" :key="index" :file="item" />
     </div>
   </div>
 </template>
