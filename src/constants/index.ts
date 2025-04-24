@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-export const API_URL = 'http://localhost:8000/'
+export const API_URL = 'http://127.0.0.1:8000/'
 
 export const API = axios.create({
   baseURL: API_URL,
@@ -24,9 +24,9 @@ export interface FileData {
   file: string
 }
 
-export const getAllFilesData = async (): Promise<FileData[]> => {
+export const getAllFilesData = async (filters?: Record<string, string | number | boolean>): Promise<FileData[]> => {
   try {
-    const res = await API.get<FileData[]>('api/files/')
+    const res = await API.get<FileData[]>('api/files/', { params: filters || {}, })
     return res.data
   } catch (err) {
     console.error('Error fetching files [api/files/]:', err)

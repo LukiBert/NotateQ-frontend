@@ -15,5 +15,5 @@ function receiveEmit(receivedText: string) {
   <SearchBar @search-phrase="receiveEmit" />
   <p>Input: {{ searchInput }}</p>
   <CategoryHolder />
-  <FileList />
+  <FileList :show-heading="true" />
 </template>
