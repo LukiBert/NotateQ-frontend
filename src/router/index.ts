@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { createDiscreteApi } from 'naive-ui'
+import { commonDark, createDiscreteApi } from 'naive-ui'
 
 const routes = [
   { path: '/', name: 'home', component: () => import('../views/HomeView.vue') },
@@ -10,6 +10,7 @@ const routes = [
     name: 'notFound',
     component: () => import('../views/NotFoundView.vue'),
   },
+  { path: '/search', name: 'searchPage', component: () => import('../views/SearchPageView.vue') },
 ]
 
 const router = createRouter({
