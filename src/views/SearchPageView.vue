@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { NFlex, NSelect } from 'naive-ui'
+import { NSelect } from 'naive-ui'
 import { ref, onMounted, computed, nextTick } from 'vue'
 import { type Category, getAllCategories } from '../constants'
+import FileList from '../components/FileList.vue'
 
 const route = useRoute()
 
@@ -35,7 +36,24 @@ onMounted(async () => {
 </script>
 
 <template>
-  <n-flex vertical>
-    <n-select v-model:value="selectedCategories" multiple :options="categoriesWithLabels" />
-  </n-flex>
+  <div class="search-wrapper">
+    <div class="options-wrapper">
+      <n-select v-model:value="selectedCategories" multiple :options="categoriesWithLabels" />
+      <n-select placeholder="Sortuj"></n-select>
+    </div>
+    <FileList />
+  </div>
 </template>
+
+<style scoped>
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.options-wrapper {
+  width: 500px;
+  display: flex;
+}
+</style>
