@@ -21,6 +21,7 @@ import { useRouter } from 'vue-router'
 import { API_URL } from '../constants'
 
 const router = useRouter()
+const MAX_FILE_SIZE_MB = 5
 
 const title = ref('')
 const fileList = ref<UploadFileInfo[]>([])
@@ -41,6 +42,23 @@ const categoryOptions = [
   { label: 'Biologia', value: 'biologia' },
 ]
 
+const handleBeforeUpload = (file: UploadFileInfo, fileList: UploadFileInfo[]) => {
+  const allowedExtensions = ['.pdf', '.docx', '.txt']
+  const isGoodExtension = allowedExtensions.some((ext) => file.file?.name?.endsWith(ext))
+  const isTooLarge = (file.file?.size || 0) / 1024 / 1024 > MAX_FILE_SIZE_MB
+
+  if (!isGoodExtension) {
+    alert('Dozwolone są tylko pliki PDF, DOCX lub TXT.')
+    return false
+  }
+
+  if (isTooLarge) {
+    alert('Plik jest za duży. Maksymalny rozmiar to ${MAX_FILE_SIZE_MB} MB.')
+    return false
+  }
+  return true
+}
+
 const submitForm = async () => {
   if (
     !title.value ||
@@ -53,6 +71,11 @@ const submitForm = async () => {
     //bibliografia opcjonalnie (?)
   ) {
     alert('Uzupełnij wymagane pola!')
+    return
+  }
+
+  if (description.value.length > 500) {
+    alert('Opis jest za długi. Maksymalna długość to 500 znaków.')
     return
   }
 
@@ -124,7 +147,11 @@ const submitForm = async () => {
         <n-tab-pane name="first" tab="Załącz plik">
           <n-form @submit.prevent="submitForm">
             <n-form-item label="Wybierz plik" required>
-              <n-upload v-model:file-list="fileList" :max="1">
+              <n-upload
+                v-model:file-list="fileList"
+                :max="1"
+                :on-before-upload="handleBeforeUpload"
+              >
                 <n-button class="inputText">Wybierz plik</n-button>
               </n-upload>
             </n-form-item>
@@ -148,12 +175,13 @@ const submitForm = async () => {
             </n-form-item>
 
             <n-form-item label="Opis:" required>
-              <n-input
-                v-model:value="description"
-                type="textarea"
-                placeholder="Wprowadź opis"
-                class="inputText"
-              />
+                <n-input
+                  v-model:value="description"
+                  type="textarea"
+                  placeholder="Wprowadź opis"
+                  class="inputText"
+                  maxlength="500"
+                />
             </n-form-item>
 
             <n-form-item label="Autor:" required>
