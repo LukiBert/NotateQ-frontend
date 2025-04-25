@@ -25,7 +25,7 @@ export interface FileData {
   file: string
 }
 
-export const getFilteredFilesData = async (filtersQuery: LocationQuery): Promise<FileData[]> => {
+export const getFilesData = async (filtersQuery?: LocationQuery): Promise<FileData[]> => {
   const baseUrl = 'api/files/'
 
   try {
@@ -34,16 +34,6 @@ export const getFilteredFilesData = async (filtersQuery: LocationQuery): Promise
     return res.data
   } catch (err) {
     console.error(`Error fetching files [${baseUrl}]:`, err)
-    throw err
-  }
-}
-
-export const getAllFilesData = async (): Promise<FileData[]> => {
-  try {
-    const res = await API.get<FileData[]>('api/files/')
-    return res.data
-  } catch (err) {
-    console.error('Error fetching files [api/files/]:', err)
     throw err
   }
 }

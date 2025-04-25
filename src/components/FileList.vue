@@ -3,7 +3,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { NEmpty } from 'naive-ui'
 import FileDescriptor from './FileDescriptor.vue'
-import { type FileData, getAllFilesData, getFilteredFilesData } from '../constants'
+import { type FileData, getFilesData } from '../constants'
 
 const route = useRoute()
 
@@ -14,8 +14,7 @@ const noFiles = computed(() => fetchedFiles.value.length <= 0)
 watch(
   () => route.query,
   async (newQuery) => {
-    console.log(newQuery)
-    fetchedFiles.value = await getFilteredFilesData(newQuery)
+    fetchedFiles.value = await getFilesData(newQuery)
   },
   { immediate: true, deep: true },
 )

@@ -1,46 +1,13 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-import { NSelect } from 'naive-ui'
-import { ref, onMounted, computed } from 'vue'
-import { type Category, getAllCategories, getFilteredFilesData } from '../constants'
 import FileList from '../components/FileList.vue'
-
-const route = useRoute()
-
-const fetchedCategories = ref<Category[]>([])
-const selectedCategories = ref([])
-
-const queryCategories = computed(() => {
-  const raw = route.query.category
-  if (Array.isArray(raw)) return raw
-  if (typeof raw === 'string') return [raw]
-  return []
-})
-
-const categoriesWithLabels = computed(() => {
-  return fetchedCategories.value.map((cat) => ({
-    label: cat.name,
-    value: cat.id,
-  }))
-})
-
-onMounted(async () => {
-  try {
-    fetchedCategories.value = await getAllCategories()
-
-    selectedCategories.value = queryCategories.value
-  } catch (err) {
-    console.error('Failed to load categories')
-  }
-})
+import FiltersForm from '../components/FiltersForm.vue'
+import SearchBar from '../components/SearchBar.vue'
 </script>
 
 <template>
   <div class="search-wrapper">
-    <div class="options-wrapper">
-      <n-select v-model:value="selectedCategories" multiple :options="categoriesWithLabels" />
-      <n-select placeholder="Sortuj"></n-select>
-    </div>
+    <SearchBar />
+    <FiltersForm />
     <FileList />
   </div>
 </template>
