@@ -1,11 +1,22 @@
 <script setup lang="ts">
-import type { FileData } from '../constants'
+import { computed, onMounted, ref } from 'vue'
+import { type FileData, getCategoryMap } from '../constants'
 import { NDescriptions, NDescriptionsItem, NTime, NTag, NButton, NSkeleton } from 'naive-ui'
 
-defineProps<{
+const props = defineProps<{
   fileData: FileData
   loading: boolean
 }>()
+
+const categoryMap = ref<Record<number, string>>({})
+
+onMounted(async () => {
+  categoryMap.value = await getCategoryMap()
+})
+
+const categoryName = computed(() => {
+  return categoryMap.value[props.fileData.category as unknown as number] || 'Nieznana kategoria'
+})
 </script>
 
 <template>
@@ -49,7 +60,7 @@ defineProps<{
         <n-time :time="new Date(fileData.upload_date)" format="yyyy-MM-dd"></n-time>
       </n-descriptions-item>
 
-      <n-descriptions-item label="Kategoria"> {{ fileData.category }} </n-descriptions-item>
+      <n-descriptions-item label="Kategoria"> {{ categoryName }} </n-descriptions-item>
 
       <n-descriptions-item label="Tagi" :span="2">
         <n-tag v-for="(tag, index) in fileData.tag_names" :key="index" type="info" size="small">
