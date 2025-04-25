@@ -13,8 +13,9 @@ const noFiles = computed(() => fetchedFiles.value.length <= 0)
 
 watch(
   () => route.query,
-  async () => {
-    fetchedFiles.value = await getFilteredFilesData(route.query)
+  async (newQuery) => {
+    console.log(newQuery)
+    fetchedFiles.value = await getFilteredFilesData(newQuery)
   },
   { immediate: true, deep: true },
 )

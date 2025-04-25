@@ -27,17 +27,13 @@ export interface FileData {
 
 export const getFilteredFilesData = async (filtersQuery: LocationQuery): Promise<FileData[]> => {
   const baseUrl = 'api/files/'
-  const queryString = new URLSearchParams(filtersQuery as Record<string, string>).toString()
-
-  const fullUrl: string = `${baseUrl}?${queryString}`
-  console.log(`Preparing to fetch: ${fullUrl}`)
 
   try {
-    const res = await API.get<FileData[]>(fullUrl)
-    console.log('Fetched: ', res.data)
+    const res = await API.get<FileData[]>(baseUrl, { params: filtersQuery })
+    console.log('Fetched: ', res.data, '\nFrom: ', baseUrl, filtersQuery)
     return res.data
   } catch (err) {
-    console.error(`Error fetching files [api/files/${fullUrl}]:`, err)
+    console.error(`Error fetching files [${baseUrl}]:`, err)
     throw err
   }
 }
