@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { NEmpty } from 'naive-ui'
 import FileDescriptor from './FileDescriptor.vue'
 import { type FileData, getAllFilesData } from '../constants'
@@ -29,13 +29,17 @@ const filteredFiles = computed(() => {
 
 const noFiles = computed(() => filteredFiles.value.length === 0)
 
-onMounted(async () => {
+async function loadFiles() {
   try {
     fetchedFiles.value = await getAllFilesData(props.filters)
   } catch (err) {
-    console.error('Failed to load categories')
+    console.error('Failed to load files:', err)
   }
-})
+}
+
+onMounted(loadFiles)
+watch(() => props.filters, loadFiles, { deep: true })
+
 </script>
 
 <template>

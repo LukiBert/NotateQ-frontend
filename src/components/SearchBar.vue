@@ -8,16 +8,26 @@ const emit = defineEmits(['search-phrase'])
 
 const searchPhrase = ref('')
 
+const props = defineProps<{
+  mode?: 'dynamic' | 'manual' | 'both'
+}>()
+
+
+
 function emitSearchPhrase() {
   emit('search-phrase', searchPhrase.value)
+  if (props.mode === 'manual') {
   searchPhrase.value = ''
+}
 }
 
 const debouncedEmit = debounce((value: string) => {
   emit('search-phrase', value)}, 300)
 
 function handleInputChange(value: string) {
-  debouncedEmit(value)
+  if (props.mode === 'dynamic' || props.mode === 'both') {
+    debouncedEmit(value)
+  }
 }
 
 </script>

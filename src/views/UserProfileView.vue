@@ -31,7 +31,7 @@ function receiveEmit(phrase: string) {
 
     <!-- SEARCHBAR + LISTA -->
     <div class="search-card">
-      <SearchBar @search-phrase="receiveEmit" />
+      <SearchBar mode="both" @search-phrase="receiveEmit" />
       <p v-if="searchInput">🔍 Szukasz: "{{ searchInput }}"</p>
 
       <!-- Gotowy komponent z listą -->

@@ -53,3 +53,19 @@ export const getAllCategories = async (): Promise<Category[]> => {
     throw err
   }
 }
+
+export const getCategoryMap = async (): Promise<Record<number, string>> => {
+  try {
+    const categories = await getAllCategories()
+    const map: Record<number, string> = {}
+
+    categories.forEach(cat => {
+      map[cat.id] = cat.name
+    })
+
+    return map
+  } catch (err) {
+    console.error('Error creating category map:', err)
+    return {}
+  }
+}
