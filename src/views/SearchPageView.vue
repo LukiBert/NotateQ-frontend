@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { NSelect } from 'naive-ui'
-import { ref, onMounted, computed, nextTick } from 'vue'
-import { type Category, getAllCategories } from '../constants'
+import { ref, onMounted, computed } from 'vue'
+import { type Category, getAllCategories, getFilteredFilesData } from '../constants'
 import FileList from '../components/FileList.vue'
 
 const route = useRoute()
