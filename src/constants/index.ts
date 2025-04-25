@@ -27,6 +27,7 @@ export interface FileData {
 export const getAllFilesData = async (filters?: Record<string, string | number | boolean>): Promise<FileData[]> => {
   try {
     const res = await API.get<FileData[]>('api/files/', { params: filters || {}, })
+    console.log("Fetched: ", res.data)
     return res.data
   } catch (err) {
     console.error('Error fetching files [api/files/]:', err)

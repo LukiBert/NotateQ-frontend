@@ -16,29 +16,41 @@ const fetchedFilesArray = computed<FileData[]>(() => {
   return fetchedFiles.value.sort((a, b) => b.id - a.id)
 })
 
-const filteredFiles = computed(() => {
-  const title = props.filters?.title?.toString().toLowerCase()
+// const filteredFiles = computed(() => {
+//   const title = props.filters?.title?.toString().toLowerCase()
+//
+//   if (!title) return fetchedFilesArray.value
+//
+//   return fetchedFilesArray.value.filter(file =>
+//     file.title.toLowerCase().includes(title)
+//   )
+// })
 
-  if (!title) return fetchedFilesArray.value
 
-  return fetchedFilesArray.value.filter(file =>
-    file.title.toLowerCase().includes(title)
-  )
-})
+const noFiles = computed(() => fetchedFilesArray.value.length === 0)
 
+// async function loadFiles() {
+//   try {
+//     fetchedFiles.value = await getAllFilesData(props.filters)
+//   } catch (err) {
+//     console.error('Failed to load files:', err)
+//   }
+// }
+//
+// onMounted(loadFiles)
+// watch(() => props.filters, loadFiles, { deep: true })
 
-const noFiles = computed(() => filteredFiles.value.length === 0)
-
-async function loadFiles() {
-  try {
-    fetchedFiles.value = await getAllFilesData(props.filters)
-  } catch (err) {
-    console.error('Failed to load files:', err)
-  }
-}
-
-onMounted(loadFiles)
-watch(() => props.filters, loadFiles, { deep: true })
+watch(
+  () => props.filters,
+  async (newFilters) => {
+    try {
+      fetchedFiles.value = await getAllFilesData(newFilters)
+    } catch (err) {
+      console.error('Failed to reload files with filters')
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 </script>
 
@@ -47,7 +59,7 @@ watch(() => props.filters, loadFiles, { deep: true })
     <p v-if="showHeading" class="file-list-heading">Proponowane dokumenty</p>
     <div class="file-list">
       <n-empty v-if="noFiles" :description="props.emptyMessage || 'Brak plików do pobrania'" />
-      <FileDescriptor v-for="(item, index) in filteredFiles" :key="index" :file="item" />
+      <FileDescriptor v-for="(item, index) in fetchedFilesArray" :key="index" :file="item" />
     </div>
   </div>
 </template>
