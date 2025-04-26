@@ -1,65 +1,34 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { NEmpty } from 'naive-ui'
 import FileDescriptor from './FileDescriptor.vue'
-import { type FileData, getAllFilesData } from '../constants'
+import { type FileData, getFilesData } from '../constants'
 
-const props = defineProps<{
-  showHeading?: boolean
-  filters?: Record<string, string | number | boolean>
+defineProps<{
   emptyMessage?: string
 }>()
 
+const route = useRoute()
 
 const fetchedFiles = ref<FileData[]>([])
-const fetchedFilesArray = computed<FileData[]>(() => {
-  return fetchedFiles.value.sort((a, b) => b.id - a.id)
-})
 
-// const filteredFiles = computed(() => {
-//   const title = props.filters?.title?.toString().toLowerCase()
-//
-//   if (!title) return fetchedFilesArray.value
-//
-//   return fetchedFilesArray.value.filter(file =>
-//     file.title.toLowerCase().includes(title)
-//   )
-// })
-
-
-const noFiles = computed(() => fetchedFilesArray.value.length === 0)
-
-// async function loadFiles() {
-//   try {
-//     fetchedFiles.value = await getAllFilesData(props.filters)
-//   } catch (err) {
-//     console.error('Failed to load files:', err)
-//   }
-// }
-//
-// onMounted(loadFiles)
-// watch(() => props.filters, loadFiles, { deep: true })
+const noFiles = computed(() => fetchedFiles.value.length <= 0)
 
 watch(
-  () => props.filters,
-  async (newFilters) => {
-    try {
-      fetchedFiles.value = await getAllFilesData(newFilters)
-    } catch (err) {
-      console.error('Failed to reload files with filters')
-    }
+  () => route.query,
+  async (newQuery) => {
+    fetchedFiles.value = await getFilesData(newQuery)
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
 )
-
 </script>
 
 <template>
   <div class="file-list-wrapper">
-    <p v-if="showHeading" class="file-list-heading">Proponowane dokumenty</p>
     <div class="file-list">
-      <n-empty v-if="noFiles" :description="props.emptyMessage || 'Brak plików do pobrania'" />
-      <FileDescriptor v-for="(item, index) in fetchedFilesArray" :key="index" :file="item" />
+      <n-empty v-if="noFiles" :description="emptyMessage || 'Brak plików do pobrania'" />
+      <FileDescriptor v-for="(item, index) in fetchedFiles" :key="index" :file="item" />
     </div>
   </div>
 </template>
