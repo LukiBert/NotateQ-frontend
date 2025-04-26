@@ -3,11 +3,9 @@ import { ref } from 'vue'
 import SearchBar from '../components/SearchBar.vue'
 import FileList from '../components/FileList.vue'
 
-
 const userName = 'ja52'
 const userAvatarUrl = 'https://api.dicebear.com/7.x/thumbs/svg?seed=Coder'
 const documentsShared = 17
-
 
 const searchInput = ref('')
 
@@ -31,12 +29,15 @@ function receiveEmit(phrase: string) {
 
     <!-- SEARCHBAR + LISTA -->
     <div class="search-card">
-      <SearchBar @search-phrase="receiveEmit" />
+      <SearchBar mode="dynamic" @search-phrase="receiveEmit" />
       <p v-if="searchInput">🔍 Szukasz: "{{ searchInput }}"</p>
 
       <!-- Gotowy komponent z listą -->
-      <FileList :show-heading="false" :filters="{ author: userName, title: searchInput }" empty-message="Brak plików spełniających kryteria wyszukiwania"
-/>
+      <FileList
+        :show-heading="false"
+        :filters="{ author: userName, title: searchInput }"
+        empty-message="Brak plików spełniających kryteria wyszukiwania"
+      />
     </div>
   </div>
 </template>

@@ -18,7 +18,7 @@ import {
 import axios from 'axios'
 import type { UploadFileInfo } from 'naive-ui'
 import { useRouter } from 'vue-router'
-import { API_URL } from '../constants'
+import { API } from '../constants'
 
 const router = useRouter()
 
@@ -65,8 +65,12 @@ const submitForm = async () => {
   formData.append('date', formattedValue.value)
   //formData.append('tags', tags.value)
 
+  // for (let pair of formData.entries()) {
+  //   console.log(pair[0] + ': ' + pair[1])
+  // }
+
   try {
-    const res = await axios.post(`${API_URL}/api/files/`, formData, {
+    const res = await API.post(`api/files/`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -78,14 +82,14 @@ const submitForm = async () => {
     console.log('Błąd podczas wysyłania pliku ', err)
   }
 
-  title.value = ''
-  category.value = null
-  fileList.value = []
-  description.value = ''
-  author.value = ''
-  formattedValue.value = '2025-01-01 00:00:00'
-  tags.value = ['your tag', 'tkowi']
-  books.value = []
+  // title.value = ''
+  // category.value = null
+  // fileList.value = []
+  // description.value = ''
+  // author.value = ''
+  // formattedValue.value = '2025-01-01 00:00:00'
+  // tags.value = ['your tag', 'tkowi']
+  // books.value = []
 }
 </script>
 

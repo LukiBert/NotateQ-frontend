@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import type { MenuOption } from 'naive-ui'
-import type { Component } from 'vue'
-
-import { h, computed } from 'vue'
+import { type Component, h, computed } from 'vue'
 import { RouterLink, useRouter, useRoute } from 'vue-router'
-import { NMenu, NIcon } from 'naive-ui'
+import { NMenu, NIcon, type MenuOption } from 'naive-ui'
 import { IosHome as HomeIcon, MdCloudUpload as UploadIcon, MdPerson } from '@vicons/ionicons4'
 
 function renderIcon(icon: Component) {
@@ -53,24 +50,12 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(UploadIcon),
   },
 ]
-
-
-
 </script>
 
 <template>
   <div class="navbar">
-    <n-menu
-      mode="horizontal"
-      :options="menuOptions"
-      :value="activeMenuKey"
-      responsive
-    />
-    <n-icon
-      class="profile-icon"
-      :class="{ active: isProfileRoute }"
-      @click="goToProfile"
-    >
+    <n-menu mode="horizontal" :options="menuOptions" :value="activeMenuKey" responsive />
+    <n-icon class="profile-icon" :class="{ active: isProfileRoute }" @click="goToProfile">
       <MdPerson />
     </n-icon>
   </div>
@@ -90,7 +75,9 @@ const menuOptions: MenuOption[] = [
 .profile-icon {
   font-size: 24px;
   cursor: pointer;
-  transition: transform 0.2s ease, color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
   color: black;
 }
 
@@ -102,5 +89,4 @@ const menuOptions: MenuOption[] = [
 .profile-icon.active {
   color: #18a058;
 }
-
 </style>
