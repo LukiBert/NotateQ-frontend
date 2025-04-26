@@ -11,6 +11,12 @@ const routes = [
     name: 'notFound',
     component: () => import('../views/NotFoundView.vue'),
   },
+  {
+  path: '/profile',
+  name: 'profile',
+  component: () => import('../views/UserProfileView.vue'),
+}
+
 ]
 
 const router = createRouter({

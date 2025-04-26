@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { NEmpty } from 'naive-ui'
 import FileDescriptor from './FileDescriptor.vue'
 import { type FileData, getFilesData } from '../constants'
 
 const route = useRoute()
+
+defineProps<{
+  emptyMessage?: string
+}>()
 
 const fetchedFiles = ref<FileData[]>([])
 
@@ -23,8 +27,8 @@ watch(
 <template>
   <div class="file-list-wrapper">
     <div class="file-list">
-      <n-empty v-if="noFiles" description="Brak plików do pobrania"></n-empty>
-      <FileDescriptor v-for="(item, index) in fetchedFiles" :key="index" :file="item" />
+      <n-empty v-if="noFiles" :description="props.emptyMessage || 'Brak plików do pobrania'" />
+      <FileDescriptor v-for="(item, index) in fetchedFiles" :key="index" :file="item" />    
     </div>
   </div>
 </template>
