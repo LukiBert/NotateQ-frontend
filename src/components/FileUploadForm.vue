@@ -24,22 +24,34 @@ const router = useRouter()
 
 const title = ref('')
 const fileList = ref<UploadFileInfo[]>([])
-const category = ref(null)
+const category = ref()
 const description = ref('')
 const author = ref('')
 const formattedValue = ref('2025-01-01 00:00:00')
-const tags = ref(['yout tag'])
+const tags = ref(['your tag'])
 const books = ref([])
 
 const categoryOptions = [
-  { label: 'Matematyka', value: 'matematyka' },
-  { label: 'Fizyka', value: 'fizyka' },
-  { label: 'Informatyka', value: 'informatyka' },
-  { label: 'Geografia', value: 'geografia' },
-  { label: 'Język angielski', value: 'angielski' },
-  { label: 'Język polski', value: 'polski' },
-  { label: 'Biologia', value: 'biologia' },
+  { label: 'Matematyka', value: 1 },
+  { label: 'Fizyka', value: 2 },
+  { label: 'Informatyka', value: 3 },
+  { label: 'Geografia', value: 4 },
+  { label: 'Język angielski', value: 5 },
+  { label: 'Język polski', value: 6 },
+  { label: 'Biologia', value: 7 },
 ]
+
+const handleBeforeUpload = (file: UploadFileInfo, fileList: UploadFileInfo[]) => {
+  const allowedExtensions = ['.pdf', '.docx', '.txt']
+  const isGoodExtension = allowedExtensions.some((ext) => file.file?.name?.endsWith(ext))
+
+  if (!isGoodExtension) {
+    alert('Dozwolone są tylko pliki PDF, DOCX lub TXT.')
+    return false
+  }
+
+  return true
+}
 
 const submitForm = async () => {
   if (
@@ -59,14 +71,14 @@ const submitForm = async () => {
   const formData = new FormData()
   formData.append('title', title.value)
   formData.append('description', description.value)
-  formData.append('category', category.value)
+  formData.append('category', String(category.value))
   formData.append('author', author.value)
   formData.append('file', fileList.value[0].file as File)
   formData.append('date', formattedValue.value)
-  //formData.append('tags', tags.value)
+  formData.append('tags', JSON.stringify(tags.value))
 
   try {
-    const res = await axios.post(`${API_URL}/api/files/`, formData, {
+    const res = await axios.post(`${API_URL}api/files/`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -79,7 +91,7 @@ const submitForm = async () => {
   }
 
   title.value = ''
-  category.value = null
+  category.value = 1
   fileList.value = []
   description.value = ''
   author.value = ''
@@ -124,7 +136,11 @@ const submitForm = async () => {
         <n-tab-pane name="first" tab="Załącz plik">
           <n-form @submit.prevent="submitForm">
             <n-form-item label="Wybierz plik" required>
-              <n-upload v-model:file-list="fileList" :max="1">
+              <n-upload
+                v-model:file-list="fileList"
+                :max="1"
+                :on-before-upload="handleBeforeUpload"
+              >
                 <n-button class="inputText">Wybierz plik</n-button>
               </n-upload>
             </n-form-item>
@@ -153,6 +169,7 @@ const submitForm = async () => {
                 type="textarea"
                 placeholder="Wprowadź opis"
                 class="inputText"
+                maxlength="500"
               />
             </n-form-item>
 
