@@ -1,17 +1,29 @@
 <script setup lang="ts">
-import { LogoTux } from '@vicons/ionicons4'
-import { NFlex, NCard, NIcon } from 'naive-ui'
+import { useRouter } from 'vue-router'
+import { NFlex, NCard } from 'naive-ui'
+import type { Category } from '../constants'
 
-defineProps<{
-  categoryName: string
+const { category } = defineProps<{
+  category: Category
 }>()
+
+const router = useRouter()
+
+function navToSearchPage() {
+  router.push({ name: 'searchPage', query: { category: category.id } })
+}
 </script>
 
 <template>
-  <n-card hoverable class="category-card" content-style="padding: 1rem; text-align: center;">
+  <n-card
+    hoverable
+    class="category-card"
+    content-style="padding: 1rem; text-align: center;"
+    @click="navToSearchPage"
+  >
     <n-flex vertical justify="center">
       <!-- <n-icon :size="40" :component="LogoTux" /> -->
-      <p>{{ categoryName }}</p>
+      <p>{{ category.name }}</p>
     </n-flex>
   </n-card>
 </template>

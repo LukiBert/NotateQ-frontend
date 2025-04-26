@@ -1,4 +1,5 @@
 import axios from 'axios'
+import type { LocationQuery } from 'vue-router'
 
 export const API_URL = 'http://127.0.0.1:8000/'
 
@@ -24,12 +25,15 @@ export interface FileData {
   file: string
 }
 
-export const getAllFilesData = async (filters?: Record<string, string | number | boolean>): Promise<FileData[]> => {
+export const getFilesData = async (filtersQuery?: LocationQuery): Promise<FileData[]> => {
+  const baseUrl = 'api/files/'
+
   try {
-    const res = await API.get<FileData[]>('api/files/', { params: filters || {}, })
+    const res = await API.get<FileData[]>(baseUrl, { params: filtersQuery || {} })
+    console.log('Fetched: ', res.data, '\nFrom: ', baseUrl, filtersQuery)
     return res.data
   } catch (err) {
-    console.error('Error fetching files [api/files/]:', err)
+    console.error(`Error fetching files [${baseUrl}]:`, err)
     throw err
   }
 }

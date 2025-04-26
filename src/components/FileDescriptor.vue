@@ -4,14 +4,14 @@ import { NIcon, NCard } from 'naive-ui'
 import { useRouter } from 'vue-router'
 import type { FileData } from '../constants'
 
-const props = defineProps<{
+const { file } = defineProps<{
   file: FileData
 }>()
 
 const router = useRouter()
 
 function navToFilePage() {
-  router.push({ name: 'filePage', params: { id: props.file.id } })
+  router.push({ name: 'filePage', params: { id: file.id } })
 }
 </script>
 
@@ -22,12 +22,12 @@ function navToFilePage() {
         <n-icon size="32" :component="MdFolderOpen" class="icon" />
 
         <div class="card-content">
-          <h3 class="card-title">{{ props.file.title }}</h3>
+          <h3 class="card-title">{{ file.title }}</h3>
           <h5 class="card-description">
-            {{ props.file.description }}
-            <span class="size-info">{{ props.file.downloads }}</span>
+            {{ file.description }}
+            <span class="size-info">{{ file.downloads }}</span>
           </h5>
-          <h5 class="card-author">{{ props.file.author }}</h5>
+          <h5 class="card-author">{{ file.author }}</h5>
         </div>
       </div>
     </n-card>
