@@ -22,9 +22,8 @@ onMounted(async () => {
 })
 
 const categoryName = computed(() => {
-  return categoryMap.value[props.file.category as unknown as number] || 'Nieznana kategoria'
+  return categoryMap.value[file.category as unknown as number] || 'Nieznana kategoria'
 })
-
 </script>
 
 <template>

@@ -2,7 +2,7 @@
 import { useRoute } from 'vue-router'
 import { NSelect } from 'naive-ui'
 import { ref, onMounted, computed, watch } from 'vue'
-import { type Category, getAllCategories, getFilesData } from '../constants'
+import { type Category, getFilesData } from '../constants'
 
 const route = useRoute()
 

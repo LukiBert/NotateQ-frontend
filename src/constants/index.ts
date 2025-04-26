@@ -63,7 +63,7 @@ export const getCategoryMap = async (): Promise<Record<number, string>> => {
     const categories = await getAllCategories()
     const map: Record<number, string> = {}
 
-    categories.forEach(cat => {
+    categories.forEach((cat) => {
       map[cat.id] = cat.name
     })
 
