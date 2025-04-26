@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import {
   NConfigProvider,
   NButton,
@@ -13,7 +13,7 @@ import {
   NTabs,
   NDatePicker,
   NDynamicTags,
-  NDynamicInput,
+  NBadge,
 } from 'naive-ui'
 import axios from 'axios'
 import type { UploadFileInfo } from 'naive-ui'
@@ -21,26 +21,41 @@ import { useRouter } from 'vue-router'
 import { API_URL } from '../constants'
 
 const router = useRouter()
-const MAX_FILE_SIZE_MB = 5
+
+const getToday = () => {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} 00:00:00`
+}
 
 const title = ref('')
 const fileList = ref<UploadFileInfo[]>([])
-const category = ref()
+const category = ref<number[]>([])
+const categoryOptions = ref<any[]>([])
 const description = ref('')
 const author = ref('')
-const formattedValue = ref('2025-01-01 00:00:00')
+const formattedValue = ref(getToday())
 const tags = ref(['your tag'])
-const books = ref([])
+const searchQuery = ref('')
+const searchResults = ref<any[]>([])
+const selectedBooks = ref<any[]>([])
 
-const categoryOptions = [
-  { label: 'Matematyka', value: 1 },
-  { label: 'Fizyka', value: 2 },
-  { label: 'Informatyka', value: 3 },
-  { label: 'Geografia', value: 4 },
-  { label: 'Język angielski', value: 5 },
-  { label: 'Język polski', value: 6 },
-  { label: 'Biologia', value: 7 },
-]
+
+const fetchCategories = async () => {
+  try {
+    const res = await axios.get(`${API_URL}api/categories/`)
+    categoryOptions.value = res.data.map((category: { id: number; name: string }) => ({
+      label: category.name,
+      value: category.id,
+    }))
+  } catch (err) {
+    console.error('Błąd podczas pobierania kategorii:', err)
+    alert('Błąd podczas pobierania kategorii:', err)
+  }
+}
+
+onMounted(() => {
+  fetchCategories()
+})
 
 const handleBeforeUpload = (file: UploadFileInfo, fileList: UploadFileInfo[]) => {
   const allowedExtensions = ['.pdf', '.docx', '.txt']
@@ -50,21 +65,39 @@ const handleBeforeUpload = (file: UploadFileInfo, fileList: UploadFileInfo[]) =>
     alert('Dozwolone są tylko pliki PDF, DOCX lub TXT.')
     return false
   }
-  
+
   return true
 }
 
+const searchBibliography = async () => {
+  if (!searchQuery.value) {
+    alert('Wprowadź tytuł książki do wyszukania.')
+    return
+  }
+  try {
+    const res = await axios.get(`${API_URL}api/books/search/${searchQuery.value}`)
+    searchResults.value = res.data
+  } catch (err) {
+    console.error('Błąd podczas wyszukiwania książek:', err)
+    alert('Błąd podczas wyszukiwania książek.')
+  }
+}
+
+const addBook = (book: any) => {
+  if (!selectedBooks.value.some((b) => b.title === book.title)) {
+    selectedBooks.value.push(book)
+  } else {
+    alert('Ta książka została już dodana.')
+  }
+}
+
+const removeBook = (index: number) => {
+  selectedBooks.value.splice(index, 1)
+}
+
+
 const submitForm = async () => {
-  if (
-    !title.value ||
-    fileList.value.length === 0 ||
-    !category.value ||
-    !description.value ||
-    !author.value ||
-    !formattedValue.value
-    //tags opcjonalne (?)
-    //bibliografia opcjonalnie (?)
-  ) {
+  if (!title.value || !fileList.value.length || !author.value) {
     alert('Uzupełnij wymagane pola!')
     return
   }
@@ -77,11 +110,18 @@ const submitForm = async () => {
   const formData = new FormData()
   formData.append('title', title.value)
   formData.append('description', description.value)
-  formData.append('category', String(category.value))
   formData.append('author', author.value)
   formData.append('file', fileList.value[0].file as File)
-  formData.append('date', formattedValue.value)
+  formData.append('date', formattedValue.value.split(' ')[0])
   formData.append('tags', JSON.stringify(tags.value))
+  // formData.append('bibliography', JSON.stringify(selectedBooks.value.map(b => b.id))) póki co nie da dodać się książek do bazy
+  category.value.forEach((cat) => {
+    formData.append('categories', cat.toString())
+  })
+
+  for (const [key, value] of formData.entries()) {
+    console.log(key, value)
+  }
 
   try {
     const res = await axios.post(`${API_URL}api/files/`, formData, {
@@ -89,21 +129,30 @@ const submitForm = async () => {
         'Content-Type': 'multipart/form-data',
       },
     })
+
     console.log('Wysłano pomyślnie ', res.data)
     alert('Plik został pomyślnie przesłany.')
-    await router.push({ name: 'home' })
+    router.push({ name: 'home' })
   } catch (err) {
     console.log('Błąd podczas wysyłania pliku ', err)
+
+    if (axios.isAxiosError(err)) {
+      console.log('STATUS:', err.response?.status)
+      console.log('DATA:', err.response?.data)
+      alert(err.response?.data?.file[0])
+    }
   }
 
   title.value = ''
-  category.value = 1
+  category.value = []
   fileList.value = []
   description.value = ''
   author.value = ''
-  formattedValue.value = '2025-01-01 00:00:00'
-  tags.value = ['your tag', 'tkowi']
-  books.value = []
+  formattedValue.value = getToday()
+  tags.value = ['your tag']
+  searchQuery.value = ''
+  searchResults.value = []
+  selectedBooks.value = []
 }
 </script>
 
@@ -160,23 +209,26 @@ const submitForm = async () => {
               />
             </n-form-item>
 
-            <n-form-item label="Kategoria:" required>
+            <n-form-item label="Kategoria:">
               <n-select
                 v-model:value="category"
                 :options="categoryOptions"
                 placeholder="Wybierz kategorię"
+                multiple
                 class="gradient-select"
               />
             </n-form-item>
 
-            <n-form-item label="Opis:" required>
-              <n-input
-                v-model:value="description"
-                type="textarea"
-                placeholder="Wprowadź opis"
-                class="inputText"
-                maxlength="500"
-              />
+            <n-badge style="margin-left: 135px;" :value="description.length" :max="500" />
+
+            <n-form-item label="Opis (max 500 znaków):">
+                <n-input
+                  v-model:value="description"
+                  type="textarea"
+                  placeholder="Wprowadź opis"
+                  class="inputText"
+                  maxlength="500"
+                />
             </n-form-item>
 
             <n-form-item label="Autor:" required>
@@ -195,7 +247,7 @@ const submitForm = async () => {
         </n-tab-pane>
         <n-tab-pane name="second" tab="Dodaj datę i tagi">
           <pre>{{ formattedValue }}</pre>
-          <n-form-item label="Ustaw datę:" required>
+          <n-form-item label="Ustaw datę:">
             <n-date-picker
               v-model:formatted-value="formattedValue"
               value-format="yyyy-MM-dd HH:mm:ss"
@@ -208,8 +260,46 @@ const submitForm = async () => {
           </n-form-item>
         </n-tab-pane>
         <n-tab-pane name="third" tab="Dodaj bibliografię">
-          <n-form-item label="Dodaj bibliografię:">
-            <n-dynamic-input v-model:value="books" placeholder="Wpisz nazwę ksiązki:" />
+          <n-form-item label="Wyszukaj książkę:">
+            <div style="display: flex; width: 100%; align-items: center; gap: 8px">
+              <n-input
+                v-model:value="searchQuery"
+                placeholder="Wprowadź tytuł książki"
+                style="flex-grow: 1"
+              />
+              <n-button @click="searchBibliography" style="flex-shrink: 0">Szukaj</n-button>
+            </div>
+          </n-form-item>
+
+          <n-form-item label="Wyniki wyszukiwania:">
+            <div v-if="searchResults.length > 0">
+              <ul style="color: black">
+                <li v-for="(book, index) in searchResults" :key="index" style="margin-bottom: 8px">
+                  <div>
+                    <strong>{{ book.title }}</strong> - {{ book.authors?.join(', ') }} ({{
+                      book.publishedDate
+                    }})
+                    <n-button
+                      size="small"
+                      style="margin-left: 8px; color: black"
+                      @click="addBook(book)"
+                      >Dodaj
+                    </n-button>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </n-form-item>
+
+          <n-form-item label="Wybrane książki:">
+            <ul style="color: black">
+              <li v-for="(book, index) in selectedBooks" :key="index">
+                {{ book.title }}
+                <n-button size="tiny" style="color: black" @click="removeBook(index)"
+                  >Usuń</n-button
+                >
+              </li>
+            </ul>
           </n-form-item>
         </n-tab-pane>
       </n-tabs>
@@ -220,8 +310,8 @@ const submitForm = async () => {
 <style scoped>
 .upload-form {
   max-width: 600px;
-  height: 650px;
-  max-height: 800px;
+  min-height: 650px;
+  max-height: none;
   margin: auto;
   padding: 20px;
   background: rgba(0, 0, 0, 0.75);
