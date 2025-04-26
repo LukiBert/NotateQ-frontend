@@ -47,7 +47,7 @@ function dynamicSearchUpdate() {
     <n-input-group class="search-input-group">
       <n-input
         class="search-input"
-        placeholder="Search..."
+        placeholder="Szukaj..."
         size="large"
         round
         v-model:value="searchInput"

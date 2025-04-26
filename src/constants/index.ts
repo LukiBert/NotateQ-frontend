@@ -33,7 +33,7 @@ export const getFilesData = async (filtersQuery?: LocationQuery): Promise<FileDa
     console.log('Fetched: ', res.data, '\nFrom: ', baseUrl, filtersQuery)
     return res.data
   } catch (err) {
-    console.error(`Error fetching files [${baseUrl}]:`, err)
+    console.error(`Error fetching files [${baseUrl} ${filtersQuery}]:`, err)
     throw err
   }
 }
@@ -55,5 +55,21 @@ export const getAllCategories = async (): Promise<Category[]> => {
   } catch (err) {
     console.error('Error fetching categories [api/categories/]:', err)
     throw err
+  }
+}
+
+export const getCategoryMap = async (): Promise<Record<number, string>> => {
+  try {
+    const categories = await getAllCategories()
+    const map: Record<number, string> = {}
+
+    categories.forEach(cat => {
+      map[cat.id] = cat.name
+    })
+
+    return map
+  } catch (err) {
+    console.error('Error creating category map:', err)
+    return {}
   }
 }

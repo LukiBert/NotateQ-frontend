@@ -7,5 +7,5 @@ import FileList from '../components/FileList.vue'
 <template>
   <SearchBar mode="manual" />
   <CategoryHolder />
-  <FileList :show-heading="true" />
+  <FileList />
 </template>

@@ -5,11 +5,11 @@ import { NEmpty } from 'naive-ui'
 import FileDescriptor from './FileDescriptor.vue'
 import { type FileData, getFilesData } from '../constants'
 
-const route = useRoute()
-
 defineProps<{
   emptyMessage?: string
 }>()
+
+const route = useRoute()
 
 const fetchedFiles = ref<FileData[]>([])
 
