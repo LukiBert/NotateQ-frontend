@@ -18,7 +18,7 @@ import {
 import axios from 'axios'
 import type { UploadFileInfo } from 'naive-ui'
 import { useRouter } from 'vue-router'
-import { API } from '../constants'
+import { API_URL } from '../constants'
 
 const router = useRouter()
 
@@ -49,7 +49,7 @@ const fetchCategories = async () => {
     }))
   } catch (err) {
     console.error('Błąd podczas pobierania kategorii:', err)
-    alert('Błąd podczas pobierania kategorii:', err)
+    alert('Błąd podczas pobierania kategorii.')
   }
 }
 
@@ -122,10 +122,6 @@ const submitForm = async () => {
   for (const [key, value] of formData.entries()) {
     console.log(key, value)
   }
-
-  // for (let pair of formData.entries()) {
-  //   console.log(pair[0] + ': ' + pair[1])
-  // }
 
   try {
     const res = await axios.post(`${API_URL}api/files/`, formData, {
