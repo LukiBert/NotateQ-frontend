@@ -15,7 +15,7 @@ function receiveEmit(receivedText: string) {
 </script>
 
 <template>
-  <SearchBar mode="manual" @manual-search="receiveEmit" />
+  <SearchBar mode="manual" />
   <CategoryHolder />
   <FileList />
 </template>

@@ -3,26 +3,40 @@ import { ref } from 'vue'
 import { MdSearch } from '@vicons/ionicons4'
 import { NFlex, NInputGroup, NInput, NButton, NIcon } from 'naive-ui'
 import { debounce } from 'lodash'
+import { useRouter, useRoute } from 'vue-router'
 
 const props = defineProps<{
   mode?: 'dynamic' | 'manual'
 }>()
 
-const emit = defineEmits(['manual-search', 'dynamic-search'])
+const router = useRouter()
+const route = useRoute()
 
-const searchPhrase = ref('')
+const searchInput = ref('')
 
-function emitSearchPhrase() {
-  emit('manual-search', searchPhrase.value)
+function manualSearchUpdate() {
+  router.push({
+    name: 'searchPage',
+    query: {
+      ...route.query,
+      title: searchInput.value.trim(),
+    },
+  })
   if (props.mode === 'manual') {
-    searchPhrase.value = ''
+    searchInput.value = ''
   }
 }
 
-function debouncedEmit() {
+function dynamicSearchUpdate() {
   if (props.mode === 'dynamic') {
     debounce(() => {
-      emit('dynamic-search', searchPhrase.value)
+      router.replace({
+        name: 'searchPage',
+        query: {
+          ...route.query,
+          title: searchInput.value.trim(),
+        },
+      })
     }, 300)
   }
 }
@@ -36,11 +50,11 @@ function debouncedEmit() {
         placeholder="Search..."
         size="large"
         round
-        v-model:value="searchPhrase"
-        @update:value="debouncedEmit"
-        @keyup.enter="emitSearchPhrase"
+        v-model:value="searchInput"
+        @update:value="dynamicSearchUpdate"
+        @keyup.enter="manualSearchUpdate"
       />
-      <n-button circle size="large" @click="emitSearchPhrase" class="search-button">
+      <n-button circle size="large" @click="manualSearchUpdate" class="search-button">
         <n-icon>
           <md-search />
         </n-icon>

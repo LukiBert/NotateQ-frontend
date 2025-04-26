@@ -1,49 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import FileList from '../components/FileList.vue'
 import FiltersForm from '../components/FiltersForm.vue'
 import SearchBar from '../components/SearchBar.vue'
 
 const route = useRoute()
-const router = useRouter()
 
 const searchInput = ref((route.query.title as string) || '')
-
-function dynamicSearchUpdate(phrase: string) {
-  if (phrase) {
-    searchInput.value = phrase
-    router.replace({
-      name: 'searchPage',
-      query: {
-        ...route.query,
-        title: searchInput.value.trim(),
-      },
-    })
-  }
-}
-
-function manualSearchUpdate(phrase: string) {
-  if (phrase) {
-    searchInput.value = phrase
-    router.push({
-      name: 'searchPage',
-      query: {
-        ...route.query,
-        title: searchInput.value.trim(),
-      },
-    })
-  }
-}
 </script>
 
 <template>
   <div class="search-wrapper">
-    <SearchBar
-      mode="manual"
-      @manual-search="manualSearchUpdate"
-      @dynamic-search="dynamicSearchUpdate"
-    />
+    <SearchBar mode="manual" />
     <FiltersForm />
     <p v-if="searchInput">🔍 Wyniki wyszukiwania dla: "{{ searchInput }}"</p>
     <FileList />
