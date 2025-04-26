@@ -8,7 +8,7 @@ import SearchBar from '../components/SearchBar.vue'
 const route = useRoute()
 const router = useRouter()
 
-const searchInput = ref((route.query.q as string) || '')
+const searchInput = ref((route.query.title as string) || '')
 
 function dynamicSearchUpdate(phrase: string) {
   if (phrase) {
@@ -17,7 +17,7 @@ function dynamicSearchUpdate(phrase: string) {
       name: 'searchPage',
       query: {
         ...route.query,
-        q: searchInput.value.trim(),
+        title: searchInput.value.trim(),
       },
     })
   }
@@ -30,7 +30,7 @@ function manualSearchUpdate(phrase: string) {
       name: 'searchPage',
       query: {
         ...route.query,
-        q: searchInput.value.trim(),
+        title: searchInput.value.trim(),
       },
     })
   }

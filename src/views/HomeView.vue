@@ -9,7 +9,7 @@ const router = useRouter()
 
 function receiveEmit(receivedText: string) {
   if (receivedText) {
-    router.push({ name: 'searchPage', query: { ...route.query, q: receivedText.trim() } })
+    router.push({ name: 'searchPage', query: { ...route.query, title: receivedText.trim() } })
   }
 }
 </script>
