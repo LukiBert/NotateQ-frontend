@@ -29,7 +29,7 @@ export const getFilesData = async (filtersQuery?: LocationQuery): Promise<FileDa
   const baseUrl = 'api/files/'
 
   try {
-    const res = await API.get<FileData[]>(baseUrl, { params: filtersQuery })
+    const res = await API.get<FileData[]>(baseUrl, { params: filtersQuery || {} })
     console.log('Fetched: ', res.data, '\nFrom: ', baseUrl, filtersQuery)
     return res.data
   } catch (err) {
