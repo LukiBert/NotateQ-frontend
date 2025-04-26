@@ -23,7 +23,7 @@ onMounted(async () => {
     <n-scrollbar x-scrollable trigger="none" content-style="overflow: hidden;">
       <n-grid collapsed :x-gap="90" :y-gap="10" :cols="10">
         <n-gi v-for="(category, index) in fetchedCategories" :key="index">
-          <CategoryButton :categoryName="category.name" />
+          <CategoryButton :category="category" />
         </n-gi>
       </n-grid>
     </n-scrollbar>

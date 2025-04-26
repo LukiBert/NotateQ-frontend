@@ -3,33 +3,43 @@ import { ref } from 'vue'
 import { MdSearch } from '@vicons/ionicons4'
 import { NFlex, NInputGroup, NInput, NButton, NIcon } from 'naive-ui'
 import { debounce } from 'lodash'
-
-const emit = defineEmits(['search-phrase'])
-
-const searchPhrase = ref('')
+import { useRouter, useRoute } from 'vue-router'
 
 const props = defineProps<{
-  mode?: 'dynamic' | 'manual' | 'both'
+  mode?: 'dynamic' | 'manual'
 }>()
 
+const router = useRouter()
+const route = useRoute()
 
+const searchInput = ref('')
 
-function emitSearchPhrase() {
-  emit('search-phrase', searchPhrase.value)
+function manualSearchUpdate() {
+  router.push({
+    name: 'searchPage',
+    query: {
+      ...route.query,
+      title: searchInput.value.trim(),
+    },
+  })
   if (props.mode === 'manual') {
-  searchPhrase.value = ''
-}
-}
-
-const debouncedEmit = debounce((value: string) => {
-  emit('search-phrase', value)}, 300)
-
-function handleInputChange(value: string) {
-  if (props.mode === 'dynamic' || props.mode === 'both') {
-    debouncedEmit(value)
+    searchInput.value = ''
   }
 }
 
+function dynamicSearchUpdate() {
+  if (props.mode === 'dynamic') {
+    debounce(() => {
+      router.replace({
+        name: 'searchPage',
+        query: {
+          ...route.query,
+          title: searchInput.value.trim(),
+        },
+      })
+    }, 300)
+  }
+}
 </script>
 
 <template>
@@ -37,14 +47,14 @@ function handleInputChange(value: string) {
     <n-input-group class="search-input-group">
       <n-input
         class="search-input"
-        placeholder="Search..."
+        placeholder="Szukaj..."
         size="large"
         round
-        v-model:value="searchPhrase"
-        @update:value="handleInputChange"
-        @keyup.enter="emitSearchPhrase"
+        v-model:value="searchInput"
+        @update:value="dynamicSearchUpdate"
+        @keyup.enter="manualSearchUpdate"
       />
-      <n-button circle size="large" @click="emitSearchPhrase" class="search-button">
+      <n-button circle size="large" @click="manualSearchUpdate" class="search-button">
         <n-icon>
           <md-search />
         </n-icon>
