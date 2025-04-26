@@ -21,6 +21,7 @@ import { useRouter } from 'vue-router'
 import { API_URL } from '../constants'
 
 const router = useRouter()
+const MAX_FILE_SIZE_MB = 5
 
 const title = ref('')
 const fileList = ref<UploadFileInfo[]>([])
@@ -49,7 +50,7 @@ const handleBeforeUpload = (file: UploadFileInfo, fileList: UploadFileInfo[]) =>
     alert('Dozwolone są tylko pliki PDF, DOCX lub TXT.')
     return false
   }
-
+  
   return true
 }
 
@@ -65,6 +66,11 @@ const submitForm = async () => {
     //bibliografia opcjonalnie (?)
   ) {
     alert('Uzupełnij wymagane pola!')
+    return
+  }
+
+  if (description.value.length > 500) {
+    alert('Opis jest za długi. Maksymalna długość to 500 znaków.')
     return
   }
 
