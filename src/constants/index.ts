@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-export const API_URL = 'http://localhost:8000/'
+export const API_URL = 'http://127.0.0.1:8000/'
 
 export const API = axios.create({
   baseURL: API_URL,
@@ -24,9 +24,10 @@ export interface FileData {
   file: string
 }
 
-export const getAllFilesData = async (): Promise<FileData[]> => {
+export const getAllFilesData = async (filters?: Record<string, string | number | boolean>): Promise<FileData[]> => {
   try {
-    const res = await API.get<FileData[]>('api/files/')
+    const res = await API.get<FileData[]>('api/files/', { params: filters || {}, })
+    console.log("Fetched: ", res.data)
     return res.data
   } catch (err) {
     console.error('Error fetching files [api/files/]:', err)
@@ -51,5 +52,21 @@ export const getAllCategories = async (): Promise<Category[]> => {
   } catch (err) {
     console.error('Error fetching categories [api/categories/]:', err)
     throw err
+  }
+}
+
+export const getCategoryMap = async (): Promise<Record<number, string>> => {
+  try {
+    const categories = await getAllCategories()
+    const map: Record<number, string> = {}
+
+    categories.forEach(cat => {
+      map[cat.id] = cat.name
+    })
+
+    return map
+  } catch (err) {
+    console.error('Error creating category map:', err)
+    return {}
   }
 }

@@ -2,15 +2,34 @@
 import { ref } from 'vue'
 import { MdSearch } from '@vicons/ionicons4'
 import { NFlex, NInputGroup, NInput, NButton, NIcon } from 'naive-ui'
+import { debounce } from 'lodash'
 
 const emit = defineEmits(['search-phrase'])
 
 const searchPhrase = ref('')
 
+const props = defineProps<{
+  mode?: 'dynamic' | 'manual' | 'both'
+}>()
+
+
+
 function emitSearchPhrase() {
   emit('search-phrase', searchPhrase.value)
+  if (props.mode === 'manual') {
   searchPhrase.value = ''
 }
+}
+
+const debouncedEmit = debounce((value: string) => {
+  emit('search-phrase', value)}, 300)
+
+function handleInputChange(value: string) {
+  if (props.mode === 'dynamic' || props.mode === 'both') {
+    debouncedEmit(value)
+  }
+}
+
 </script>
 
 <template>
@@ -22,6 +41,7 @@ function emitSearchPhrase() {
         size="large"
         round
         v-model:value="searchPhrase"
+        @update:value="handleInputChange"
         @keyup.enter="emitSearchPhrase"
       />
       <n-button circle size="large" @click="emitSearchPhrase" class="search-button">
