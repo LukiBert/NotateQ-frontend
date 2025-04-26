@@ -1,16 +1,30 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
 import { MdSearch } from '@vicons/ionicons4'
 import { NFlex, NInputGroup, NInput, NButton, NIcon } from 'naive-ui'
+import { debounce } from 'lodash'
 
-const router = useRouter()
-const route = useRoute()
+const props = defineProps<{
+  mode?: 'dynamic' | 'manual'
+}>()
 
-const searchInput = ref('')
+const emit = defineEmits(['manual-search', 'dynamic-search'])
 
-function pushSearchPhrase() {
-  router.push({ name: 'searchPage', query: { ...route.query, q: searchInput.value.trim() } })
+const searchPhrase = ref('')
+
+function emitSearchPhrase() {
+  emit('manual-search', searchPhrase.value)
+  if (props.mode === 'manual') {
+    searchPhrase.value = ''
+  }
+}
+
+function debouncedEmit() {
+  if (props.mode === 'dynamic') {
+    debounce(() => {
+      emit('dynamic-search', searchPhrase.value)
+    }, 300)
+  }
 }
 </script>
 
@@ -22,10 +36,11 @@ function pushSearchPhrase() {
         placeholder="Search..."
         size="large"
         round
-        v-model:value="searchInput"
-        @keyup.enter="pushSearchPhrase"
+        v-model:value="searchPhrase"
+        @update:value="debouncedEmit"
+        @keyup.enter="emitSearchPhrase"
       />
-      <n-button circle size="large" @click="pushSearchPhrase" class="search-button">
+      <n-button circle size="large" @click="emitSearchPhrase" class="search-button">
         <n-icon>
           <md-search />
         </n-icon>
