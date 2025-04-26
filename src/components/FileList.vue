@@ -27,8 +27,8 @@ watch(
 <template>
   <div class="file-list-wrapper">
     <div class="file-list">
-      <n-empty v-if="noFiles" :description="props.emptyMessage || 'Brak plików do pobrania'" />
-      <FileDescriptor v-for="(item, index) in fetchedFiles" :key="index" :file="item" />    
+      <n-empty v-if="noFiles" :description="emptyMessage || 'Brak plików do pobrania'" />
+      <FileDescriptor v-for="(item, index) in fetchedFiles" :key="index" :file="item" />
     </div>
   </div>
 </template>
