@@ -1,92 +1,106 @@
 <script setup lang="ts">
-import { type Component, h, computed } from 'vue'
-import { RouterLink, useRouter, useRoute } from 'vue-router'
-import { NMenu, NIcon, type MenuOption } from 'naive-ui'
-import { IosHome as HomeIcon, MdCloudUpload as UploadIcon, MdPerson } from '@vicons/ionicons4'
-
-function renderIcon(icon: Component) {
-  return () => h(NIcon, null, { default: () => h(icon) })
-}
+import { useRouter, useRoute } from 'vue-router'
+import { h, computed } from 'vue'
+import { NButton, NIcon } from 'naive-ui'
+import { IosHome as HomeIcon, MdCloudUpload as UploadIcon, MdPerson as PersonIcon } from '@vicons/ionicons4'
 
 const router = useRouter()
 const route = useRoute()
+
+function goToHome() {
+  router.push({ name: 'home' })
+}
+
+function goToUpload() {
+  router.push({ name: 'upload' })
+}
 
 function goToProfile() {
   router.push({ name: 'profile' })
 }
 
-const activeMenuKey = computed(() => {
+const activeButtonKey = computed(() => {
   switch (route.name) {
     case 'home':
-      return 'go-home-page'
+      return 'home'
     case 'upload':
-      return 'go-upload-form'
+      return 'upload'
+    case 'profile':
+      return 'profile'
     default:
-      return null
+      return ''
   }
 })
-
-const isProfileRoute = computed(() => route.name === 'profile')
-
-const menuOptions: MenuOption[] = [
-  {
-    label: () =>
-      h(RouterLink, {
-        to: {
-          name: 'home',
-        },
-      }),
-    key: 'go-home-page',
-    icon: renderIcon(HomeIcon),
-  },
-  {
-    label: () =>
-      h(RouterLink, {
-        to: {
-          name: 'upload',
-        },
-      }),
-    key: 'go-upload-form',
-    icon: renderIcon(UploadIcon),
-  },
-]
 </script>
 
 <template>
   <div class="navbar">
-    <n-menu mode="horizontal" :options="menuOptions" :value="activeMenuKey" responsive />
-    <n-icon class="profile-icon" :class="{ active: isProfileRoute }" @click="goToProfile">
-      <MdPerson />
-    </n-icon>
+    <!-- Logo -->
+    <div class="logo" @click="goToHome">
+      <img src="/logo-notateq.png" alt="NotateQ Logo" />
+    </div>
+
+    <!-- Menu Buttons -->
+    <div class="menu-buttons">
+      <n-button text @click="goToHome" :class="{ active: activeButtonKey === 'home' }">
+        <template #icon>
+          <n-icon><HomeIcon /></n-icon>
+        </template>
+        Strona główna
+      </n-button>
+
+      <n-button text @click="goToUpload" :class="{ active: activeButtonKey === 'upload' }">
+        <template #icon>
+          <n-icon><UploadIcon /></n-icon>
+        </template>
+        Dodaj notatkę
+      </n-button>
+
+      <n-button text @click="goToProfile" :class="{ active: activeButtonKey === 'profile' }">
+        <template #icon>
+          <n-icon><PersonIcon /></n-icon>
+        </template>
+        Twoje konto
+      </n-button>
+    </div>
   </div>
 </template>
 
 <style scoped>
-/* .nav-bar {
-  background-color: #18a058;
-} */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-color: #14532d;
   padding: 0.5rem 1rem;
+  height: 64px;
 }
 
-.profile-icon {
-  font-size: 24px;
+.logo img {
+  margin-left: 10rem;
+  height: 160px;
   cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    color 0.2s ease;
-  color: black;
 }
 
-.profile-icon:hover {
-  transform: scale(1.1);
-  color: #18a058;
+.menu-buttons {
+  margin-right: 10rem;
+  display: flex;
+  gap: 2rem;
+  align-items: center;
 }
 
-.profile-icon.active {
-  color: #18a058;
+.n-button {
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.n-button:hover {
+  color: #d9f99d;
+}
+
+.n-button.active {
+  color: #d9f99d;
+  font-weight: bold;
 }
 </style>
