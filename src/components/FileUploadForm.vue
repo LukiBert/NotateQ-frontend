@@ -113,11 +113,17 @@ const submitForm = async () => {
   formData.append('author', author.value)
   formData.append('file', fileList.value[0].file as File)
   formData.append('date', formattedValue.value.split(' ')[0])
-  formData.append('tags', JSON.stringify(tags.value))
-  // formData.append('bibliography', JSON.stringify(selectedBooks.value.map(b => b.id))) póki co nie da dodać się książek do bazy
+  // formData.append('tags', JSON.stringify(tags.value))
+  // formData.append('bibliography', JSON.stringify(selectedBooks.value.map(b => b.id))) //póki co nie da dodać się książek do bazy
+  tags.value.forEach((t) => {
+    formData.append('tags', t.toString())
+  })
   category.value.forEach((cat) => {
     formData.append('categories', cat.toString())
   })
+  // selectedBooks.value.forEach((b) => {
+  //   formData.append('bibliography', b.id)
+  // })
 
   for (const [key, value] of formData.entries()) {
     console.log(key, value)
@@ -209,11 +215,11 @@ const submitForm = async () => {
               />
             </n-form-item>
 
-            <n-form-item label="Kategoria:">
+            <n-form-item label="Kategorie:">
               <n-select
                 v-model:value="category"
                 :options="categoryOptions"
-                placeholder="Wybierz kategorię"
+                placeholder="Wybierz kategorie"
                 multiple
                 class="gradient-select"
               />
