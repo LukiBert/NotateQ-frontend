@@ -37,6 +37,7 @@ watch(
 <style scoped>
 .file-list-wrapper {
   padding: 1rem;
+  width: 100%;
 }
 
 .fill-list-heading {

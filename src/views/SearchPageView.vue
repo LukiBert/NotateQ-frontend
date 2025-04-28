@@ -42,8 +42,4 @@ watch(
   justify-content: center;
   flex-direction: column;
 }
-.options-wrapper {
-  width: 500px;
-  display: flex;
-}
 </style>
