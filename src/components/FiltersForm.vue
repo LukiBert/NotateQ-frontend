@@ -31,4 +31,9 @@ const categoriesWithLabels = computed(() => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.options-wrapper {
+  width: 500px;
+  display: flex;
+}
+</style>
