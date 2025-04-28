@@ -9,35 +9,27 @@ const props = defineProps<{
   mode?: 'dynamic' | 'manual'
 }>()
 
+const emit = defineEmits(['search-phrase'])
+
 const router = useRouter()
 const route = useRoute()
 
-const searchInput = ref('')
+const searchPhrase = ref('')
 
-function manualSearchUpdate() {
-  router.push({
-    name: 'searchPage',
-    query: {
-      ...route.query,
-      title: searchInput.value.trim(),
-    },
-  })
+function emitSearchPhrase() {
+  emit('search-phrase', searchPhrase.value)
   if (props.mode === 'manual') {
-    searchInput.value = ''
+    searchPhrase.value = ''
   }
 }
 
-function dynamicSearchUpdate() {
+const debouncedEmit = debounce((value: string) => {
+  emit('search-phrase', value)
+}, 300)
+
+function handleInputChange(value: string) {
   if (props.mode === 'dynamic') {
-    debounce(() => {
-      router.replace({
-        name: 'searchPage',
-        query: {
-          ...route.query,
-          title: searchInput.value.trim(),
-        },
-      })
-    }, 300)
+    debouncedEmit(value)
   }
 }
 </script>
@@ -50,11 +42,11 @@ function dynamicSearchUpdate() {
         placeholder="Szukaj..."
         size="large"
         round
-        v-model:value="searchInput"
-        @update:value="dynamicSearchUpdate"
-        @keyup.enter="manualSearchUpdate"
+        v-model:value="searchPhrase"
+        @update:value="handleInputChange"
+        @keyup.enter="emitSearchPhrase"
       />
-      <n-button circle size="large" @click="manualSearchUpdate" class="search-button">
+      <n-button circle size="large" @click="emitSearchPhrase" class="search-button">
         <n-icon>
           <md-search />
         </n-icon>

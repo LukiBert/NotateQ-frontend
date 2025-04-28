@@ -34,7 +34,6 @@ function receiveEmit(phrase: string) {
 
       <!-- Gotowy komponent z listą -->
       <FileList
-        :show-heading="false"
         :filters="{ author: userName, title: searchInput }"
         empty-message="Brak plików spełniających kryteria wyszukiwania"
       />

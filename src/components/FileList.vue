@@ -5,7 +5,8 @@ import { NEmpty } from 'naive-ui'
 import FileDescriptor from './FileDescriptor.vue'
 import { type FileData, getFilesData } from '../constants'
 
-defineProps<{
+const { filters, emptyMessage } = defineProps<{
+  filters?: Record<string, string | number | boolean>
   emptyMessage?: string
 }>()
 
@@ -16,9 +17,9 @@ const fetchedFiles = ref<FileData[]>([])
 const noFiles = computed(() => fetchedFiles.value.length <= 0)
 
 watch(
-  () => route.query,
-  async (newQuery) => {
-    fetchedFiles.value = await getFilesData(newQuery)
+  () => filters,
+  async (newFilters) => {
+    fetchedFiles.value = await getFilesData(newFilters)
   },
   { immediate: true, deep: true },
 )
