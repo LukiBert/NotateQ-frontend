@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { NScrollbar, NSkeleton } from 'naive-ui'
 import { type Category, getAllCategories } from '../constants'
-
 import CategoryButton from './CategoryButton.vue'
-import { NGrid, NGi, NFlex, NScrollbar } from 'naive-ui'
 
 const fetchedCategories = ref<Category[]>([])
 
+const loading = ref(true)
+
 onMounted(async () => {
-  fetchedCategories.value = await getAllCategories()
+  try {
+    fetchedCategories.value = await getAllCategories()
+  } finally {
+    loading.value = false
+  }
 })
 </script>
 
@@ -17,6 +22,10 @@ onMounted(async () => {
     <span class="heading">Kategorie główne</span>
     <n-scrollbar x-scrollable trigger="none" content-style="overflow: hidden;">
       <div class="category-container">
+        <div v-if="loading" style="width: 80%">
+          <n-skeleton text :repeat="2" />
+          <n-skeleton text style="width: 60%" />
+        </div>
         <CategoryButton
           v-for="(category, index) in fetchedCategories"
           :key="index"
