@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { type FileData, getCategoryMap } from '../constants'
+import { type FileData, getCategoryMap, incrementDownload } from '../constants'
 import { NDescriptions, NDescriptionsItem, NTime, NTag, NButton, NSkeleton } from 'naive-ui'
 
 const props = defineProps<{
@@ -14,9 +14,33 @@ onMounted(async () => {
   categoryMap.value = await getCategoryMap()
 })
 
-const categoryName = computed(() => {
-  return categoryMap.value[props.fileData.category as unknown as number] || 'Nieznana kategoria'
+const categoryNames = computed(() => {
+  return props.fileData.categories
+    ?.map((id) => categoryMap.value[id])
+    .filter(Boolean)
+    .join(', ') || 'Brak kategorii'
 })
+
+async function downloadFile() {
+  const filename = props.fileData.file.split('/').pop()
+  const downloadUrl = `http://127.0.0.1:8000/download/${filename}`
+
+  try {
+    await incrementDownload(props.fileData.id)
+    props.fileData.downloads += 1
+  } catch (err) {
+    console.error('Nie udało się zaktualizować pobrań:', err)
+  }
+
+  const link = document.createElement('a')
+  link.href = downloadUrl
+  link.setAttribute('download', '')
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+
 </script>
 
 <template>
@@ -60,7 +84,7 @@ const categoryName = computed(() => {
         <n-time :time="new Date(fileData.upload_date)" format="yyyy-MM-dd"></n-time>
       </n-descriptions-item>
 
-      <n-descriptions-item label="Kategoria"> {{ categoryName }} </n-descriptions-item>
+      <n-descriptions-item label="Kategoria"> {{ categoryNames }} </n-descriptions-item>
 
       <n-descriptions-item label="Tagi" :span="2">
         <n-tag v-for="(tag, index) in fileData.tag_names" :key="index" type="info" size="small">
@@ -73,7 +97,7 @@ const categoryName = computed(() => {
       <n-descriptions-item label="Opis">{{ fileData.description }} </n-descriptions-item>
     </n-descriptions>
 
-    <n-button type="primary" @click="console.log(`Pobieram ${fileData.file}`)">
+    <n-button type="primary" @click="downloadFile">
       Pobierz plik
     </n-button>
   </div>

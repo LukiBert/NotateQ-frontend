@@ -21,9 +21,13 @@ onMounted(async () => {
   categoryMap.value = await getCategoryMap()
 })
 
-const categoryName = computed(() => {
-  return categoryMap.value[file.category as unknown as number] || 'Nieznana kategoria'
+const categoryNames = computed(() => {
+  return file.categories
+    ?.map((id) => categoryMap.value[id])
+    .filter(Boolean)
+    .join(', ') || 'Brak kategorii'
 })
+
 </script>
 
 <template>
@@ -35,7 +39,7 @@ const categoryName = computed(() => {
         <div class="card-content">
           <h3 class="card-title">{{ file.title }}</h3>
           <h5 class="card-description">
-            {{ categoryName }}
+            {{ categoryNames }}
             <span class="size-info">{{ file.downloads }}</span>
           </h5>
           <h5 class="card-author">{{ file.author }}</h5>

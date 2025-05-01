@@ -14,7 +14,7 @@ export interface Category {
 export interface FileData {
   id: number
   title: string
-  category: string
+  categories: number[]
   tag_names: string[]
   description: string
   author: string
@@ -74,3 +74,12 @@ export const getCategoryMap = async (): Promise<Record<number, string>> => {
     return {}
   }
 }
+
+export const incrementDownload = async (fileId: number): Promise<void> => {
+  try {
+    await API.post(`api/files/${fileId}/increment_downloads/`)
+  } catch (err) {
+    console.error(`Błąd inkrementacji pobrań pliku ${fileId}:`, err)
+  }
+}
+
