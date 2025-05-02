@@ -8,8 +8,7 @@ const props = defineProps<{
   loading: boolean
 }>()
 
-// const userRating = ref<number | null>(null)
-// const isRatingLoading = ref(false)
+const userRating = ref(0)
 
 const categoryMap = ref<Record<number, string>>({})
 
@@ -43,21 +42,9 @@ async function downloadFile() {
   document.body.removeChild(link)
 }
 
-// async function submitRating(value: number) {
-//   isRatingLoading.value = true
-//   try {
-//     const result = await rateFile(props.fileData.id, value)
-//     props.fileData.rating = result.rating
-//     props.fileData.rating_count = result.rating_count
-//     userRating.value = null
-//   } catch (err) {
-//     console.error('Nie udało się przesłać oceny:', err)
-//   } finally {
-//     isRatingLoading.value = false
-//   }
-// }
 
-const userRating = ref(0)
+
+
 async function handleRate(value: number) {
   try {
     const result = await rateFile(props.fileData.id, value)
