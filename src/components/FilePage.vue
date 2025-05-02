@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { type FileData, getCategoryMap, incrementDownload } from '../constants'
-import { NDescriptions, NDescriptionsItem, NTime, NTag, NButton, NSkeleton } from 'naive-ui'
+import { type FileData, getCategoryMap, incrementDownload, rateFile } from '../constants'
+import { NDescriptions, NDescriptionsItem, NTime, NTag, NButton, NSkeleton, NRate } from 'naive-ui'
 
 const props = defineProps<{
   fileData: FileData
   loading: boolean
 }>()
+
+// const userRating = ref<number | null>(null)
+// const isRatingLoading = ref(false)
 
 const categoryMap = ref<Record<number, string>>({})
 
@@ -40,6 +43,31 @@ async function downloadFile() {
   document.body.removeChild(link)
 }
 
+// async function submitRating(value: number) {
+//   isRatingLoading.value = true
+//   try {
+//     const result = await rateFile(props.fileData.id, value)
+//     props.fileData.rating = result.rating
+//     props.fileData.rating_count = result.rating_count
+//     userRating.value = null
+//   } catch (err) {
+//     console.error('Nie udało się przesłać oceny:', err)
+//   } finally {
+//     isRatingLoading.value = false
+//   }
+// }
+
+const userRating = ref(0)
+async function handleRate(value: number) {
+  try {
+    const result = await rateFile(props.fileData.id, value)
+    props.fileData.rating = result.rating
+    props.fileData.rating_count = result.rating_count
+    userRating.value = value
+  } catch (err) {
+    console.error('Błąd podczas oceniania pliku:', err)
+  }
+}
 
 </script>
 
@@ -95,6 +123,18 @@ async function downloadFile() {
       <n-descriptions-item label="Pobrano">{{ fileData.downloads }} </n-descriptions-item>
 
       <n-descriptions-item label="Opis">{{ fileData.description }} </n-descriptions-item>
+
+      <n-descriptions-item label="Ocena" :span="3">
+    <div>
+      <div>Średnia: {{ fileData.rating.toFixed(1) }} ({{ fileData.rating_count }} ocen)</div>
+      <n-rate
+        v-model:value="userRating"
+        allow-half
+        @update:value="handleRate"
+      />
+    </div>
+      </n-descriptions-item>
+
     </n-descriptions>
 
     <n-button type="primary" @click="downloadFile">

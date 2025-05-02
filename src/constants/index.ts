@@ -22,6 +22,8 @@ export interface FileData {
   delete_time: string
   downloads: number
   file: string
+  rating: number
+  rating_count: number
 }
 
 export const getFilesData = async (
@@ -81,5 +83,10 @@ export const incrementDownload = async (fileId: number): Promise<void> => {
   } catch (err) {
     console.error(`Błąd inkrementacji pobrań pliku ${fileId}:`, err)
   }
+}
+
+export async function rateFile(fileId: number, rating: number): Promise<{ rating: number, rating_count: number }> {
+  const response = await API.post(`api/files/${fileId}/rate/`, { rating })
+  return response.data
 }
 
