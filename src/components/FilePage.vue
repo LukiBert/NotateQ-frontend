@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { type FileData, getCategoryMap, incrementDownload, rateFile } from '../constants'
 import { NDescriptions, NDescriptionsItem, NTime, NTag, NButton, NSkeleton, NRate } from 'naive-ui'
+import PdfEmbed from 'vue-pdf-embed'
 
 const props = defineProps<{
   fileData: FileData
@@ -11,6 +12,24 @@ const props = defineProps<{
 const userRating = ref(0)
 
 const categoryMap = ref<Record<number, string>>({})
+
+const pdfUrl = computed(() => props.fileData.file);
+const pdfRef = ref<InstanceType<typeof PdfEmbed> | null>(null)
+const currentPage = ref(1)
+const pageCount = ref(1)
+
+function handleLoaded(pdf: any) {
+  pageCount.value = pdf.numPages
+}
+
+function nextPage() {
+  if (currentPage.value < pageCount.value) currentPage.value++
+}
+
+function prevPage() {
+  if (currentPage.value > 1) currentPage.value--
+}
+
 
 onMounted(async () => {
   categoryMap.value = await getCategoryMap()
@@ -127,6 +146,26 @@ async function handleRate(value: number) {
     <n-button type="primary" @click="downloadFile">
       Pobierz plik
     </n-button>
+
+
+<div v-if="fileData.file.endsWith('.pdf')" class="pdf-preview-container">
+  <div class="pdf-controls">
+  <n-button @click="prevPage" :disabled="currentPage <= 1">←</n-button>
+  <span>Strona {{ currentPage }} z {{ pageCount }}</span>
+  <n-button @click="nextPage" :disabled="currentPage >= pageCount">→</n-button>
+</div>
+
+  <div class="pdf-inner-wrapper">
+   <PdfEmbed
+  ref="pdfRef"
+  :source="pdfUrl"
+  :page="currentPage"
+  @loaded="handleLoaded"
+  class="pdf-embed"
+/>
+  </div>
+</div>
+
   </div>
 </template>
 
@@ -142,4 +181,50 @@ async function handleRate(value: number) {
   width: 80%;
   min-width: 300px;
 }
+
+.pdf-preview-container {
+  margin: 2rem auto;
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  aspect-ratio: 8.5 / 11;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+}
+
+.pdf-inner-wrapper {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.pdf-inner-wrapper > * {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.pdf-embed {
+  width: 100%;
+  height: auto;
+}
+
+.pdf-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+
+
 </style>
