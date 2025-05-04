@@ -30,5 +30,9 @@ async function fetchFileData(id: number) {
 </script>
 
 <template>
-  <FilePage :file-data="fetchedFile" :loading="loadingStatus" />
+  <FilePage
+    v-if="fetchedFile"
+    :file-data="fetchedFile"
+    :loading="loadingStatus"
+  />
 </template>

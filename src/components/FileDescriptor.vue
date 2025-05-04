@@ -38,10 +38,17 @@ const categoryNames = computed(() => {
 
         <div class="card-content">
           <h3 class="card-title">{{ file.title }}</h3>
-          <h5 class="card-description">
-            {{ categoryNames }}
-            <span class="size-info">{{ file.downloads }}</span>
-          </h5>
+
+          <div class="card-description">
+            <span class="left-info">{{ categoryNames }}</span>
+            <div class="right-info">
+              <span class="rating-info">
+                Średnia: {{ file.rating.toFixed(1) }} ({{ file.rating_count }} ocen)
+              </span>
+              <span class="size-info">{{ file.downloads }} pobrań</span>
+            </div>
+          </div>
+
           <h5 class="card-author">{{ file.author }}</h5>
         </div>
       </div>
@@ -82,16 +89,32 @@ const categoryNames = computed(() => {
 }
 
 .card-description {
-  margin: 4px 0;
-  font-size: 14px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.left-info {
+  flex: 1;
+}
+
+.right-info {
+  display: flex;
+  gap: 12px;
   align-items: center;
 }
 
 .size-info {
   font-size: 13px;
   color: #888;
+}
+
+.rating-info {
+  font-size: 13px;
+  color: #666;
 }
 
 .card-author {
