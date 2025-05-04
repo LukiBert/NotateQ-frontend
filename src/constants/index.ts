@@ -6,12 +6,12 @@ export const API = axios.create({
   baseURL: API_URL,
 })
 
-export interface Category {
-  id: number
+export interface Tag {
   name: string
 }
 
-export interface Tag {
+export interface Category {
+  id: number
   name: string
 }
 
@@ -28,6 +28,29 @@ export interface FileData {
   file: string
   rating: number
   rating_count: number
+}
+
+export interface Filters {
+  author?: string
+  downloads_min?: number
+  downloads_max?: number
+  upload_date_before?: string
+  upload_date_after?: string
+  // to_delete?: boolean
+  category?: number[]
+  // date?: string
+  rating_min?: number
+  rating_max?: number
+  // books?: string[]
+  tags?: string[]
+}
+
+export function formatDate(date: number): string {
+  const d = new Date(date)
+  const year = d.getFullYear()
+  const month = `${d.getMonth() + 1}`.padStart(2, '0')
+  const day = `${d.getDate()}`.padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 export const getFilesData = async (

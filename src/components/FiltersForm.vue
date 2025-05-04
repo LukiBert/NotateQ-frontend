@@ -2,7 +2,6 @@
 import {
   NSelect,
   NDatePicker,
-  NFlex,
   NInputNumber,
   NDynamicTags,
   NAutoComplete,
@@ -12,10 +11,20 @@ import {
   NButton,
 } from 'naive-ui'
 import { ref, onMounted, computed } from 'vue'
-import { type Category, type Tag, getAllCategories, getTags } from '../constants'
+import {
+  type Category,
+  type Tag,
+  type Filters,
+  getAllCategories,
+  getTags,
+  formatDate,
+} from '../constants'
+import router from '@/router'
 
 const fetchedCategories = ref<Category[]>([])
 const selectedCategories = ref([])
+
+const author = ref('')
 
 const timestamp = ref<[number, number]>([1183135260000, Date.now()])
 
@@ -32,6 +41,34 @@ const inputValue = ref('')
 const options = computed(() => {
   return fetchedTags.value.map((tag) => tag.name)
 })
+
+function applyFilters() {
+  const filters: Filters = {
+    author: author.value,
+    downloads_min: minDownload.value,
+    downloads_max: maxDownload.value,
+    upload_date_before: formatDate(timestamp.value[0]),
+    upload_date_after: formatDate(timestamp.value[1]),
+    category: selectedCategories.value,
+    rating_min: minRate.value,
+    rating_max: maxRate.value,
+    tags: tags.value,
+  }
+
+  const query: Record<string, string | string[]> = {}
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      if (Array.isArray(value)) {
+        query[key] = value.map((v) => String(v))
+      } else {
+        query[key] = String(value)
+      }
+    }
+  })
+
+  router.push({ name: 'searchPage', query })
+}
 
 const categoriesWithLabels = computed(() => {
   return fetchedCategories.value.map((cat) => ({
@@ -102,7 +139,7 @@ onMounted(async () => {
 
     <n-input-group>
       <n-input-group-label>Autor</n-input-group-label>
-      <n-input type="text" placeholder="Autor" clearable></n-input>
+      <n-input v-model:value="author" type="text" placeholder="Autor" clearable></n-input>
     </n-input-group>
 
     <n-input-group>
@@ -127,7 +164,7 @@ onMounted(async () => {
       </n-dynamic-tags>
     </n-input-group>
 
-    <n-button type="primary">Filtruj</n-button>
+    <n-button type="primary" @click="applyFilters">Filtruj</n-button>
   </div>
 </template>
 
