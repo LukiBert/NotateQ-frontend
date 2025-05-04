@@ -1,25 +1,37 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { NSelect, NDatePicker, NFlex, NInputNumber, NDynamicTags } from 'naive-ui'
+import {
+  NSelect,
+  NDatePicker,
+  NFlex,
+  NInputNumber,
+  NDynamicTags,
+  NAutoComplete,
+  NInput,
+  NSwitch,
+  NIcon,
+} from 'naive-ui'
+import { MdArrowDown, MdArrowUp } from '@vicons/ionicons4'
 import { ref, onMounted, computed, watch } from 'vue'
-import { type Category, getFilesData } from '../constants'
-import { FeedFilled } from '@vicons/material'
-
-const route = useRoute()
+import { type Category, type Tag, getAllCategories, getTags } from '../constants'
 
 const fetchedCategories = ref<Category[]>([])
 const selectedCategories = ref([])
 
 const timestamp = ref<[number, number]>([1183135260000, Date.now()])
+
 const minRate = ref(0)
 const maxRate = ref(5)
-const tags = ref(['myTag', 'fiz2'])
 
-const queryCategories = computed(() => {
-  const raw = route.query.category
-  if (Array.isArray(raw)) return raw
-  if (typeof raw === 'string') return [raw]
-  return []
+const minDownload = ref(0)
+const maxDownload = ref(100)
+
+const fetchedTags = ref<Tag[]>([])
+const tags = ref(['fiz', 'mat'])
+
+const inputValue = ref('')
+const options = computed(() => {
+  return fetchedTags.value.map((tag) => tag.name)
 })
 
 const categoriesWithLabels = computed(() => {
@@ -27,6 +39,11 @@ const categoriesWithLabels = computed(() => {
     label: cat.name,
     value: cat.id,
   }))
+})
+
+onMounted(async () => {
+  fetchedTags.value = await getTags()
+  fetchedCategories.value = await getAllCategories()
 })
 </script>
 
@@ -51,7 +68,34 @@ const categoriesWithLabels = computed(() => {
       :step="0.1"
       button-placement="both"
     />
-    <n-dynamic-tags v-model:value="tags" />
+    <n-dynamic-tags v-model:value="tags">
+      <template #input="{ submit, deactivate }">
+        <n-auto-complete
+          ref="autoCompleteInstRef"
+          v-model:value="inputValue"
+          :options="options"
+          placeholder="Tags"
+          :clear-after-select="true"
+          @select="submit($event)"
+          @blur="deactivate"
+        />
+      </template>
+    </n-dynamic-tags>
+    <n-input-number
+      v-model:value="minDownload"
+      placeholder="Min"
+      :min="0"
+      :max="maxDownload"
+      button-placement="both"
+    />
+    <n-input-number
+      v-model:value="maxDownload"
+      placeholder="Max"
+      :min="minDownload"
+      :max="100"
+      button-placement="both"
+    />
+    <n-input type="text" placeholder="Autor" clearable></n-input>
   </n-flex>
 </template>
 

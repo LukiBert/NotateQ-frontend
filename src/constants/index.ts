@@ -11,6 +11,10 @@ export interface Category {
   name: string
 }
 
+export interface Tag {
+  name: string
+}
+
 export interface FileData {
   id: number
   title: string
@@ -61,6 +65,16 @@ export const getAllCategories = async (): Promise<Category[]> => {
   }
 }
 
+export const getTags = async (): Promise<Tag[]> => {
+  try {
+    const res = await API.get<Tag[]>('api/tags/')
+    return res.data
+  } catch (err) {
+    console.error('Error fetching tags [api/tags/]:', err)
+    throw err
+  }
+}
+
 export const getCategoryMap = async (): Promise<Record<number, string>> => {
   try {
     const categories = await getAllCategories()
@@ -85,8 +99,10 @@ export const incrementDownload = async (fileId: number): Promise<void> => {
   }
 }
 
-export async function rateFile(fileId: number, rating: number): Promise<{ rating: number, rating_count: number }> {
+export async function rateFile(
+  fileId: number,
+  rating: number,
+): Promise<{ rating: number; rating_count: number }> {
   const response = await API.post(`api/files/${fileId}/rate/`, { rating })
   return response.data
 }
-
