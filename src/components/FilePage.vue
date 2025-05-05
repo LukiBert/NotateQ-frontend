@@ -62,8 +62,6 @@ async function downloadFile() {
 }
 
 
-
-
 async function handleRate(value: number) {
   try {
     const result = await rateFile(props.fileData.id, value)
@@ -148,23 +146,55 @@ async function handleRate(value: number) {
     </n-button>
 
 
-<div v-if="fileData.file.endsWith('.pdf')" class="pdf-preview-container">
-  <div class="pdf-controls">
-  <n-button @click="prevPage" :disabled="currentPage <= 1">←</n-button>
-  <span>Strona {{ currentPage }} z {{ pageCount }}</span>
-  <n-button @click="nextPage" :disabled="currentPage >= pageCount">→</n-button>
-</div>
+<!-- Nowy kontener lokalny -->
+<div class="pdf-and-comments">
+  <div v-if="fileData.file.endsWith('.pdf')" class="pdf-preview-container">
+    <div class="pdf-controls">
+      <n-button @click="prevPage" :disabled="currentPage <= 1">←</n-button>
+      <span>Strona {{ currentPage }} z {{ pageCount }}</span>
+      <n-button @click="nextPage" :disabled="currentPage >= pageCount">→</n-button>
+    </div>
 
-  <div class="pdf-inner-wrapper">
-   <PdfEmbed
-  ref="pdfRef"
-  :source="pdfUrl"
-  :page="currentPage"
-  @loaded="handleLoaded"
-  class="pdf-embed"
-/>
+    <div class="pdf-inner-wrapper">
+      <PdfEmbed
+        ref="pdfRef"
+        :source="pdfUrl"
+        :page="currentPage"
+        @loaded="handleLoaded"
+        class="pdf-embed"
+      />
+    </div>
+  </div>
+
+  <!-- Komentarze -->
+  <div class="comments-section">
+    <div class="comment-form">
+      <n-input type="textarea" placeholder="Napisz komentarz..." autosize />
+      <n-button type="primary" style="margin-top: 0.5rem;">Dodaj komentarz</n-button>
+    </div>
+
+    <div class="comment">
+      <div class="comment-header">
+        <span><strong>Jan Kowalski</strong></span>
+        <span>2024-04-21</span>
+      </div>
+      <div class="comment-body">
+        Bardzo przydatny materiał, dziękuję!
+      </div>
+    </div>
+
+    <div class="comment">
+      <div class="comment-header">
+        <span><strong>Agnieszka Nowak</strong></span>
+        <span>2024-04-19</span>
+      </div>
+      <div class="comment-body">
+        Można dodać więcej przykładów?
+      </div>
+    </div>
   </div>
 </div>
+
 
   </div>
 </template>
@@ -225,6 +255,48 @@ async function handleRate(value: number) {
   border-radius: 8px;
 }
 
+.comments-section {
+  width: 80%;
+  max-width: 1800px;
+  margin-top: 15rem;
+  padding: 1rem;
+  border-top: 2px solid transparent;
+  padding-left: 15rem;
+  align-self: flex-start;
+  text-align: left;
+}
+
+.comment-form {
+  margin-bottom: 1.5rem;
+}
+
+.comment {
+  padding: 0.75rem;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  background-color: #fafafa;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+.comment-body {
+  font-size: 1rem;
+  color: #333;
+}
+
+.pdf-and-comments {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
 
 
 </style>
