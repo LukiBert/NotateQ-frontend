@@ -4,14 +4,11 @@ import { createDiscreteApi } from 'naive-ui'
 const routes = [
   { path: '/', name: 'register', component: () => import('../views/RegisterView.vue') },
   { path: '/home', name: 'home', component: () => import('../views/HomeView.vue') },
-  { path: '/upload', name: 'upload', component: () => import('../views/UploadView.vue') },
+  { path: '/upload', name: 'upload', component: () => import('../views/UploadView.vue'), meta: { requiresAuth: true } },
   { path: '/files/:id', name: 'filePage', component: () => import('../views/FileContentView.vue') },
-  { path: '/profile', name: 'profile', component: () => import('../views/UserProfileView.vue') },
+  { path: '/profile', name: 'profile', component: () => import('../views/UserProfileView.vue'), meta: { requiresAuth: true } },
   { path: '/search', name: 'searchPage', component: () => import('../views/SearchPageView.vue') },
-  {
-    path: '/:pathMatch(.*)',
-    name: 'notFound',
-    component: () => import('../views/NotFoundView.vue'),
+  { path: '/:pathMatch(.*)', name: 'notFound', component: () => import('../views/NotFoundView.vue'),
   },
 ]
 
@@ -25,12 +22,10 @@ const { loadingBar } = createDiscreteApi(['loadingBar'])
 router.beforeEach((to, from, next) => {
   loadingBar.start()
 
-  //Przejście do innych widoków tylko jesli w localStorage jest token 'access'
-  const publicPages = ['register']
-  const authRequired = !publicPages.includes(to.name as string)
+  const requiresAuth = to.meta.requiresAuth
   const isLoggedIn = !!localStorage.getItem('access')
 
-  if (authRequired && !isLoggedIn) {
+  if (requiresAuth && !isLoggedIn) {
     return next({ name: 'register' })
   }
 

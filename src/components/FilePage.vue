@@ -43,6 +43,11 @@ const categoryNames = computed(() => {
 })
 
 async function downloadFile() {
+  if (!localStorage.getItem('access')) {
+    alert('Musisz być zalogowany, aby pobrać plik.')
+    return
+  }
+
   const filename = props.fileData.file.split('/').pop()
   const downloadUrl = `http://127.0.0.1:8000/download/${filename}`
 
@@ -62,7 +67,14 @@ async function downloadFile() {
 }
 
 
+
 async function handleRate(value: number) {
+  if (!localStorage.getItem('access')) {
+    alert('Musisz być zalogowany, aby ocenić plik.')
+    userRating.value = 0
+    return
+  }
+
   try {
     const result = await rateFile(props.fileData.id, value)
     props.fileData.rating = result.rating
@@ -72,6 +84,7 @@ async function handleRate(value: number) {
     console.error('Błąd podczas oceniania pliku:', err)
   }
 }
+
 
 </script>
 

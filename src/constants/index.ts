@@ -115,8 +115,11 @@ export const getCategoryMap = async (): Promise<Record<number, string>> => {
 }
 
 export const incrementDownload = async (fileId: number): Promise<void> => {
+  const token = localStorage.getItem('access')
+
   try {
-    await API.post(`api/files/${fileId}/increment_downloads/`)
+    await API.post(`api/files/${fileId}/increment_downloads/`, {},
+      { headers: { Authorization: `Bearer ${token}`, }, })
   } catch (err) {
     console.error(`Błąd inkrementacji pobrań pliku ${fileId}:`, err)
   }
@@ -124,8 +127,17 @@ export const incrementDownload = async (fileId: number): Promise<void> => {
 
 export async function rateFile(
   fileId: number,
-  rating: number,
+  rating: number
 ): Promise<{ rating: number; rating_count: number }> {
-  const response = await API.post(`api/files/${fileId}/rate/`, { rating })
-  return response.data
+  const token = localStorage.getItem('access')
+
+  try {
+    const response = await API.post(`api/files/${fileId}/rate/`, { rating },
+      { headers: { Authorization: `Bearer ${token}`, }, })
+    return response.data
+  } catch (err) {
+    console.error(`Błąd oceniania pliku ${fileId}:`, err)
+    throw err
+  }
 }
+

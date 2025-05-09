@@ -7,6 +7,12 @@ import { IosHome as HomeIcon, MdCloudUpload as UploadIcon, MdPerson as PersonIco
 const router = useRouter()
 const route = useRoute()
 
+function logout() {
+  localStorage.removeItem('access')
+  router.push({ name: 'home' })
+}
+
+
 function goToHome() {
   router.push({ name: 'home' })
 }
@@ -62,6 +68,10 @@ const activeButtonKey = computed(() => {
         </template>
         Twoje konto
       </n-button>
+      <n-button text @click="logout">
+          Wyloguj się
+      </n-button>
+
     </div>
   </div>
 </template>
