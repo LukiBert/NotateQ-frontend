@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import SearchBar from '../components/SearchBar.vue'
 import FileList from '../components/FileList.vue'
+import NavBar from '@/components/NavBar.vue'
 
 const userName = 'ja52'
 const userAvatarUrl = 'https://api.dicebear.com/7.x/thumbs/svg?seed=Coder'
@@ -17,6 +18,9 @@ function receiveEmit(phrase: string) {
 </script>
 
 <template>
+  <header>
+    <NavBar />
+  </header>
   <div class="profile-wrapper">
     <!-- INFO O UŻYTKOWNIKU -->
     <div class="user-info-card">

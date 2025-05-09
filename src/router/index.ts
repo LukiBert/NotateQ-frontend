@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { createDiscreteApi } from 'naive-ui'
 
 const routes = [
-  { path: '/', name: 'home', component: () => import('../views/HomeView.vue') },
+  { path: '/', name: 'register', component: () => import('../views/RegisterView.vue') },
+  { path: '/home', name: 'home', component: () => import('../views/HomeView.vue') },
   { path: '/upload', name: 'upload', component: () => import('../views/UploadView.vue') },
   { path: '/files/:id', name: 'filePage', component: () => import('../views/FileContentView.vue') },
   { path: '/profile', name: 'profile', component: () => import('../views/UserProfileView.vue') },
@@ -23,6 +24,16 @@ const { loadingBar } = createDiscreteApi(['loadingBar'])
 
 router.beforeEach((to, from, next) => {
   loadingBar.start()
+
+  //Przejście do innych widoków tylko jesli w localStorage jest token 'access'
+  const publicPages = ['register']
+  const authRequired = !publicPages.includes(to.name as string)
+  const isLoggedIn = !!localStorage.getItem('access')
+
+  if (authRequired && !isLoggedIn) {
+    return next({ name: 'register' })
+  }
+
   next()
 })
 

@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import FileList from '../components/FileList.vue'
 import FiltersForm from '../components/FiltersForm.vue'
 import SearchBar from '../components/SearchBar.vue'
+import NavBar from '@/components/NavBar.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -24,6 +25,9 @@ watch(
 </script>
 
 <template>
+  <header>
+    <NavBar />
+  </header>
   <div class="search-wrapper">
     <SearchBar mode="manual" @search-phrase="updateSearch" />
     <FiltersForm />

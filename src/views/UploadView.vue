@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import FileUploadForm from '../components/FileUploadForm.vue'
+import NavBar from '@/components/NavBar.vue'
 // import { NModal } from 'naive-ui'
 // import { ref, watch } from 'vue'
 // import { useRouter } from 'vue-router'
@@ -16,6 +17,9 @@ import FileUploadForm from '../components/FileUploadForm.vue'
 </script>
 
 <template>
+  <header>
+    <NavBar />
+  </header>
   <!-- <n-modal v-model:show="showModal"
            v-if="showModal"
            preset="card"
