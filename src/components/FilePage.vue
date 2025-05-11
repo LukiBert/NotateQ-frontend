@@ -43,11 +43,6 @@ const categoryNames = computed(() => {
 })
 
 async function downloadFile() {
-  if (!localStorage.getItem('access')) {
-    alert('Musisz być zalogowany, aby pobrać plik.')
-    return
-  }
-
   const filename = props.fileData.file.split('/').pop()
   const downloadUrl = `http://127.0.0.1:8000/download/${filename}`
 

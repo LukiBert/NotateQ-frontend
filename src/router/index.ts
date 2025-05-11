@@ -2,8 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { createDiscreteApi } from 'naive-ui'
 
 const routes = [
-  { path: '/', name: 'register', component: () => import('../views/RegisterView.vue') },
-  { path: '/home', name: 'home', component: () => import('../views/HomeView.vue') },
+  { path: '/', name: 'home', component: () => import('../views/HomeView.vue') },
+  { path: '/register', name: 'register', component: () => import('../views/RegisterView.vue') },
   { path: '/upload', name: 'upload', component: () => import('../views/UploadView.vue'), meta: { requiresAuth: true } },
   { path: '/files/:id', name: 'filePage', component: () => import('../views/FileContentView.vue') },
   { path: '/profile', name: 'profile', component: () => import('../views/UserProfileView.vue'), meta: { requiresAuth: true } },

@@ -115,11 +115,9 @@ export const getCategoryMap = async (): Promise<Record<number, string>> => {
 }
 
 export const incrementDownload = async (fileId: number): Promise<void> => {
-  const token = localStorage.getItem('access')
 
   try {
-    await API.post(`api/files/${fileId}/increment_downloads/`, {},
-      { headers: { Authorization: `Bearer ${token}`, }, })
+    await API.post(`api/files/${fileId}/increment_downloads/`)
   } catch (err) {
     console.error(`Błąd inkrementacji pobrań pliku ${fileId}:`, err)
   }
