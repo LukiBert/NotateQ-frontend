@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import SearchBar from '../components/SearchBar.vue'
 import FileList from '../components/FileList.vue'
 import NavBar from '@/components/NavBar.vue'
+import axios from 'axios'
+import { API_URL } from '../constants'
 
-const userName = 'ja52'
-const userAvatarUrl = 'https://api.dicebear.com/7.x/thumbs/svg?seed=Coder'
-const documentsShared = 17
+const userName = ref('')
+const userId = ref<number | null>(null)
+const userAvatarUrl = ref('')
+const documentsShared = ref(0)
 
 const searchInput = ref('')
 
@@ -15,6 +18,26 @@ function receiveEmit(phrase: string) {
 
   console.log('Szukasz w profilu:', phrase)
 }
+
+onMounted(async () => {
+  try {
+    const response = await axios.get(`${API_URL}api/profile/`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('access')}`,
+      }
+    })
+
+    userName.value = response.data.username
+    userId.value = response.data.id
+    userAvatarUrl.value = `https://api.dicebear.com/7.x/thumbs/svg?seed=${response.data.username}`
+    documentsShared.value = response.data.file_count
+  } catch (err) {
+    console.error('Błąd podczas pobierania profilu:', err)
+
+  }
+})
+
+
 </script>
 
 <template>
@@ -38,8 +61,9 @@ function receiveEmit(phrase: string) {
 
       <!-- Gotowy komponent z listą -->
       <FileList
-        :filters="{ author: userName, title: searchInput }"
-        empty-message="Brak plików spełniających kryteria wyszukiwania"
+        v-if="userId !== null"
+        :filters="{ author: userId, title: searchInput }"
+        empty-message="Brak plików spełniających kryteria"
       />
     </div>
   </div>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { type FileData, getCategoryMap, incrementDownload, rateFile } from '../constants'
-import { NDescriptions, NDescriptionsItem, NTime, NTag, NButton, NSkeleton, NRate } from 'naive-ui'
+import { NDescriptions, NDescriptionsItem, NTime, NTag, NButton, NSkeleton, NRate, NInput } from 'naive-ui'
 import PdfEmbed from 'vue-pdf-embed'
 
 const props = defineProps<{
