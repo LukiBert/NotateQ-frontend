@@ -105,8 +105,8 @@ const removeBook = (index: number) => {
 
 
 const submitForm = async () => {
-  if (!title.value || !fileList.value.length || !author.value) {
-    alert('Uzupełnij wymagane pola!')
+  if (!title.value || !fileList.value.length || category.value.length === 0) {
+    alert('Uzupełnij wymagane pola – tytuł, plik oraz przynajmniej jedna kategoria!')
     return
   }
 
@@ -224,7 +224,7 @@ const submitForm = async () => {
               />
             </n-form-item>
 
-            <n-form-item label="Kategorie:">
+            <n-form-item label="Kategorie:" required>
               <n-select
                 v-model:value="category"
                 :options="categoryOptions"
@@ -246,14 +246,6 @@ const submitForm = async () => {
                 />
             </n-form-item>
 
-            <n-form-item label="Autor:" required>
-              <n-input
-                v-model:value="author"
-                type="text"
-                placeholder="Podaj nazwę autora"
-                class="inputText"
-              />
-            </n-form-item>
 
             <n-form-item>
               <n-button class="dark-button" type="primary" attr-type="submit"> Dodaj</n-button>

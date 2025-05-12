@@ -1,17 +1,23 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router'
-import { h, computed } from 'vue'
+import { h, computed, ref } from 'vue'
 import { NButton, NIcon } from 'naive-ui'
 import { IosHome as HomeIcon, MdCloudUpload as UploadIcon, MdPerson as PersonIcon } from '@vicons/ionicons4'
+import { isLoggedIn } from '@/constants/authState'
 
 const router = useRouter()
 const route = useRoute()
 
-function logout() {
-  localStorage.removeItem('access')
-  router.push({ name: 'home' })
+
+function goToLogin() {
+  router.push({ name: 'register' })
 }
 
+function logout() {
+  localStorage.removeItem('access')
+  isLoggedIn.value = false
+  router.push({ name: 'home' })
+}
 
 function goToHome() {
   router.push({ name: 'home' })
@@ -62,12 +68,28 @@ const activeButtonKey = computed(() => {
         Dodaj notatkę
       </n-button>
 
-      <n-button text @click="goToProfile" :class="{ active: activeButtonKey === 'profile' }">
-        <template #icon>
-          <n-icon><PersonIcon /></n-icon>
-        </template>
-        Twoje konto
-      </n-button>
+      <n-button
+  text
+  v-if="isLoggedIn"
+  @click="goToProfile"
+  :class="{ active: activeButtonKey === 'profile' }"
+>
+  <template #icon>
+    <n-icon><PersonIcon /></n-icon>
+  </template>
+  Twoje konto
+</n-button>
+
+<n-button
+  text
+  v-else
+  @click="goToLogin"
+>
+  <template #icon>
+    <n-icon><PersonIcon /></n-icon>
+  </template>
+  Zaloguj się
+</n-button>
       <n-button text @click="logout">
           Wyloguj się
       </n-button>

@@ -16,6 +16,7 @@ import { ref } from 'vue'
 import axios from 'axios'
 import { API_URL } from '@/constants'
 import { useRouter } from 'vue-router'
+import { isLoggedIn } from '@/constants/authState'
 
 const router = useRouter()
 
@@ -78,6 +79,7 @@ const submitLoginForm = async () => {
 
     localStorage.setItem('access', login.data.access)
     localStorage.setItem('refresh', login.data.refresh)
+    isLoggedIn.value = true
 
     router.push({ name: 'home' })
     console.log('Pomyślne logowanie ', login.data)
