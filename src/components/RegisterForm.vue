@@ -16,7 +16,9 @@ import { ref } from 'vue'
 import axios from 'axios'
 import { API_URL } from '@/constants'
 import { useRouter } from 'vue-router'
-import { isLoggedIn } from '@/constants/authState'
+import { isLoggedIn, myId } from '@/constants/authState'
+import { jwtDecode } from 'jwt-decode'
+
 
 const router = useRouter()
 
@@ -79,6 +81,11 @@ const submitLoginForm = async () => {
 
     localStorage.setItem('access', login.data.access)
     localStorage.setItem('refresh', login.data.refresh)
+
+    const decoded = jwtDecode<{ user_id: number }>(login.data.access)
+    myId.value = decoded.user_id
+    localStorage.setItem('myId', String(decoded.user_id))
+
     isLoggedIn.value = true
 
     router.push({ name: 'home' })

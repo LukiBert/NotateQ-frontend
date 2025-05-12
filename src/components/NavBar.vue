@@ -13,11 +13,11 @@ function goToLogin() {
   router.push({ name: 'register' })
 }
 
-function logout() {
-  localStorage.removeItem('access')
-  isLoggedIn.value = false
-  router.push({ name: 'home' })
-}
+// function logout() {
+//   localStorage.removeItem('access')
+//   isLoggedIn.value = false
+//   router.push({ name: 'home' })
+// }
 
 function goToHome() {
   router.push({ name: 'home' })
@@ -90,9 +90,9 @@ const activeButtonKey = computed(() => {
   </template>
   Zaloguj się
 </n-button>
-      <n-button text @click="logout">
-          Wyloguj się
-      </n-button>
+<!--      <n-button text @click="logout">-->
+<!--          Wyloguj się-->
+<!--      </n-button>-->
 
     </div>
   </div>

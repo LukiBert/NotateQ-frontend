@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import SearchBar from '../components/SearchBar.vue'
 import FileList from '../components/FileList.vue'
 import NavBar from '@/components/NavBar.vue'
 import axios from 'axios'
 import { API_URL } from '../constants'
+import { myId, isLoggedIn } from '@/constants/authState'
+import router from '@/router'
+import { NButton } from 'naive-ui'
+import { useRoute } from 'vue-router'
 
 const userName = ref('')
 const userId = ref<number | null>(null)
@@ -12,6 +16,24 @@ const userAvatarUrl = ref('')
 const documentsShared = ref(0)
 
 const searchInput = ref('')
+const route = useRoute()
+const props = defineProps<{ id?: string }>()
+
+myId.value = Number(localStorage.getItem('myId'))
+
+const isOwnProfile = computed(() => {
+  return userId.value !== null && myId.value !== null && userId.value === myId.value
+})
+
+function logout() {
+  localStorage.removeItem('access')
+  localStorage.removeItem('refresh')
+  isLoggedIn.value = false
+  localStorage.removeItem('myId')
+  myId.value = null
+  router.push({ name: 'home' })
+}
+
 
 function receiveEmit(phrase: string) {
   searchInput.value = phrase
@@ -19,24 +41,34 @@ function receiveEmit(phrase: string) {
   console.log('Szukasz w profilu:', phrase)
 }
 
-onMounted(async () => {
+async function fetchProfile() {
   try {
-    const response = await axios.get(`${API_URL}api/profile/`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('access')}`,
-      }
-    })
+    let response
+    if (props.id) {
+      // publiczny profil innego użytkownika
+      response = await axios.get(`${API_URL}api/users/${props.id}/`)
+      documentsShared.value = response.data.files?.length ?? 0
+    } else {
+      // profil zalogowanego użytkownika
+      response = await axios.get(`${API_URL}api/profile/`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access')}`,
+        },
+      })
+      documentsShared.value = response.data.file_count
+    }
 
     userName.value = response.data.username
     userId.value = response.data.id
     userAvatarUrl.value = `https://api.dicebear.com/7.x/thumbs/svg?seed=${response.data.username}`
-    documentsShared.value = response.data.file_count
+
   } catch (err) {
     console.error('Błąd podczas pobierania profilu:', err)
-
   }
-})
+}
 
+onMounted(fetchProfile)
+watch(() => route.params.id, fetchProfile)
 
 </script>
 
@@ -52,6 +84,9 @@ onMounted(async () => {
         <h2>{{ userName }}</h2>
         <p>{{ documentsShared }} udostępnionych dokumentów</p>
       </div>
+      <n-button v-if="isOwnProfile && isLoggedIn" @click="logout" type="error" style="margin-left: auto">
+        Wyloguj się
+      </n-button>
     </div>
 
     <!-- SEARCHBAR + LISTA -->

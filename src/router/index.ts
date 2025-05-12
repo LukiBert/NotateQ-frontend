@@ -8,8 +8,8 @@ const routes = [
   { path: '/files/:id', name: 'filePage', component: () => import('../views/FileContentView.vue') },
   { path: '/profile', name: 'profile', component: () => import('../views/UserProfileView.vue'), meta: { requiresAuth: true } },
   { path: '/search', name: 'searchPage', component: () => import('../views/SearchPageView.vue') },
-  { path: '/:pathMatch(.*)', name: 'notFound', component: () => import('../views/NotFoundView.vue'),
-  },
+  { path: '/:pathMatch(.*)', name: 'notFound', component: () => import('../views/NotFoundView.vue')},
+  { path: '/profile/:id', name: 'public-profile', component: () => import('../views/UserProfileView.vue'), props: true },
 ]
 
 const router = createRouter({
