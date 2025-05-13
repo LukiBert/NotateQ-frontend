@@ -115,7 +115,6 @@ export const getCategoryMap = async (): Promise<Record<number, string>> => {
 }
 
 export const incrementDownload = async (fileId: number): Promise<void> => {
-
   try {
     await API.post(`api/files/${fileId}/increment_downloads/`)
   } catch (err) {
@@ -125,17 +124,19 @@ export const incrementDownload = async (fileId: number): Promise<void> => {
 
 export async function rateFile(
   fileId: number,
-  rating: number
+  rating: number,
 ): Promise<{ rating: number; rating_count: number }> {
   const token = localStorage.getItem('access')
 
   try {
-    const response = await API.post(`api/files/${fileId}/rate/`, { rating },
-      { headers: { Authorization: `Bearer ${token}`, }, })
+    const response = await API.post(
+      `api/files/${fileId}/rate/`,
+      { rating },
+      { headers: { Authorization: `Bearer ${token}` } },
+    )
     return response.data
   } catch (err) {
     console.error(`Błąd oceniania pliku ${fileId}:`, err)
     throw err
   }
 }
-

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, watch, computed } from 'vue'
+import { useRoute, useRouter, type LocationQuery } from 'vue-router'
 import FileList from '../components/FileList.vue'
 import FiltersForm from '../components/FiltersForm.vue'
 import SearchBar from '../components/SearchBar.vue'
@@ -13,7 +13,7 @@ const searchInput = ref((route.query.title as string) || '')
 
 function updateSearch(phrase: string) {
   searchInput.value = phrase
-  router.replace({ name: 'searchPage', query: { title: phrase } })
+  router.replace({ name: 'searchPage', query: { ...route.query, title: phrase } })
 }
 
 watch(

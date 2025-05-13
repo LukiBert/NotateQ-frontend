@@ -19,7 +19,10 @@ import {
   getTags,
   formatDate,
 } from '../constants'
-import router from '@/router'
+import { useRoute, useRouter } from 'vue-router'
+
+const router = useRouter()
+const route = useRoute()
 
 const fetchedCategories = ref<Category[]>([])
 const selectedCategories = ref([])
@@ -58,7 +61,7 @@ function applyFilters() {
   const query: Record<string, string | string[]> = {}
 
   Object.entries(filters).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
+    if (value !== undefined && value !== null && value != '') {
       if (Array.isArray(value)) {
         query[key] = value.map((v) => String(v))
       } else {
@@ -67,7 +70,7 @@ function applyFilters() {
     }
   })
 
-  router.push({ name: 'searchPage', query })
+  router.replace({ name: 'searchPage', query: { title: route.query.title, ...query } })
 }
 
 const categoriesWithLabels = computed(() => {
