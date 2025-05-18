@@ -1,4 +1,5 @@
 import axios from 'axios'
+import qs from 'qs'
 
 export const API_URL = 'http://127.0.0.1:8000/'
 
@@ -31,6 +32,7 @@ export interface FileData {
 }
 
 export interface Filters {
+  title?: string
   author?: string
   downloads_min?: number
   downloads_max?: number
@@ -46,6 +48,8 @@ export interface Filters {
 }
 
 export function formatDate(date: number): string {
+  if (date === null || date === 0) return ''
+
   const d = new Date(date)
   const year = d.getFullYear()
   const month = `${d.getMonth() + 1}`.padStart(2, '0')
@@ -59,8 +63,11 @@ export const getFilesData = async (
   const baseUrl = 'api/files/'
 
   try {
-    const res = await API.get<FileData[]>(baseUrl, { params: filters || {} })
-    console.log('Fetched: ', res.data, '\nFrom: ', baseUrl, filters)
+    const res = await API.get('/api/files/', {
+      params: filters,
+      paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
+    })
+    console.log('Fetched: ', res.data, '\nFrom: ', baseUrl, { params: filters || {} })
     return res.data
   } catch (err) {
     console.error(`Error fetching files [${baseUrl} ${filters}]:`, err)

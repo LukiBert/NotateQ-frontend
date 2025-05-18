@@ -10,7 +10,6 @@ import {
   NInputGroupLabel,
   NButton,
 } from 'naive-ui'
-import { ref, onMounted, computed } from 'vue'
 import {
   type Category,
   type Tag,
@@ -19,59 +18,29 @@ import {
   getTags,
   formatDate,
 } from '../constants'
+import { ref, onMounted, computed, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { convertCompilerOptionsFromJson } from 'typescript'
 
 const router = useRouter()
 const route = useRoute()
 
-const fetchedCategories = ref<Category[]>([])
-const selectedCategories = ref([])
-
-const author = ref('')
-
-const timestamp = ref<[number, number]>([1183135260000, Date.now()])
-
-const minRate = ref(0)
-const maxRate = ref(5)
-
-const minDownload = ref(0)
-const maxDownload = ref(100)
-
-const fetchedTags = ref<Tag[]>([])
-const tags = ref(['fiz', 'mat'])
-
 const inputValue = ref('')
-const options = computed(() => {
+const fetchedTags = ref<Tag[]>([])
+const fetchedCategories = ref<Category[]>([])
+
+const timestamp = ref<[number, number]>([1183135280000, Date.now()])
+const author = ref('')
+const downloadsMin = ref(0)
+const downloadsMax = ref(100)
+const category = ref([])
+const ratingMin = ref(0)
+const ratingMax = ref(5)
+const tags = ref([])
+
+const tagOptions = computed(() => {
   return fetchedTags.value.map((tag) => tag.name)
 })
-
-function applyFilters() {
-  const filters: Filters = {
-    author: author.value,
-    downloads_min: minDownload.value,
-    downloads_max: maxDownload.value,
-    upload_date_before: formatDate(timestamp.value[0]),
-    upload_date_after: formatDate(timestamp.value[1]),
-    category: selectedCategories.value,
-    rating_min: minRate.value,
-    rating_max: maxRate.value,
-    tags: tags.value,
-  }
-
-  const query: Record<string, string | string[]> = {}
-
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value != '') {
-      if (Array.isArray(value)) {
-        query[key] = value.map((v) => String(v))
-      } else {
-        query[key] = String(value)
-      }
-    }
-  })
-
-  router.replace({ name: 'searchPage', query: { title: route.query.title, ...query } })
-}
 
 const categoriesWithLabels = computed(() => {
   return fetchedCategories.value.map((cat) => ({
@@ -79,6 +48,38 @@ const categoriesWithLabels = computed(() => {
     value: cat.id,
   }))
 })
+
+function applyFilters() {
+  const [start, end] = timestamp.value ?? [null, null]
+
+  const filtersObject: Filters = {
+    author: author.value,
+    downloads_min: downloadsMin.value,
+    downloads_max: downloadsMax.value,
+    upload_date_after: start ? formatDate(start) : '',
+    upload_date_before: end ? formatDate(end) : '',
+    category: category.value,
+    rating_min: ratingMin.value,
+    rating_max: ratingMax.value,
+    tags: tags.value,
+  }
+
+  const filtersToQuery: Record<string, string | string[]> = {}
+
+  //console.log(timestamp.value)
+  Object.entries(filtersObject).forEach(([key, value]) => {
+    //console.log(`${key}: ${value}`)
+    if (value !== undefined && value !== null && value != '') {
+      if (Array.isArray(value)) {
+        filtersToQuery[key] = value.map((v) => String(v))
+      } else {
+        filtersToQuery[key] = String(value)
+      }
+    }
+  })
+
+  router.replace({ name: 'searchPage', query: { title: route.query.title, ...filtersToQuery } })
+}
 
 onMounted(async () => {
   fetchedTags.value = await getTags()
@@ -97,18 +98,18 @@ onMounted(async () => {
       <n-input-group-label>Ocena</n-input-group-label>
       <n-input-group-label>min</n-input-group-label>
       <n-input-number
-        v-model:value="minRate"
+        v-model:value="ratingMin"
         placeholder="Min"
         :min="0"
-        :max="maxRate"
+        :max="ratingMax"
         :step="0.1"
         button-placement="both"
       />
       <n-input-group-label>max</n-input-group-label>
       <n-input-number
-        v-model:value="maxRate"
+        v-model:value="ratingMax"
         placeholder="Max"
-        :min="minRate"
+        :min="ratingMin"
         :max="5"
         :step="0.1"
         button-placement="both"
@@ -119,17 +120,17 @@ onMounted(async () => {
       <n-input-group-label>Pobrania</n-input-group-label>
       <n-input-group-label>min</n-input-group-label>
       <n-input-number
-        v-model:value="minDownload"
+        v-model:value="downloadsMin"
         placeholder="Min"
         :min="0"
-        :max="maxDownload"
+        :max="downloadsMax"
         button-placement="both"
       />
       <n-input-group-label>max</n-input-group-label>
       <n-input-number
-        v-model:value="maxDownload"
+        v-model:value="downloadsMax"
         placeholder="Max"
-        :min="minDownload"
+        :min="downloadsMin"
         :max="100"
         button-placement="both"
       />
@@ -137,7 +138,7 @@ onMounted(async () => {
 
     <n-input-group>
       <n-input-group-label>Kategorie</n-input-group-label>
-      <n-select v-model:value="selectedCategories" multiple :options="categoriesWithLabels" />
+      <n-select v-model:value="category" multiple :options="categoriesWithLabels" />
     </n-input-group>
 
     <n-input-group>
@@ -157,7 +158,7 @@ onMounted(async () => {
           <n-auto-complete
             ref="autoCompleteInstRef"
             v-model:value="inputValue"
-            :options="options"
+            :options="tagOptions"
             placeholder="Tags"
             :clear-after-select="true"
             @select="submit($event)"
