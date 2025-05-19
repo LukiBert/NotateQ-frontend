@@ -213,7 +213,6 @@ onMounted(async () => {
         type="text"
         placeholder="Autor"
         clearable
-        disabled
       ></n-input>
     </n-input-group>
 
