@@ -22,10 +22,7 @@ watch(
   () => route.query,
   (newQuery) => {
     filters.value = newQuery
-
-    if (newQuery.title) {
-      searchInput.value = (newQuery.title as string) || ''
-    }
+    searchInput.value = newQuery.title ? (newQuery.title as string) : ''
   },
   { immediate: true },
 )

@@ -97,6 +97,44 @@ function resetFilters() {
 onMounted(async () => {
   fetchedTags.value = await getTags()
   fetchedCategories.value = await getAllCategories()
+
+  // Populate filters from query parameters
+  if (route.query) {
+    const categoryIdToNameMap: Record<number, string> = {}
+    fetchedCategories.value.forEach((cat) => {
+      categoryIdToNameMap[cat.id] = cat.name
+    })
+
+    filtersObj.author = (route.query.author as string) || ''
+    filtersObj.downloadsMin = Number(route.query.downloads_min) || 0
+    filtersObj.downloadsMax = Number(route.query.downloads_max) || 100
+    filtersObj.ratingMin = Number(route.query.rating_min) || 0
+    filtersObj.ratingMax = Number(route.query.rating_max) || 5
+
+    filtersObj.category = Array.isArray(route.query.category)
+      ? route.query.category.map(Number).filter((n) => !isNaN(n))
+      : route.query.category
+        ? [Number(route.query.category)].filter((n) => !isNaN(n))
+        : []
+
+    filtersObj.tags = (
+      Array.isArray(route.query.tags)
+        ? route.query.tags
+        : route.query.tags
+          ? [route.query.tags]
+          : []
+    ) as string[]
+
+    const after = route.query.upload_date_after as string
+    const before = route.query.upload_date_before as string
+    if (after && before) {
+      const startDate = new Date(after).getTime()
+      const endDate = new Date(before).getTime()
+      if (!isNaN(startDate) && !isNaN(endDate)) {
+        filtersObj.timestamp = [startDate, endDate]
+      }
+    }
+  }
 })
 </script>
 
@@ -161,6 +199,7 @@ onMounted(async () => {
         type="text"
         placeholder="Autor"
         clearable
+        disabled
       ></n-input>
     </n-input-group>
 
