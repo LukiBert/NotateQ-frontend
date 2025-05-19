@@ -9,18 +9,18 @@ import {
   NInputGroup,
   NInputGroupLabel,
   NButton,
+  NFlex,
 } from 'naive-ui'
 import {
   type Category,
   type Tag,
   type Filters,
-  getAllCategories,
   getTags,
   formatDate,
+  getAllCategories,
 } from '../constants'
 import { ref, onMounted, computed, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { convertCompilerOptionsFromJson } from 'typescript'
 
 const router = useRouter()
 const route = useRoute()
@@ -29,14 +29,16 @@ const inputValue = ref('')
 const fetchedTags = ref<Tag[]>([])
 const fetchedCategories = ref<Category[]>([])
 
-const timestamp = ref<[number, number]>([1183135280000, Date.now()])
-const author = ref('')
-const downloadsMin = ref(0)
-const downloadsMax = ref(100)
-const category = ref([])
-const ratingMin = ref(0)
-const ratingMax = ref(5)
-const tags = ref([])
+const filtersObj = reactive({
+  timestamp: null,
+  author: '',
+  downloadsMin: 0,
+  downloadsMax: 100,
+  category: [],
+  ratingMin: 0,
+  ratingMax: 5,
+  tags: [],
+})
 
 const tagOptions = computed(() => {
   return fetchedTags.value.map((tag) => tag.name)
@@ -50,35 +52,46 @@ const categoriesWithLabels = computed(() => {
 })
 
 function applyFilters() {
-  const [start, end] = timestamp.value ?? [null, null]
+  const { timestamp, author, downloadsMin, downloadsMax, category, ratingMin, ratingMax, tags } =
+    filtersObj
+  const [start, end] = timestamp ?? [null, null]
 
-  const filtersObject: Filters = {
-    author: author.value,
-    downloads_min: downloadsMin.value,
-    downloads_max: downloadsMax.value,
+  const refToFilters: Filters = {
+    author,
+    downloads_min: downloadsMin,
+    downloads_max: downloadsMax,
     upload_date_after: start ? formatDate(start) : '',
     upload_date_before: end ? formatDate(end) : '',
-    category: category.value,
-    rating_min: ratingMin.value,
-    rating_max: ratingMax.value,
-    tags: tags.value,
+    category,
+    rating_min: ratingMin,
+    rating_max: ratingMax,
+    tags,
   }
 
   const filtersToQuery: Record<string, string | string[]> = {}
 
   //console.log(timestamp.value)
-  Object.entries(filtersObject).forEach(([key, value]) => {
+  for (const [key, value] of Object.entries(refToFilters)) {
     //console.log(`${key}: ${value}`)
-    if (value !== undefined && value !== null && value != '') {
-      if (Array.isArray(value)) {
-        filtersToQuery[key] = value.map((v) => String(v))
-      } else {
-        filtersToQuery[key] = String(value)
-      }
+    if (value != null && value !== '' && (!Array.isArray(value) || value.length > 0)) {
+      filtersToQuery[key] = Array.isArray(value) ? value.map(String) : String(value)
     }
-  })
+  }
 
   router.replace({ name: 'searchPage', query: { title: route.query.title, ...filtersToQuery } })
+}
+
+function resetFilters() {
+  filtersObj.timestamp = null
+  filtersObj.author = ''
+  filtersObj.downloadsMin = 0
+  filtersObj.downloadsMax = 100
+  filtersObj.category = []
+  filtersObj.ratingMin = 0
+  filtersObj.ratingMax = 5
+  filtersObj.tags = []
+
+  router.replace({ name: 'searchPage', query: {} })
 }
 
 onMounted(async () => {
@@ -91,25 +104,25 @@ onMounted(async () => {
   <div class="filters-wrapper">
     <n-input-group>
       <n-input-group-label>Data dodania</n-input-group-label>
-      <n-date-picker v-model:value="timestamp" type="daterange" clearable />
+      <n-date-picker v-model:value="filtersObj.timestamp" type="daterange" clearable />
     </n-input-group>
 
     <n-input-group>
       <n-input-group-label>Ocena</n-input-group-label>
       <n-input-group-label>min</n-input-group-label>
       <n-input-number
-        v-model:value="ratingMin"
+        v-model:value="filtersObj.ratingMin"
         placeholder="Min"
         :min="0"
-        :max="ratingMax"
+        :max="filtersObj.ratingMax"
         :step="0.1"
         button-placement="both"
       />
       <n-input-group-label>max</n-input-group-label>
       <n-input-number
-        v-model:value="ratingMax"
+        v-model:value="filtersObj.ratingMax"
         placeholder="Max"
-        :min="ratingMin"
+        :min="filtersObj.ratingMin"
         :max="5"
         :step="0.1"
         button-placement="both"
@@ -120,17 +133,17 @@ onMounted(async () => {
       <n-input-group-label>Pobrania</n-input-group-label>
       <n-input-group-label>min</n-input-group-label>
       <n-input-number
-        v-model:value="downloadsMin"
+        v-model:value="filtersObj.downloadsMin"
         placeholder="Min"
         :min="0"
-        :max="downloadsMax"
+        :max="filtersObj.downloadsMax"
         button-placement="both"
       />
       <n-input-group-label>max</n-input-group-label>
       <n-input-number
-        v-model:value="downloadsMax"
+        v-model:value="filtersObj.downloadsMax"
         placeholder="Max"
-        :min="downloadsMin"
+        :min="filtersObj.downloadsMin"
         :max="100"
         button-placement="both"
       />
@@ -138,12 +151,17 @@ onMounted(async () => {
 
     <n-input-group>
       <n-input-group-label>Kategorie</n-input-group-label>
-      <n-select v-model:value="category" multiple :options="categoriesWithLabels" />
+      <n-select v-model:value="filtersObj.category" multiple :options="categoriesWithLabels" />
     </n-input-group>
 
     <n-input-group>
       <n-input-group-label>Autor</n-input-group-label>
-      <n-input v-model:value="author" type="text" placeholder="Autor" clearable></n-input>
+      <n-input
+        v-model:value="filtersObj.author"
+        type="text"
+        placeholder="Autor"
+        clearable
+      ></n-input>
     </n-input-group>
 
     <n-input-group>
@@ -153,7 +171,7 @@ onMounted(async () => {
 
     <n-input-group>
       <n-input-group-label style="margin-right: 0.5rem">Tagi</n-input-group-label>
-      <n-dynamic-tags v-model:value="tags" :max="5" style="align-items: center">
+      <n-dynamic-tags v-model:value="filtersObj.tags" :max="5" style="align-items: center">
         <template #input="{ submit, deactivate }">
           <n-auto-complete
             ref="autoCompleteInstRef"
@@ -168,7 +186,10 @@ onMounted(async () => {
       </n-dynamic-tags>
     </n-input-group>
 
-    <n-button type="primary" @click="applyFilters">Filtruj</n-button>
+    <n-flex
+      ><n-button type="primary" @click="applyFilters">Filtruj</n-button>
+      <n-button type="error" @click="resetFilters">Wyczyść filtry</n-button>
+    </n-flex>
   </div>
 </template>
 
@@ -195,7 +216,7 @@ onMounted(async () => {
   justify-self: center;
 }
 
-.n-button {
+.n-flex {
   justify-self: center;
 }
 
@@ -205,7 +226,7 @@ onMounted(async () => {
     justify-content: center;
   }
 
-  .n-button {
+  .n-flex {
     grid-column: span 2;
   }
 }

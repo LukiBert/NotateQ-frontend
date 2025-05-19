@@ -95,16 +95,6 @@ export const getAllCategories = async (): Promise<Category[]> => {
   }
 }
 
-export const getTags = async (): Promise<Tag[]> => {
-  try {
-    const res = await API.get<Tag[]>('api/tags/')
-    return res.data
-  } catch (err) {
-    console.error('Error fetching tags [api/tags/]:', err)
-    throw err
-  }
-}
-
 export const getCategoryMap = async (): Promise<Record<number, string>> => {
   try {
     const categories = await getAllCategories()
@@ -118,6 +108,16 @@ export const getCategoryMap = async (): Promise<Record<number, string>> => {
   } catch (err) {
     console.error('Error creating category map:', err)
     return {}
+  }
+}
+
+export const getTags = async (): Promise<Tag[]> => {
+  try {
+    const res = await API.get<Tag[]>('api/tags/')
+    return res.data
+  } catch (err) {
+    console.error('Error fetching tags [api/tags/]:', err)
+    throw err
   }
 }
 
