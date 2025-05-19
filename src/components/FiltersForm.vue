@@ -18,9 +18,12 @@ import {
   getTags,
   formatDate,
   getAllCategories,
+  type SortOption,
 } from '../constants'
 import { ref, onMounted, computed, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+
+const emit = defineEmits(['sort-option-change'])
 
 const router = useRouter()
 const route = useRoute()
@@ -40,6 +43,8 @@ const filtersObj = reactive({
   tags: [],
 })
 
+const sortOption = ref<SortOption | null>()
+
 const tagOptions = computed(() => {
   return fetchedTags.value.map((tag) => tag.name)
 })
@@ -50,6 +55,15 @@ const categoriesWithLabels = computed(() => {
     value: cat.id,
   }))
 })
+
+const sortOptions: { label: string; value: SortOption }[] = [
+  { label: 'Pobrania: najmniej', value: 'downloads_asc' },
+  { label: 'Pobrania: najwięcej', value: 'downloads_desc' },
+  { label: 'Ocena: najniższa', value: 'rating_asc' },
+  { label: 'Ocena: najwyższa', value: 'rating_desc' },
+  { label: 'Data: najstarsze', value: 'date_asc' },
+  { label: 'Data: najnowsze', value: 'date_desc' },
+]
 
 function applyFilters() {
   const { timestamp, author, downloadsMin, downloadsMax, category, ratingMin, ratingMax, tags } =
@@ -205,7 +219,13 @@ onMounted(async () => {
 
     <n-input-group>
       <n-input-group-label>Sortowanie według</n-input-group-label>
-      <n-select placeholder="Sortuj"></n-select>
+      <n-select
+        placeholder="Sortuj"
+        :options="sortOptions"
+        :value="sortOption"
+        @update:value="(val) => emit('sort-option-change', val)"
+        clearable
+      ></n-select>
     </n-input-group>
 
     <n-input-group>

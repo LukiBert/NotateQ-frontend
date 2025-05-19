@@ -47,6 +47,14 @@ export interface Filters {
   tags?: string[]
 }
 
+export type SortOption =
+  | 'downloads_asc'
+  | 'downloads_desc'
+  | 'rating_asc'
+  | 'rating_desc'
+  | 'date_asc'
+  | 'date_desc'
+
 export function formatDate(date: number): string {
   if (date === null || date === 0) return ''
 

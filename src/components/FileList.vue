@@ -1,20 +1,45 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
 import { NEmpty } from 'naive-ui'
 import FileDescriptor from './FileDescriptor.vue'
-import { type FileData, getFilesData } from '../constants'
+import { type FileData, getFilesData, type SortOption } from '../constants'
 
-const { filters, emptyMessage } = defineProps<{
+const { filters, emptyMessage, sortOption } = defineProps<{
   filters?: Record<string, string | number | boolean>
   emptyMessage?: string
+  sortOption?: SortOption | null
 }>()
-
-const route = useRoute()
 
 const fetchedFiles = ref<FileData[]>([])
 
 const noFiles = computed(() => fetchedFiles.value.length <= 0)
+
+const sortedFiles = computed(() => {
+  if (!fetchedFiles.value.length) return []
+
+  if (!sortOption) {
+    return fetchedFiles.value
+  }
+
+  return [...fetchedFiles.value].sort((a, b) => {
+    switch (sortOption) {
+      case 'downloads_asc':
+        return a.downloads - b.downloads
+      case 'downloads_desc':
+        return b.downloads - a.downloads
+      case 'rating_asc':
+        return a.rating - b.rating
+      case 'rating_desc':
+        return b.rating - a.rating
+      case 'date_asc':
+        return new Date(a.upload_date).getTime() - new Date(b.upload_date).getTime()
+      case 'date_desc':
+        return new Date(b.upload_date).getTime() - new Date(a.upload_date).getTime()
+      default:
+        return 0
+    }
+  })
+})
 
 watch(
   () => filters,
@@ -29,7 +54,7 @@ watch(
   <div class="file-list-wrapper">
     <div class="file-list">
       <n-empty v-if="noFiles" :description="emptyMessage || 'Brak plików do pobrania'" />
-      <FileDescriptor v-for="(item, index) in fetchedFiles" :key="index" :file="item" />
+      <FileDescriptor v-for="(item, index) in sortedFiles" :key="index" :file="item" />
     </div>
   </div>
 </template>
