@@ -141,7 +141,7 @@ async function handleRate(value: number) {
       <div>Średnia: {{ fileData.rating.toFixed(1) }} ({{ fileData.rating_count }} ocen)</div>
       <n-rate
         v-model:value="userRating"
-        allow-half
+
         @update:value="handleRate"
       />
     </div>

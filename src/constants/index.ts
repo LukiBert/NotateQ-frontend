@@ -145,8 +145,8 @@ export async function rateFile(
 
   try {
     const response = await API.post(
-      `api/files/${fileId}/rate/`,
-      { rating },
+      `api/files_rating/`,
+      { file: fileId, rating },
       { headers: { Authorization: `Bearer ${token}` } },
     )
     return response.data
@@ -155,3 +155,4 @@ export async function rateFile(
     throw err
   }
 }
+
