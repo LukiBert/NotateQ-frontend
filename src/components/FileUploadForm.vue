@@ -127,9 +127,9 @@ const submitForm = async () => {
   category.value.forEach((cat) => {
     formData.append('categories', cat.toString())
   })
-  // selectedBooks.value.forEach((b) => {
-  //   formData.append('bibliography', b.id)
-  // })
+  selectedBooks.value.forEach((b) => {
+    formData.append('bibliography', b.title)
+  })
 
   for (const [key, value] of formData.entries()) {
     console.log(key, value)
