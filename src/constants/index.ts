@@ -1,4 +1,5 @@
 import axios from 'axios'
+import qs from 'qs'
 
 export const API_URL = 'http://127.0.0.1:8000/'
 
@@ -31,6 +32,7 @@ export interface FileData {
 }
 
 export interface Filters {
+  title?: string
   author?: string
   downloads_min?: number
   downloads_max?: number
@@ -45,7 +47,17 @@ export interface Filters {
   tags?: string[]
 }
 
+export type SortOption =
+  | 'downloads_asc'
+  | 'downloads_desc'
+  | 'rating_asc'
+  | 'rating_desc'
+  | 'date_asc'
+  | 'date_desc'
+
 export function formatDate(date: number): string {
+  if (date === null || date === 0) return ''
+
   const d = new Date(date)
   const year = d.getFullYear()
   const month = `${d.getMonth() + 1}`.padStart(2, '0')
@@ -59,8 +71,11 @@ export const getFilesData = async (
   const baseUrl = 'api/files/'
 
   try {
-    const res = await API.get<FileData[]>(baseUrl, { params: filters || {} })
-    console.log('Fetched: ', res.data, '\nFrom: ', baseUrl, filters)
+    const res = await API.get('/api/files/', {
+      params: filters,
+      paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
+    })
+    console.log('Fetched: ', res.data, '\nFrom: ', baseUrl, { params: filters || {} })
     return res.data
   } catch (err) {
     console.error(`Error fetching files [${baseUrl} ${filters}]:`, err)
@@ -88,16 +103,6 @@ export const getAllCategories = async (): Promise<Category[]> => {
   }
 }
 
-export const getTags = async (): Promise<Tag[]> => {
-  try {
-    const res = await API.get<Tag[]>('api/tags/')
-    return res.data
-  } catch (err) {
-    console.error('Error fetching tags [api/tags/]:', err)
-    throw err
-  }
-}
-
 export const getCategoryMap = async (): Promise<Record<number, string>> => {
   try {
     const categories = await getAllCategories()
@@ -114,6 +119,16 @@ export const getCategoryMap = async (): Promise<Record<number, string>> => {
   }
 }
 
+export const getTags = async (): Promise<Tag[]> => {
+  try {
+    const res = await API.get<Tag[]>('api/tags/')
+    return res.data
+  } catch (err) {
+    console.error('Error fetching tags [api/tags/]:', err)
+    throw err
+  }
+}
+
 export const incrementDownload = async (fileId: number): Promise<void> => {
   try {
     await API.post(`api/files/${fileId}/increment_downloads/`)
@@ -126,6 +141,17 @@ export async function rateFile(
   fileId: number,
   rating: number,
 ): Promise<{ rating: number; rating_count: number }> {
-  const response = await API.post(`api/files/${fileId}/rate/`, { rating })
-  return response.data
+  const token = localStorage.getItem('access')
+
+  try {
+    const response = await API.post(
+      `api/files/${fileId}/rate/`,
+      { rating },
+      { headers: { Authorization: `Bearer ${token}` } },
+    )
+    return response.data
+  } catch (err) {
+    console.error(`Błąd oceniania pliku ${fileId}:`, err)
+    throw err
+  }
 }

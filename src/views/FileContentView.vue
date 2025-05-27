@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import axios from 'axios'
 import FilePage from '../components/FilePage.vue'
 import { API_URL, type FileData } from '../constants'
+import NavBar from '@/components/NavBar.vue'
 
 const route = useRoute()
 
@@ -30,6 +31,9 @@ async function fetchFileData(id: number) {
 </script>
 
 <template>
+  <header>
+    <NavBar />
+  </header>
   <FilePage
     v-if="fetchedFile"
     :file-data="fetchedFile"

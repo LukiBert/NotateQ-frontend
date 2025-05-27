@@ -42,7 +42,11 @@ const selectedBooks = ref<any[]>([])
 
 const fetchCategories = async () => {
   try {
-    const res = await axios.get(`${API_URL}api/categories/`)
+    const res = await axios.get(`${API_URL}api/categories/`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('access')}`,
+      }
+    })
     categoryOptions.value = res.data.map((category: { id: number; name: string }) => ({
       label: category.name,
       value: category.id,
@@ -75,7 +79,11 @@ const searchBibliography = async () => {
     return
   }
   try {
-    const res = await axios.get(`${API_URL}api/books/search/${searchQuery.value}`)
+    const res = await axios.get(`${API_URL}api/books/search/${searchQuery.value}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('access')}`,
+      }
+    })
     searchResults.value = res.data
   } catch (err) {
     console.error('Błąd podczas wyszukiwania książek:', err)
@@ -97,8 +105,8 @@ const removeBook = (index: number) => {
 
 
 const submitForm = async () => {
-  if (!title.value || !fileList.value.length || !author.value) {
-    alert('Uzupełnij wymagane pola!')
+  if (!title.value || !fileList.value.length || category.value.length === 0) {
+    alert('Uzupełnij wymagane pola – tytuł, plik oraz przynajmniej jedna kategoria!')
     return
   }
 
@@ -132,6 +140,7 @@ const submitForm = async () => {
   try {
     const res = await axios.post(`${API_URL}api/files/`, formData, {
       headers: {
+        Authorization: `Bearer ${localStorage.getItem('access')}`,
         'Content-Type': 'multipart/form-data',
       },
     })
@@ -145,7 +154,7 @@ const submitForm = async () => {
     if (axios.isAxiosError(err)) {
       console.log('STATUS:', err.response?.status)
       console.log('DATA:', err.response?.data)
-      alert(err.response?.data?.file[0])
+      // alert(err.response?.data?.file[0])
     }
   }
 
@@ -215,7 +224,7 @@ const submitForm = async () => {
               />
             </n-form-item>
 
-            <n-form-item label="Kategorie:">
+            <n-form-item label="Kategorie:" required>
               <n-select
                 v-model:value="category"
                 :options="categoryOptions"
@@ -237,14 +246,6 @@ const submitForm = async () => {
                 />
             </n-form-item>
 
-            <n-form-item label="Autor:" required>
-              <n-input
-                v-model:value="author"
-                type="text"
-                placeholder="Podaj nazwę autora"
-                class="inputText"
-              />
-            </n-form-item>
 
             <n-form-item>
               <n-button class="dark-button" type="primary" attr-type="submit"> Dodaj</n-button>

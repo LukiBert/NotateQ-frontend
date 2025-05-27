@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { type FileData, getCategoryMap, incrementDownload, rateFile } from '../constants'
-import { NDescriptions, NDescriptionsItem, NTime, NTag, NButton, NSkeleton, NRate } from 'naive-ui'
+import { NDescriptions, NDescriptionsItem, NTime, NTag, NButton, NSkeleton, NRate, NInput } from 'naive-ui'
 import PdfEmbed from 'vue-pdf-embed'
 
 const props = defineProps<{
@@ -62,7 +62,14 @@ async function downloadFile() {
 }
 
 
+
 async function handleRate(value: number) {
+  if (!localStorage.getItem('access')) {
+    alert('Musisz być zalogowany, aby ocenić plik.')
+    userRating.value = 0
+    return
+  }
+
   try {
     const result = await rateFile(props.fileData.id, value)
     props.fileData.rating = result.rating
@@ -72,6 +79,7 @@ async function handleRate(value: number) {
     console.error('Błąd podczas oceniania pliku:', err)
   }
 }
+
 
 </script>
 
