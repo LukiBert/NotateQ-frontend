@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { type FileData, getCategoryMap, incrementDownload, rateFile } from '../constants'
-import { NDescriptions, NDescriptionsItem, NTime, NTag, NButton, NSkeleton, NRate, NInput } from 'naive-ui'
+import {
+  NDescriptions,
+  NDescriptionsItem,
+  NTime,
+  NTag,
+  NButton,
+  NSkeleton,
+  NRate,
+  NInput,
+} from 'naive-ui'
 import PdfEmbed from 'vue-pdf-embed'
 
 const props = defineProps<{
@@ -13,7 +22,7 @@ const userRating = ref(0)
 
 const categoryMap = ref<Record<number, string>>({})
 
-const pdfUrl = computed(() => props.fileData.file);
+const pdfUrl = computed(() => props.fileData.file)
 const pdfRef = ref<InstanceType<typeof PdfEmbed> | null>(null)
 const currentPage = ref(1)
 const pageCount = ref(1)
@@ -30,16 +39,17 @@ function prevPage() {
   if (currentPage.value > 1) currentPage.value--
 }
 
-
 onMounted(async () => {
   categoryMap.value = await getCategoryMap()
 })
 
 const categoryNames = computed(() => {
-  return props.fileData.categories
-    ?.map((id) => categoryMap.value[id])
-    .filter(Boolean)
-    .join(', ') || 'Brak kategorii'
+  return (
+    props.fileData.categories
+      ?.map((id) => categoryMap.value[id])
+      .filter(Boolean)
+      .join(', ') || 'Brak kategorii'
+  )
 })
 
 async function downloadFile() {
@@ -61,8 +71,6 @@ async function downloadFile() {
   document.body.removeChild(link)
 }
 
-
-
 async function handleRate(value: number) {
   if (!localStorage.getItem('access')) {
     alert('Musisz być zalogowany, aby ocenić plik.')
@@ -79,8 +87,6 @@ async function handleRate(value: number) {
     console.error('Błąd podczas oceniania pliku:', err)
   }
 }
-
-
 </script>
 
 <template>
@@ -137,73 +143,59 @@ async function handleRate(value: number) {
       <n-descriptions-item label="Opis">{{ fileData.description }} </n-descriptions-item>
 
       <n-descriptions-item label="Ocena" :span="3">
-    <div>
-      <div>Średnia: {{ fileData.rating.toFixed(1) }} ({{ fileData.rating_count }} ocen)</div>
-      <n-rate
-        v-model:value="userRating"
-        allow-half
-        @update:value="handleRate"
-      />
-    </div>
+        <div>
+          <div>Średnia: {{ fileData.rating.toFixed(1) }} ({{ fileData.rating_count }} ocen)</div>
+          <n-rate v-model:value="userRating" allow-half @update:value="handleRate" />
+        </div>
       </n-descriptions-item>
-
     </n-descriptions>
 
-    <n-button type="primary" @click="downloadFile">
-      Pobierz plik
-    </n-button>
+    <n-button type="primary" @click="downloadFile"> Pobierz plik </n-button>
 
+    <!-- Nowy kontener lokalny -->
+    <div class="pdf-and-comments">
+      <div v-if="fileData.file.endsWith('.pdf')" class="pdf-preview-container">
+        <div class="pdf-controls">
+          <n-button @click="prevPage" :disabled="currentPage <= 1">←</n-button>
+          <span>Strona {{ currentPage }} z {{ pageCount }}</span>
+          <n-button @click="nextPage" :disabled="currentPage >= pageCount">→</n-button>
+        </div>
 
-<!-- Nowy kontener lokalny -->
-<div class="pdf-and-comments">
-  <div v-if="fileData.file.endsWith('.pdf')" class="pdf-preview-container">
-    <div class="pdf-controls">
-      <n-button @click="prevPage" :disabled="currentPage <= 1">←</n-button>
-      <span>Strona {{ currentPage }} z {{ pageCount }}</span>
-      <n-button @click="nextPage" :disabled="currentPage >= pageCount">→</n-button>
-    </div>
-
-    <div class="pdf-inner-wrapper">
-      <PdfEmbed
-        ref="pdfRef"
-        :source="pdfUrl"
-        :page="currentPage"
-        @loaded="handleLoaded"
-        class="pdf-embed"
-      />
-    </div>
-  </div>
-
-  <!-- Komentarze -->
-  <div class="comments-section">
-    <div class="comment-form">
-      <n-input type="textarea" placeholder="Napisz komentarz..." autosize />
-      <n-button type="primary" style="margin-top: 0.5rem;">Dodaj komentarz</n-button>
-    </div>
-
-    <div class="comment">
-      <div class="comment-header">
-        <span><strong>Jan Kowalski</strong></span>
-        <span>2024-04-21</span>
+        <div class="pdf-inner-wrapper">
+          <PdfEmbed
+            ref="pdfRef"
+            :source="pdfUrl"
+            :page="currentPage"
+            @loaded="handleLoaded"
+            class="pdf-embed"
+          />
+        </div>
       </div>
-      <div class="comment-body">
-        Bardzo przydatny materiał, dziękuję!
-      </div>
-    </div>
 
-    <div class="comment">
-      <div class="comment-header">
-        <span><strong>Agnieszka Nowak</strong></span>
-        <span>2024-04-19</span>
-      </div>
-      <div class="comment-body">
-        Można dodać więcej przykładów?
+      <!-- Komentarze -->
+      <div class="comments-section">
+        <div class="comment-form">
+          <n-input type="textarea" placeholder="Napisz komentarz..." autosize />
+          <n-button type="primary" style="margin-top: 0.5rem">Dodaj komentarz</n-button>
+        </div>
+
+        <div class="comment">
+          <div class="comment-header">
+            <span><strong>Jan Kowalski</strong></span>
+            <span>2024-04-21</span>
+          </div>
+          <div class="comment-body">Bardzo przydatny materiał, dziękuję!</div>
+        </div>
+
+        <div class="comment">
+          <div class="comment-header">
+            <span><strong>Agnieszka Nowak</strong></span>
+            <span>2024-04-19</span>
+          </div>
+          <div class="comment-body">Można dodać więcej przykładów?</div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-
-
   </div>
 </template>
 
@@ -305,6 +297,4 @@ async function handleRate(value: number) {
   align-items: center;
   width: 100%;
 }
-
-
 </style>

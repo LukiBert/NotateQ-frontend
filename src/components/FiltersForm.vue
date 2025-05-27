@@ -132,7 +132,6 @@ onMounted(async () => {
         : []
 
     const rawTags = route.query.tags
-
     filtersObj.tags = Array.isArray(rawTags)
       ? rawTags.filter((tag): tag is string => typeof tag === 'string')
       : typeof rawTags === 'string'
