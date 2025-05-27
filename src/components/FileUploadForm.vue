@@ -39,13 +39,12 @@ const searchQuery = ref('')
 const searchResults = ref<any[]>([])
 const selectedBooks = ref<any[]>([])
 
-
 const fetchCategories = async () => {
   try {
     const res = await axios.get(`${API_URL}api/categories/`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('access')}`,
-      }
+      },
     })
     categoryOptions.value = res.data.map((category: { id: number; name: string }) => ({
       label: category.name,
@@ -61,9 +60,9 @@ onMounted(() => {
   fetchCategories()
 })
 
-const handleBeforeUpload = (file: UploadFileInfo, fileList: UploadFileInfo[]) => {
+const handleBeforeUpload = (data: { file: UploadFileInfo; fileList: UploadFileInfo[] }) => {
   const allowedExtensions = ['.pdf', '.docx', '.txt']
-  const isGoodExtension = allowedExtensions.some((ext) => file.file?.name?.endsWith(ext))
+  const isGoodExtension = allowedExtensions.some((ext) => data.file.file?.name?.endsWith(ext))
 
   if (!isGoodExtension) {
     alert('Dozwolone są tylko pliki PDF, DOCX lub TXT.')
@@ -82,7 +81,7 @@ const searchBibliography = async () => {
     const res = await axios.get(`${API_URL}api/books/search/${searchQuery.value}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('access')}`,
-      }
+      },
     })
     searchResults.value = res.data
   } catch (err) {
@@ -102,7 +101,6 @@ const addBook = (book: any) => {
 const removeBook = (index: number) => {
   selectedBooks.value.splice(index, 1)
 }
-
 
 const submitForm = async () => {
   if (!title.value || !fileList.value.length || category.value.length === 0) {
@@ -206,11 +204,7 @@ const submitForm = async () => {
         <n-tab-pane name="first" tab="Załącz plik">
           <n-form @submit.prevent="submitForm">
             <n-form-item label="Wybierz plik" required>
-              <n-upload
-                v-model:file-list="fileList"
-                :max="1"
-                :on-before-upload="handleBeforeUpload"
-              >
+              <n-upload v-model:file-list="fileList" :max="1" @before-upload="handleBeforeUpload">
                 <n-button class="inputText">Wybierz plik</n-button>
               </n-upload>
             </n-form-item>
@@ -234,18 +228,17 @@ const submitForm = async () => {
               />
             </n-form-item>
 
-            <n-badge style="margin-left: 135px;" :value="description.length" :max="500" />
+            <n-badge style="margin-left: 135px" :value="description.length" :max="500" />
 
             <n-form-item label="Opis (max 500 znaków):">
-                <n-input
-                  v-model:value="description"
-                  type="textarea"
-                  placeholder="Wprowadź opis"
-                  class="inputText"
-                  maxlength="500"
-                />
+              <n-input
+                v-model:value="description"
+                type="textarea"
+                placeholder="Wprowadź opis"
+                class="inputText"
+                maxlength="500"
+              />
             </n-form-item>
-
 
             <n-form-item>
               <n-button class="dark-button" type="primary" attr-type="submit"> Dodaj</n-button>
