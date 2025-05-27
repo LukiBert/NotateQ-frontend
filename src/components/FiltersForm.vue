@@ -33,14 +33,14 @@ const fetchedTags = ref<Tag[]>([])
 const fetchedCategories = ref<Category[]>([])
 
 const filtersObj = reactive({
-  timestamp: null,
+  timestamp: null as [number, number] | null,
   author: '',
   downloadsMin: 0,
   downloadsMax: 100,
-  category: [],
+  category: [] as number[],
   ratingMin: 0,
   ratingMax: 5,
-  tags: [],
+  tags: [] as string[],
 })
 
 const sortOption = ref<SortOption | null>()
@@ -131,13 +131,13 @@ onMounted(async () => {
         ? [Number(route.query.category)].filter((n) => !isNaN(n))
         : []
 
-    filtersObj.tags = (
-      Array.isArray(route.query.tags)
-        ? route.query.tags
-        : route.query.tags
-          ? [route.query.tags]
-          : []
-    ) as string[]
+    const rawTags = route.query.tags
+
+    filtersObj.tags = Array.isArray(rawTags)
+      ? rawTags.filter((tag): tag is string => typeof tag === 'string')
+      : typeof rawTags === 'string'
+        ? [rawTags]
+        : []
 
     const after = route.query.upload_date_after as string
     const before = route.query.upload_date_before as string
