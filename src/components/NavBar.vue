@@ -101,9 +101,9 @@ const activeButtonKey = computed(() => {
 <!--          Wyloguj się-->
 <!--      </n-button>-->
 
-      <n-popover trigger="click" placement="bottom-end">
+      <n-popover v-if="isLoggedIn" trigger="click" placement="bottom-end">
   <template #trigger>
-    <n-button text v-if="isLoggedIn">
+    <n-button text>
       <template #icon>
         <n-icon size="24"><BellIcon /></n-icon>
       </template>
@@ -111,11 +111,7 @@ const activeButtonKey = computed(() => {
   </template>
 
   <div class="notifications">
-    <div
-      v-for="notif in mockNotifications"
-      :key="notif.id"
-      class="notification-item"
-    >
+    <div v-for="notif in mockNotifications" :key="notif.id" class="notification-item">
       {{ notif.message }}
     </div>
     <div v-if="mockNotifications.length === 0" class="notification-empty">
@@ -123,6 +119,7 @@ const activeButtonKey = computed(() => {
     </div>
   </div>
 </n-popover>
+
 
 
     </div>
