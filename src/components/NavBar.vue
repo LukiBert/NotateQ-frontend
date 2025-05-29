@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router'
-import { h, computed, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { NButton, NIcon, NPopover } from 'naive-ui'
 import {
   IosHome as HomeIcon,
@@ -58,9 +58,10 @@ const activeButtonKey = computed(() => {
 <template>
   <div class="navbar">
     <!-- Logo -->
-    <div class="logo" @click="goToHome">
+    <picture class="logo" @click="goToHome">
+      <source srcset="/logo-graphic.png" media="(max-width: 1024px)" />
       <img src="/logo-notateq.png" alt="NotateQ Logo" />
-    </div>
+    </picture>
 
     <!-- Menu Buttons -->
     <div class="menu-buttons">
@@ -68,22 +69,22 @@ const activeButtonKey = computed(() => {
         <template #icon>
           <n-icon><HomeIcon /></n-icon>
         </template>
-        Strona główna
+        <p class="visible-text">Strona główna</p>
       </n-button>
 
       <n-button text @click="goToUpload" :class="{ active: activeButtonKey === 'upload' }">
         <template #icon>
           <n-icon><UploadIcon /></n-icon>
         </template>
-        Dodaj notatkę
+        <p class="visible-text">Dodaj notatkę</p>
       </n-button>
 
       <n-button text @click="goToProfile" :class="{ active: activeButtonKey === 'profile' }">
         <template #icon>
           <n-icon><PersonIcon /></n-icon>
         </template>
-        <p v-if="isLoggedIn">Twoje konto</p>
-        <p v-else>Zaloguj się</p>
+        <p class="visible-text" v-if="isLoggedIn">Twoje konto</p>
+        <p class="visible-text" v-else>Zaloguj się</p>
       </n-button>
 
       <n-popover v-if="isLoggedIn" trigger="click" placement="bottom-end">
@@ -111,24 +112,31 @@ const activeButtonKey = computed(() => {
 <style scoped>
 .navbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   background-color: #14532d;
   padding: 0.5rem 1rem;
   height: 64px;
+
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .logo img {
-  margin-left: 10rem;
-  height: 160px;
+  padding: 0.75rem;
+  height: 64px;
   cursor: pointer;
 }
 
 .menu-buttons {
-  margin-right: 10rem;
   display: flex;
   gap: 2rem;
   align-items: center;
+}
+
+.visible-text {
+  display: none;
 }
 
 .n-button {
@@ -169,5 +177,11 @@ const activeButtonKey = computed(() => {
   padding: 1rem;
   color: #888;
   font-size: 14px;
+}
+
+@media (min-width: 1024px) {
+  .visible-text {
+    display: block;
+  }
 }
 </style>

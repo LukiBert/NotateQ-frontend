@@ -1,18 +1,16 @@
-import './assets/main.css'
-
-import { createApp } from 'vue'
-import router from './router'
-import App from './App.vue'
-
+import '@/assets/main.css'
 import axios from 'axios'
-import { API_URL } from './constants'
+import { createApp } from 'vue'
+import App from '@/App.vue'
+import { API_URL } from '@/constants'
+import router from '@/router'
 
 createApp(App).use(router).mount('#app')
 
-// AUTOMATYCZNE ODŚWIERZANIE TOKENA JWT
+// AUTOMATYCZNE ODŚWIEŻANIE TOKENA JWT
 axios.interceptors.response.use(
-  response => response,
-  async error => {
+  (response) => response,
+  async (error) => {
     const originalRequest = error.config
 
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -40,5 +38,5 @@ axios.interceptors.response.use(
     }
 
     return Promise.reject(error)
-  }
+  },
 )
