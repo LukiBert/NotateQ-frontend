@@ -3,16 +3,12 @@ import { ref } from 'vue'
 import { MdSearch } from '@vicons/ionicons4'
 import { NFlex, NInputGroup, NInput, NButton, NIcon } from 'naive-ui'
 import { debounce } from 'lodash'
-import { useRouter, useRoute } from 'vue-router'
 
 const props = defineProps<{
   mode?: 'dynamic' | 'manual'
 }>()
 
 const emit = defineEmits(['search-phrase'])
-
-const router = useRouter()
-const route = useRoute()
 
 const searchPhrase = ref('')
 

@@ -2,7 +2,7 @@
 import axios from 'axios'
 import { NButton } from 'naive-ui'
 import { useRoute, useRouter } from 'vue-router'
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { API_URL } from '@/constants'
 import { myId, isLoggedIn } from '@/constants/authState'
 import SearchBar from '@/components/SearchBar.vue'
@@ -62,13 +62,13 @@ async function fetchProfile() {
     userName.value = response.data.username
     userId.value = response.data.id
     userAvatarUrl.value = `https://api.dicebear.com/7.x/thumbs/svg?seed=${response.data.username}`
-  } catch (err) {
+  } catch (err: any) {
+    router.push({ name: 'notFound' })
     console.error('Błąd podczas pobierania profilu:', err)
   }
 }
 
-onMounted(fetchProfile)
-watch(() => route.params.id, fetchProfile)
+watch(() => route.params.id, fetchProfile, { immediate: true })
 </script>
 
 <template>
