@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { type FileData, getCategoryMap, incrementDownload, rateFile, getUserRating, fetchComments, postComment } from '../constants'
+import {
+  type FileData,
+  getCategoryMap,
+  incrementDownload,
+  rateFile,
+  getUserRating,
+  fetchComments,
+  postComment,
+} from '../constants'
 import { NTime, NTag, NButton, NRate, NInput, NSpace, NCard, NFlex, NText } from 'naive-ui'
 import PdfEmbed from 'vue-pdf-embed'
 
@@ -43,7 +51,6 @@ onMounted(async () => {
 
   await loadComments()
 })
-
 
 const categoryNames = computed(() => {
   return props.fileData.categories?.map((id) => categoryMap.value[id]).filter(Boolean)
@@ -151,9 +158,7 @@ async function handleAddComment() {
             <n-text strong>{{ fileData.rating.toFixed(1) }}</n-text>
             ({{ fileData.rating_count }} ocen)
           </n-text>
-          <n-text v-else>
-            Dałeś ocenę: {{ userRating }}
-          </n-text>
+          <n-text v-else> Dałeś ocenę: {{ userRating }} </n-text>
           <n-rate v-model:value="userRating" @update:value="handleRate" />
         </div>
         <div>
@@ -203,62 +208,57 @@ async function handleAddComment() {
         </n-flex>
       </template>
     </n-card>
+  </div>
 
-    <!-- Nowy kontener lokalny -->
-<div class="pdf-and-comments">
-  <div v-if="fileData.file.endsWith('.pdf')" class="pdf-preview-container">
-    <div class="pdf-controls">
-      <n-button @click="prevPage" :disabled="currentPage <= 1">←</n-button>
-      <span>Strona {{ currentPage }} z {{ pageCount }}</span>
-      <n-button @click="nextPage" :disabled="currentPage >= pageCount">→</n-button>
-    </div>
+  <!-- PDF -->
+  <div class="pdf-wrapper">
+    <div v-if="fileData.file.endsWith('.pdf')" class="pdf-preview-container">
+      <div class="pdf-controls">
+        <n-button @click="prevPage" :disabled="currentPage <= 1">←</n-button>
+        <span>Strona {{ currentPage }} z {{ pageCount }}</span>
+        <n-button @click="nextPage" :disabled="currentPage >= pageCount">→</n-button>
+      </div>
 
-    <div class="pdf-inner-wrapper">
-      <PdfEmbed
-        ref="pdfRef"
-        :source="pdfUrl"
-        :page="currentPage"
-        @loaded="handleLoaded"
-        class="pdf-embed"
-      />
+      <div class="pdf-inner-wrapper">
+        <PdfEmbed
+          ref="pdfRef"
+          :source="pdfUrl"
+          :page="currentPage"
+          @loaded="handleLoaded"
+          class="pdf-embed"
+        />
+      </div>
     </div>
   </div>
 
   <!-- Komentarze -->
-<div class="comments-section">
-  <div class="comment-form">
-    <n-input
-      v-model:value="newComment"
-      type="textarea"
-      placeholder="Napisz komentarz..."
-      autosize
-    />
-    <n-button
-      type="primary"
-      style="margin-top: 0.5rem;"
-      @click="handleAddComment"
-    >
-      Dodaj komentarz
-    </n-button>
-  </div>
-
-  <div v-if="comments.length === 0">
-    Brak komentarzy. Bądź pierwszym!
-  </div>
-
-  <div v-for="comment in comments" :key="comment.id" class="comment">
-    <div class="comment-header">
-      <span><strong>{{ comment.author_username }}</strong></span>
-      <span>{{ new Date(comment.created_at).toLocaleDateString() }}</span>
+  <div class="comments-wrapper">
+    <div class="comment-form">
+      <n-input
+        v-model:value="newComment"
+        type="textarea"
+        placeholder="Napisz komentarz..."
+        autosize
+      />
+      <n-button type="primary" style="margin-top: 0.5rem" @click="handleAddComment">
+        Dodaj komentarz
+      </n-button>
     </div>
-    <div class="comment-body">
-      {{ comment.content }}
+
+    <div v-if="comments.length === 0">Brak komentarzy. Bądź pierwszym!</div>
+
+    <div v-for="comment in comments" :key="comment.id" class="comment">
+      <div class="comment-header">
+        <span
+          ><strong>{{ comment.author_username }}</strong></span
+        >
+        <span>{{ new Date(comment.created_at).toLocaleDateString() }}</span>
+      </div>
+      <div class="comment-body">
+        {{ comment.content }}
+      </div>
     </div>
   </div>
-</div>
-</div>
-</div>
-
 </template>
 
 <style scoped>
