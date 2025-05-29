@@ -147,8 +147,8 @@ export async function rateFile(
 
   try {
     const response = await API.post(
-      `api/files/${fileId}/rate/`,
-      { rating },
+      `api/files_rating/`,
+      { file: fileId, rating },
       { headers: { Authorization: `Bearer ${token}` } },
     )
     return response.data
@@ -157,3 +157,41 @@ export async function rateFile(
     throw err
   }
 }
+
+export async function getUserRating(fileId: number): Promise<number | null> {
+  const token = localStorage.getItem('access')
+  if (!token) return null
+
+  const res = await fetch(`http://127.0.0.1:8000/api/files/${fileId}/user-rating/`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+
+  if (!res.ok) return null
+
+  const data = await res.json()
+  return data.rating
+}
+
+export async function fetchComments(fileId: number) {
+  const response = await axios.get(`${API_URL}/api/comments/?file=${fileId}`)
+  return response.data
+}
+
+export async function postComment(fileId: number, content: string) {
+  const token = localStorage.getItem('access')
+  if (!token) throw new Error('Brak tokenu autoryzacji')
+
+  const response = await axios.post(`${API_URL}/api/comments/`, {
+    file: fileId,
+    content,
+  }, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    }
+  })
+
+  return response.data
+}
+

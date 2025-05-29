@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { type FileData, getCategoryMap, incrementDownload, rateFile } from '../constants'
+import { type FileData, getCategoryMap, incrementDownload, rateFile, getUserRating, fetchComments, postComment } from '../constants'
 import { NTime, NTag, NButton, NRate, NInput, NSpace, NCard, NFlex, NText } from 'naive-ui'
 import PdfEmbed from 'vue-pdf-embed'
 
@@ -32,7 +32,18 @@ function prevPage() {
 
 onMounted(async () => {
   categoryMap.value = await getCategoryMap()
+
+  if (localStorage.getItem('access')) {
+    const rating = await getUserRating(props.fileData.id)
+    if (rating !== null) {
+      userRating.value = rating
+      hasRated.value = true
+    }
+  }
+
+  await loadComments()
 })
+
 
 const categoryNames = computed(() => {
   return props.fileData.categories?.map((id) => categoryMap.value[id]).filter(Boolean)
@@ -57,6 +68,9 @@ async function downloadFile() {
   document.body.removeChild(link)
 }
 
+const hasRated = ref(false)
+const hasRatedShow = ref(false)
+
 async function handleRate(value: number) {
   if (!localStorage.getItem('access')) {
     alert('Musisz być zalogowany, aby ocenić plik.')
@@ -65,12 +79,43 @@ async function handleRate(value: number) {
   }
 
   try {
-    const result = await rateFile(props.fileData.id, value)
-    props.fileData.rating = result.rating
-    props.fileData.rating_count = result.rating_count
+    await rateFile(props.fileData.id, value)
     userRating.value = value
+    hasRated.value = true
+    hasRatedShow.value = true
   } catch (err) {
     console.error('Błąd podczas oceniania pliku:', err)
+  }
+}
+
+const comments = ref<any[]>([])
+const newComment = ref('')
+
+async function loadComments() {
+  try {
+    comments.value = await fetchComments(props.fileData.id)
+  } catch (err) {
+    console.error('Błąd pobierania komentarzy:', err)
+  }
+}
+
+async function handleAddComment() {
+  if (!localStorage.getItem('access')) {
+    alert('Musisz być zalogowany, aby dodać komentarz.')
+    return
+  }
+
+  if (!newComment.value.trim()) {
+    alert('Komentarz nie może być pusty.')
+    return
+  }
+
+  try {
+    await postComment(props.fileData.id, newComment.value)
+    newComment.value = ''
+    await loadComments()
+  } catch (err) {
+    console.error('Błąd podczas dodawania komentarza:', err)
   }
 }
 </script>
@@ -101,12 +146,15 @@ async function handleRate(value: number) {
           Pobrano: <n-text strong>{{ fileData.downloads }}</n-text>
         </div>
         <div>
-          <n-text>
+          <n-text v-if="!hasRatedShow">
             Średnia:
-            <n-text strong>{{ fileData.rating.toFixed(1) }}</n-text> ({{ fileData.rating_count }}
-            ocen)
+            <n-text strong>{{ fileData.rating.toFixed(1) }}</n-text>
+            ({{ fileData.rating_count }} ocen)
           </n-text>
-          <n-rate v-model:value="userRating" allow-half @update:value="handleRate" />
+          <n-text v-else>
+            Dałeś ocenę: {{ userRating }}
+          </n-text>
+          <n-rate v-model:value="userRating" @update:value="handleRate" />
         </div>
         <div>
           <n-text strong>Kategorie:</n-text>
@@ -157,50 +205,60 @@ async function handleRate(value: number) {
     </n-card>
 
     <!-- Nowy kontener lokalny -->
-    <div class="pdf-and-comments">
-      <div v-if="fileData.file.endsWith('.pdf')" class="pdf-preview-container">
-        <div class="pdf-controls">
-          <n-button @click="prevPage" :disabled="currentPage <= 1">←</n-button>
-          <span>Strona {{ currentPage }} z {{ pageCount }}</span>
-          <n-button @click="nextPage" :disabled="currentPage >= pageCount">→</n-button>
-        </div>
+<div class="pdf-and-comments">
+  <div v-if="fileData.file.endsWith('.pdf')" class="pdf-preview-container">
+    <div class="pdf-controls">
+      <n-button @click="prevPage" :disabled="currentPage <= 1">←</n-button>
+      <span>Strona {{ currentPage }} z {{ pageCount }}</span>
+      <n-button @click="nextPage" :disabled="currentPage >= pageCount">→</n-button>
+    </div>
 
-        <div class="pdf-inner-wrapper">
-          <PdfEmbed
-            ref="pdfRef"
-            :source="pdfUrl"
-            :page="currentPage"
-            @loaded="handleLoaded"
-            class="pdf-embed"
-          />
-        </div>
-      </div>
-
-      <!-- Komentarze -->
-      <div class="comments-section">
-        <div class="comment-form">
-          <n-input type="textarea" placeholder="Napisz komentarz..." autosize />
-          <n-button type="primary" style="margin-top: 0.5rem">Dodaj komentarz</n-button>
-        </div>
-
-        <div class="comment">
-          <div class="comment-header">
-            <span><strong>Jan Kowalski</strong></span>
-            <span>2024-04-21</span>
-          </div>
-          <div class="comment-body">Bardzo przydatny materiał, dziękuję!</div>
-        </div>
-
-        <div class="comment">
-          <div class="comment-header">
-            <span><strong>Agnieszka Nowak</strong></span>
-            <span>2024-04-19</span>
-          </div>
-          <div class="comment-body">Można dodać więcej przykładów?</div>
-        </div>
-      </div>
+    <div class="pdf-inner-wrapper">
+      <PdfEmbed
+        ref="pdfRef"
+        :source="pdfUrl"
+        :page="currentPage"
+        @loaded="handleLoaded"
+        class="pdf-embed"
+      />
     </div>
   </div>
+
+  <!-- Komentarze -->
+<div class="comments-section">
+  <div class="comment-form">
+    <n-input
+      v-model:value="newComment"
+      type="textarea"
+      placeholder="Napisz komentarz..."
+      autosize
+    />
+    <n-button
+      type="primary"
+      style="margin-top: 0.5rem;"
+      @click="handleAddComment"
+    >
+      Dodaj komentarz
+    </n-button>
+  </div>
+
+  <div v-if="comments.length === 0">
+    Brak komentarzy. Bądź pierwszym!
+  </div>
+
+  <div v-for="comment in comments" :key="comment.id" class="comment">
+    <div class="comment-header">
+      <span><strong>{{ comment.author_username }}</strong></span>
+      <span>{{ new Date(comment.created_at).toLocaleDateString() }}</span>
+    </div>
+    <div class="comment-body">
+      {{ comment.content }}
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
 </template>
 
 <style scoped>
