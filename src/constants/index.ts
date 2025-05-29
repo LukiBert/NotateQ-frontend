@@ -29,6 +29,8 @@ export interface FileData {
   file: string
   rating: number
   rating_count: number
+  bibliography_titles: string[]
+  date: string
 }
 
 export interface Filters {

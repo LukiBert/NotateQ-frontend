@@ -2,7 +2,12 @@
 import { useRouter, useRoute } from 'vue-router'
 import { h, computed, ref } from 'vue'
 import { NButton, NIcon, NPopover } from 'naive-ui'
-import { IosHome as HomeIcon, MdCloudUpload as UploadIcon, MdPerson as PersonIcon, MdNotificationsOutline as BellIcon } from '@vicons/ionicons4'
+import {
+  IosHome as HomeIcon,
+  MdCloudUpload as UploadIcon,
+  MdPerson as PersonIcon,
+  MdNotificationsOutline as BellIcon,
+} from '@vicons/ionicons4'
 import { isLoggedIn } from '@/constants/authState'
 
 const router = useRouter()
@@ -13,8 +18,6 @@ const mockNotifications = ref([
   { id: 2, message: 'Nowy plik dodany w kategorii Fizyka' },
   { id: 3, message: 'Twoja notatka została oceniona na 5 gwiazdek' }
 ])
-
-
 
 function goToLogin() {
   router.push({ name: 'register' })
@@ -76,30 +79,16 @@ const activeButtonKey = computed(() => {
       </n-button>
 
       <n-button
-  text
-  v-if="isLoggedIn"
-  @click="goToProfile"
-  :class="{ active: activeButtonKey === 'profile' }"
->
-  <template #icon>
-    <n-icon><PersonIcon /></n-icon>
-  </template>
-  Twoje konto
-</n-button>
-
-<n-button
-  text
-  v-else
-  @click="goToLogin"
->
-  <template #icon>
-    <n-icon><PersonIcon /></n-icon>
-  </template>
-  Zaloguj się
-</n-button>
-<!--      <n-button text @click="logout">-->
-<!--          Wyloguj się-->
-<!--      </n-button>-->
+        text
+        v-if="isLoggedIn"
+        @click="goToProfile"
+        :class="{ active: activeButtonKey === 'profile' }"
+      >
+        <template #icon>
+          <n-icon><PersonIcon /></n-icon>
+        </template>
+        Twoje konto
+      </n-button>
 
       <n-popover v-if="isLoggedIn" trigger="click" placement="bottom-end">
   <template #trigger>
@@ -119,9 +108,6 @@ const activeButtonKey = computed(() => {
     </div>
   </div>
 </n-popover>
-
-
-
     </div>
   </div>
 </template>

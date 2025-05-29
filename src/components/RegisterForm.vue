@@ -37,6 +37,20 @@ const submitRegisterForm = async () => {
     return
   }
 
+  const usernamePattern = /^(?=.*\d)[A-Za-z\d_.-]{8,}$/
+
+  if (!usernamePattern.test(regUsername.value)) {
+    alert('Nazwa użytkownika musi mieć co najmniej 8 znaków (litery lub znaki "_", ".", "-") i zawierać cyfrę.')
+    return
+  }
+
+  const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?-]).{8,}$/
+
+  if (!passwordPattern.test(regPassword.value)) {
+    alert('Hasło musi mieć co najmniej 8 znaków, zawierać dużą literę, cyfrę i znak specjalny.')
+    return
+  }
+
   const formData = new FormData()
   formData.append('username', regUsername.value)
   formData.append('password1', regPassword.value)
@@ -59,6 +73,21 @@ const submitRegisterForm = async () => {
     if (axios.isAxiosError(err)) {
       console.log('STATUS:', err.response?.status)
       console.log('DATA:', err.response?.data)
+
+      if (err.response?.data?.username) {
+        alert(`Błąd : Użytkownik z tą nazwą już istnieje.`)
+        return
+      }
+
+      if (err.response?.data?.email) {
+        alert(`Błąd : Błędny format pola email.`)
+        return
+      }
+
+      if (err.response?.data?.non_field_errors) {
+        alert(`Błąd: ${err.response.data.non_field_errors.join(' ')}`)
+        return
+      }
     }
   }
 }
@@ -126,10 +155,10 @@ const submitLoginForm = async () => {
           <n-tab-pane name="signin" tab="Logowanie">
             <n-form @submit.prevent="submitLoginForm">
               <n-form-item-row label="username lub e-mail" required>
-                <n-input v-model:value="logUsername" style="width: 80%; margin: 0 auto" />
+                <n-input v-model:value="logUsername" class="auth-input" />
               </n-form-item-row>
               <n-form-item-row label="hasło" required>
-                <n-input v-model:value="logPassword" style="width: 80%; margin: 0 auto" />
+                <n-input v-model:value="logPassword" type="password" class="auth-input" />
               </n-form-item-row>
               <n-button type="primary" attr-type="submit" block secondary strong> Zaloguj</n-button>
             </n-form>
@@ -137,28 +166,40 @@ const submitLoginForm = async () => {
           <n-tab-pane name="signup" tab="Rejestracja">
             <n-form @submit.prevent="submitRegisterForm">
               <n-form-item-row label="username" required>
-                <n-input v-model:value="regUsername" style="width: 80%; margin: 0 auto" />
+                <n-popover trigger="hover">
+                  <template #trigger>
+                    <n-input v-model:value="regUsername" class="auth-input" />
+                  </template>
+                  <div>
+                    Username musi zawierać:
+                    <ul style="text-align: left; padding-left: 16px">
+                      <li>minimum 8 znaków (litery i/lub znaki "_", ".", "-")</li>
+                      <li>co najmniej jedną cyfrę</li>
+                    </ul>
+                  </div>
+                </n-popover>
               </n-form-item-row>
               <n-form-item-row label="e-mail" required>
-                <n-input v-model:value="regEmail" style="width: 80%; margin: 0 auto" />
+                <n-input v-model:value="regEmail" class="auth-input" />
               </n-form-item-row>
               <n-form-item-row label="hasło" required style="justify-content: center">
                 <n-popover trigger="hover">
                   <template #trigger>
-                    <n-input v-model:value="regPassword" style="width: 80%; margin: 0 auto" />
+                    <n-input v-model:value="regPassword" type="password" class="auth-input" />
                   </template>
                   <div>
                     Hasło musi zawierać:
                     <ul style="text-align: left; padding-left: 16px">
                       <li>minimum 8 znaków</li>
-                      <li>jedną cyfrę</li>
-                      <li>specjalny znak (!@#$%^&*)</li>
+                      <li>wielką literę</li>
+                      <li>cyfrę</li>
+                      <li>znak specjalny(!@#$%^&*)</li>
                     </ul>
                   </div>
                 </n-popover>
               </n-form-item-row>
               <n-form-item-row label="powtórz hasło" required>
-                <n-input v-model:value="regSecondPassword" style="width: 80%; margin: 0 auto" />
+                <n-input v-model:value="regSecondPassword" type="password" class="auth-input" />
               </n-form-item-row>
               <n-space>
                 <n-checkbox v-model:checked="acceptTerms" style="margin-right: 12px" required>
@@ -184,6 +225,12 @@ const submitLoginForm = async () => {
 </template>
 
 <style scoped>
+.auth-input {
+  width: 80%;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
 .back {
   background: #14532d;
   min-height: 100vh;
@@ -203,10 +250,6 @@ const submitLoginForm = async () => {
   background: white;
   border-radius: 8px;
   text-align: center;
-}
-
-.card-tabs .n-tabs-nav--bar-type {
-  padding-left: 4px;
 }
 
 .register-button {
