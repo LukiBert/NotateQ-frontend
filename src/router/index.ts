@@ -4,12 +4,31 @@ import { createDiscreteApi } from 'naive-ui'
 const routes = [
   { path: '/', name: 'home', component: () => import('../views/HomeView.vue') },
   { path: '/register', name: 'register', component: () => import('../views/RegisterView.vue') },
-  { path: '/upload', name: 'upload', component: () => import('../views/UploadView.vue'), meta: { requiresAuth: true } },
+  {
+    path: '/upload',
+    name: 'upload',
+    component: () => import('../views/UploadView.vue'),
+    meta: { requiresAuth: true },
+  },
   { path: '/files/:id', name: 'filePage', component: () => import('../views/FileContentView.vue') },
-  { path: '/profile', name: 'profile', component: () => import('../views/UserProfileView.vue'), meta: { requiresAuth: true } },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('../views/UserProfileView.vue'),
+    meta: { requiresAuth: true },
+  },
   { path: '/search', name: 'searchPage', component: () => import('../views/SearchPageView.vue') },
-  { path: '/:pathMatch(.*)', name: 'notFound', component: () => import('../views/NotFoundView.vue')},
-  { path: '/profile/:id', name: 'public-profile', component: () => import('../views/UserProfileView.vue'), props: true },
+  {
+    path: '/:pathMatch(.*)',
+    name: 'notFound',
+    component: () => import('../views/NotFoundView.vue'),
+  },
+  {
+    path: '/profile/:id',
+    name: 'public-profile',
+    component: () => import('../views/UserProfileView.vue'),
+    props: true,
+  },
 ]
 
 const router = createRouter({
