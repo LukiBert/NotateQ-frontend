@@ -16,12 +16,12 @@ const route = useRoute()
 const mockNotifications = ref([
   { id: 1, message: 'Użytkownik JanKowalski udostępnił plik: Algebra 1' },
   { id: 2, message: 'Nowy plik dodany w kategorii Fizyka' },
-  { id: 3, message: 'Twoja notatka została oceniona na 5 gwiazdek' }
+  { id: 3, message: 'Twoja notatka została oceniona na 5 gwiazdek' },
 ])
 
-function goToLogin() {
-  router.push({ name: 'register' })
-}
+// function goToLogin() {
+//   router.push({ name: 'register' })
+// }
 
 // function logout() {
 //   localStorage.removeItem('access')
@@ -78,36 +78,32 @@ const activeButtonKey = computed(() => {
         Dodaj notatkę
       </n-button>
 
-      <n-button
-        text
-        v-if="isLoggedIn"
-        @click="goToProfile"
-        :class="{ active: activeButtonKey === 'profile' }"
-      >
+      <n-button text @click="goToProfile" :class="{ active: activeButtonKey === 'profile' }">
         <template #icon>
           <n-icon><PersonIcon /></n-icon>
         </template>
-        Twoje konto
+        <p v-if="isLoggedIn">Twoje konto</p>
+        <p v-else>Zaloguj się</p>
       </n-button>
 
       <n-popover v-if="isLoggedIn" trigger="click" placement="bottom-end">
-  <template #trigger>
-    <n-button text>
-      <template #icon>
-        <n-icon size="24"><BellIcon /></n-icon>
-      </template>
-    </n-button>
-  </template>
+        <template #trigger>
+          <n-button text>
+            <template #icon>
+              <n-icon size="24"><BellIcon /></n-icon>
+            </template>
+          </n-button>
+        </template>
 
-  <div class="notifications">
-    <div v-for="notif in mockNotifications" :key="notif.id" class="notification-item">
-      {{ notif.message }}
-    </div>
-    <div v-if="mockNotifications.length === 0" class="notification-empty">
-      Brak powiadomień
-    </div>
-  </div>
-</n-popover>
+        <div class="notifications">
+          <div v-for="notif in mockNotifications" :key="notif.id" class="notification-item">
+            {{ notif.message }}
+          </div>
+          <div v-if="mockNotifications.length === 0" class="notification-empty">
+            Brak powiadomień
+          </div>
+        </div>
+      </n-popover>
     </div>
   </div>
 </template>
@@ -174,6 +170,4 @@ const activeButtonKey = computed(() => {
   color: #888;
   font-size: 14px;
 }
-
-
 </style>
