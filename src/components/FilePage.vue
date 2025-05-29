@@ -10,6 +10,13 @@ import {
   NSkeleton,
   NRate,
   NInput,
+  NGrid,
+  NGi,
+  NSpace,
+  NCard,
+  NFlex,
+  NText,
+  NP,
 } from 'naive-ui'
 import PdfEmbed from 'vue-pdf-embed'
 
@@ -44,12 +51,7 @@ onMounted(async () => {
 })
 
 const categoryNames = computed(() => {
-  return (
-    props.fileData.categories
-      ?.map((id) => categoryMap.value[id])
-      .filter(Boolean)
-      .join(', ') || 'Brak kategorii'
-  )
+  return props.fileData.categories?.map((id) => categoryMap.value[id]).filter(Boolean)
 })
 
 async function downloadFile() {
@@ -117,40 +119,85 @@ async function handleRate(value: number) {
       </n-descriptions-item>
     </n-descriptions>
 
-    <n-descriptions
+    <n-card
       v-else
-      class="file-data"
-      label-placement="top"
-      :title="fileData.title"
-      :column="3"
+      bordered
+      size="large"
+      :segmented="{ content: true, footer: 'soft' }"
+      class="file-data-info"
     >
-      <n-descriptions-item label="Autor">{{ fileData.author }} </n-descriptions-item>
+      <template #header>
+        <h1 style="font-weight: bold">
+          {{ fileData.title }}
+        </h1>
+      </template>
 
-      <n-descriptions-item label="Dodano">
-        <n-time :time="new Date(fileData.upload_date)" format="yyyy-MM-dd"></n-time>
-      </n-descriptions-item>
-
-      <n-descriptions-item label="Kategoria"> {{ categoryNames }} </n-descriptions-item>
-
-      <n-descriptions-item label="Tagi" :span="2">
-        <n-tag v-for="(tag, index) in fileData.tag_names" :key="index" type="info" size="small">
-          {{ tag }}
-        </n-tag>
-      </n-descriptions-item>
-
-      <n-descriptions-item label="Pobrano">{{ fileData.downloads }} </n-descriptions-item>
-
-      <n-descriptions-item label="Opis">{{ fileData.description }} </n-descriptions-item>
-
-      <n-descriptions-item label="Ocena" :span="3">
+      <div class="info-grid">
+        <div><n-text strong>Autor:</n-text> {{ fileData.author }}</div>
+        <div><n-text strong>Dotyczy wydarzenia:</n-text> {{ fileData.date }}</div>
+        <div class="span-2">
+          <n-text strong>Dodano:</n-text>
+          <n-time :time="new Date(fileData.upload_date)" format="yyyy-MM-dd" />
+        </div>
         <div>
-          <div>Średnia: {{ fileData.rating.toFixed(1) }} ({{ fileData.rating_count }} ocen)</div>
+          Pobrano: <n-text strong>{{ fileData.downloads }}</n-text>
+        </div>
+        <div>
+          <n-text>
+            Średnia:
+            <n-text strong>{{ fileData.rating.toFixed(1) }}</n-text> ({{ fileData.rating_count }}
+            ocen)
+          </n-text>
           <n-rate v-model:value="userRating" allow-half @update:value="handleRate" />
         </div>
-      </n-descriptions-item>
-    </n-descriptions>
+        <div>
+          <n-text strong>Kategorie:</n-text>
+          <n-space wrap>
+            <n-tag v-for="(cat, index) in categoryNames" :key="'cat-' + index" type="success" round>
+              {{ cat }}
+            </n-tag>
+          </n-space>
+        </div>
+        <div>
+          <n-text strong>Tagi:</n-text>
+          <n-space wrap>
+            <n-tag
+              v-for="(tag, index) in fileData.tag_names"
+              :key="'tag-' + index"
+              type="info"
+              round
+            >
+              {{ tag }}
+            </n-tag>
+          </n-space>
+        </div>
+        <div class="span-2">
+          <n-text strong>Bibliografia:</n-text>
+          <n-space>
+            <n-tag v-if="fileData.bibliography_titles.length <= 0" round>Brak</n-tag>
+            <n-tag
+              v-for="(book, index) in fileData.bibliography_titles"
+              :key="'book-' + index"
+              type="success"
+              round
+              style="text-wrap: wrap"
+            >
+              {{ book }}
+            </n-tag>
+          </n-space>
+        </div>
+        <div class="span-2">
+          <n-text strong>Opis:</n-text>
+          <p>{{ fileData.description }}</p>
+        </div>
+      </div>
 
-    <n-button type="primary" @click="downloadFile"> Pobierz plik </n-button>
+      <template #action>
+        <n-flex justify="center">
+          <n-button size="large" type="primary" @click="downloadFile"> Pobierz plik </n-button>
+        </n-flex>
+      </template>
+    </n-card>
 
     <!-- Nowy kontener lokalny -->
     <div class="pdf-and-comments">
@@ -207,9 +254,16 @@ async function handleRate(value: number) {
   flex-wrap: wrap;
   margin: 0 auto;
 }
-.file-data {
-  width: 80%;
-  min-width: 300px;
+.file-data-info {
+  max-width: 300px;
+  margin: auto;
+  margin-top: 1rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px 26px;
 }
 
 .pdf-preview-container {
@@ -296,5 +350,31 @@ async function handleRate(value: number) {
   flex-direction: column;
   align-items: center;
   width: 100%;
+}
+
+@media (min-width: 500px) {
+  .file-data-info {
+    max-width: 420px;
+  }
+}
+
+@media (min-width: 768px) {
+  .file-data-info {
+    max-width: 700px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .span-2 {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .file-data-info {
+    max-width: 900px;
+  }
 }
 </style>

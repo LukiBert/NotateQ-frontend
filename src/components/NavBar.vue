@@ -2,12 +2,15 @@
 import { useRouter, useRoute } from 'vue-router'
 import { h, computed, ref } from 'vue'
 import { NButton, NIcon } from 'naive-ui'
-import { IosHome as HomeIcon, MdCloudUpload as UploadIcon, MdPerson as PersonIcon } from '@vicons/ionicons4'
+import {
+  IosHome as HomeIcon,
+  MdCloudUpload as UploadIcon,
+  MdPerson as PersonIcon,
+} from '@vicons/ionicons4'
 import { isLoggedIn } from '@/constants/authState'
 
 const router = useRouter()
 const route = useRoute()
-
 
 function goToLogin() {
   router.push({ name: 'register' })
@@ -69,31 +72,26 @@ const activeButtonKey = computed(() => {
       </n-button>
 
       <n-button
-  text
-  v-if="isLoggedIn"
-  @click="goToProfile"
-  :class="{ active: activeButtonKey === 'profile' }"
->
-  <template #icon>
-    <n-icon><PersonIcon /></n-icon>
-  </template>
-  Twoje konto
-</n-button>
+        text
+        v-if="isLoggedIn"
+        @click="goToProfile"
+        :class="{ active: activeButtonKey === 'profile' }"
+      >
+        <template #icon>
+          <n-icon><PersonIcon /></n-icon>
+        </template>
+        Twoje konto
+      </n-button>
 
-<n-button
-  text
-  v-else
-  @click="goToLogin"
->
-  <template #icon>
-    <n-icon><PersonIcon /></n-icon>
-  </template>
-  Zaloguj się
-</n-button>
-<!--      <n-button text @click="logout">-->
-<!--          Wyloguj się-->
-<!--      </n-button>-->
-
+      <n-button text v-else @click="goToLogin">
+        <template #icon>
+          <n-icon><PersonIcon /></n-icon>
+        </template>
+        Zaloguj się
+      </n-button>
+      <!--      <n-button text @click="logout">-->
+      <!--          Wyloguj się-->
+      <!--      </n-button>-->
     </div>
   </div>
 </template>
