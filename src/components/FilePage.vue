@@ -1,23 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { type FileData, getCategoryMap, incrementDownload, rateFile } from '../constants'
-import {
-  NDescriptions,
-  NDescriptionsItem,
-  NTime,
-  NTag,
-  NButton,
-  NSkeleton,
-  NRate,
-  NInput,
-  NGrid,
-  NGi,
-  NSpace,
-  NCard,
-  NFlex,
-  NText,
-  NP,
-} from 'naive-ui'
+import { NTime, NTag, NButton, NRate, NInput, NSpace, NCard, NFlex, NText } from 'naive-ui'
 import PdfEmbed from 'vue-pdf-embed'
 
 const props = defineProps<{
@@ -93,34 +77,8 @@ async function handleRate(value: number) {
 
 <template>
   <div class="file-data-wrapper">
-    <n-descriptions v-if="loading" class="file-data" label-placement="top" :column="3">
-      <n-descriptions-item label="Autor">
-        <n-skeleton text width="20%"></n-skeleton>
-      </n-descriptions-item>
-
-      <n-descriptions-item label="Dodano">
-        <n-skeleton text width="20%"></n-skeleton>
-      </n-descriptions-item>
-
-      <n-descriptions-item label="Kategoria">
-        <n-skeleton text width="20%"></n-skeleton>
-      </n-descriptions-item>
-
-      <n-descriptions-item label="Tagi" :span="2">
-        <n-skeleton text width="60%"></n-skeleton>
-      </n-descriptions-item>
-
-      <n-descriptions-item label="Pobrano">
-        <n-skeleton text width="20%"></n-skeleton>
-      </n-descriptions-item>
-
-      <n-descriptions-item label="Opis">
-        <n-skeleton text :repeat="3" width="80%"></n-skeleton>
-      </n-descriptions-item>
-    </n-descriptions>
-
     <n-card
-      v-else
+      v-if="!loading"
       bordered
       size="large"
       :segmented="{ content: true, footer: 'soft' }"
@@ -136,7 +94,7 @@ async function handleRate(value: number) {
         <div><n-text strong>Autor:</n-text> {{ fileData.author }}</div>
         <div><n-text strong>Dotyczy wydarzenia:</n-text> {{ fileData.date }}</div>
         <div class="span-2">
-          <n-text strong>Dodano:</n-text>
+          <n-text strong>Dodano: </n-text>
           <n-time :time="new Date(fileData.upload_date)" format="yyyy-MM-dd" />
         </div>
         <div>
@@ -178,7 +136,6 @@ async function handleRate(value: number) {
             <n-tag
               v-for="(book, index) in fileData.bibliography_titles"
               :key="'book-' + index"
-              type="success"
               round
               style="text-wrap: wrap"
             >
