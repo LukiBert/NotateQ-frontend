@@ -19,6 +19,9 @@ const searchInput = ref('')
 const route = useRoute()
 const props = defineProps<{ id?: string }>()
 
+const isFollowing = ref(false)
+const followId = ref<number | null>(null)
+
 myId.value = Number(localStorage.getItem('myId'))
 
 const isOwnProfile = computed(() => {
@@ -67,8 +70,53 @@ async function fetchProfile() {
   }
 }
 
-onMounted(fetchProfile)
-watch(() => route.params.id, fetchProfile)
+async function checkFollowingStatus() {
+  if (!isLoggedIn.value || isOwnProfile.value || !userId.value) return
+  try {
+    const response = await axios.get(`${API_URL}api/follows/my-following/`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('access')}` },
+    })
+    const found = response.data.find((f: any) => f.followed === userId.value)
+    isFollowing.value = !!found
+    followId.value = found?.id ?? null
+  } catch (err) {
+    console.error('Błąd sprawdzania obserwacji:', err)
+  }
+}
+
+async function toggleFollow() {
+  if (!isLoggedIn.value || !userId.value) return
+
+  try {
+    if (isFollowing.value && followId.value !== null) {
+      await axios.delete(`${API_URL}api/follows/${followId.value}/`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access')}` },
+      })
+      isFollowing.value = false
+      followId.value = null
+    } else {
+      const res = await axios.post(`${API_URL}api/follows/`, {
+        followed: userId.value,
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access')}` },
+      })
+      isFollowing.value = true
+      followId.value = res.data.id
+    }
+  } catch (err) {
+    console.error('Błąd podczas (od)obserwowania:', err)
+  }
+}
+
+
+
+async function loadProfileAndFollowStatus() {
+  await fetchProfile()
+  await checkFollowingStatus()
+}
+
+onMounted(loadProfileAndFollowStatus)
+watch(() => route.params.id, loadProfileAndFollowStatus)
 
 </script>
 
@@ -84,9 +132,15 @@ watch(() => route.params.id, fetchProfile)
         <h2>{{ userName }}</h2>
         <p>{{ documentsShared }} udostępnionych dokumentów</p>
       </div>
-      <n-button v-if="isOwnProfile && isLoggedIn" @click="logout" type="error" style="margin-left: auto">
-        Wyloguj się
-      </n-button>
+      <template v-if="isOwnProfile && isLoggedIn">
+  <n-button @click="logout" type="error" style="margin-left: auto">Wyloguj się</n-button>
+</template>
+
+<template v-else-if="isLoggedIn">
+  <n-button @click="toggleFollow" type="primary" style="margin-left: auto">
+    {{ isFollowing ? 'Przestań obserwować' : 'Obserwuj' }}
+  </n-button>
+</template>
     </div>
 
     <!-- SEARCHBAR + LISTA -->
