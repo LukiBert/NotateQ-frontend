@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import { API_URL, type FileData } from '@/constants'
 import FilePage from '@/components/FilePage.vue'
 import NavBar from '@/components/NavBar.vue'
 
 const route = useRoute()
+const router = useRouter()
 
 const loadingStatus = ref(false)
 const fetchedFile = ref<FileData>()
@@ -24,6 +25,7 @@ async function fetchFileData(id: number) {
     fetchedFile.value = res.data
   } catch (err: any) {
     errorMessage.value = err.toString()
+    router.push({ name: 'notFound' })
   } finally {
     loadingStatus.value = false
   }
