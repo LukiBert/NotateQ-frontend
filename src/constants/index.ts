@@ -181,9 +181,14 @@ export async function getUserRating(fileId: number): Promise<number | null> {
   return data.rating
 }
 
-export async function fetchComments(fileId: number) {
-  const response = await axios.get(`${API_URL}/api/comments/?file=${fileId}`)
-  return response.data
+export async function fetchComments(fileId: number): Promise<Comment[]> {
+  try {
+    const response = await API.get(`api/comments/?file=${fileId}`)
+    return response.data
+  } catch (error) {
+    console.error(`Error fetching comments [api/comments/?file=${fileId}]:`, error)
+    return []
+  }
 }
 
 export async function postComment(fileId: number, content: string) {
