@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
-import FilePage from '../components/FilePage.vue'
-import { API_URL, type FileData } from '../constants'
+import { API_URL, type FileData } from '@/constants'
+import FilePage from '@/components/FilePage.vue'
 import NavBar from '@/components/NavBar.vue'
 
 const route = useRoute()
@@ -31,12 +31,6 @@ async function fetchFileData(id: number) {
 </script>
 
 <template>
-  <header>
-    <NavBar />
-  </header>
-  <FilePage
-    v-if="fetchedFile"
-    :file-data="fetchedFile"
-    :loading="loadingStatus"
-  />
+  <NavBar />
+  <FilePage v-if="fetchedFile" :file-data="fetchedFile" :loading="loadingStatus" />
 </template>

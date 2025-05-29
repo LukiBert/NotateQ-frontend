@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router'
-import { h, computed, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { NButton, NIcon, NPopover } from 'naive-ui'
 import {
   IosHome as HomeIcon,
@@ -16,12 +16,12 @@ const route = useRoute()
 const mockNotifications = ref([
   { id: 1, message: 'Użytkownik JanKowalski udostępnił plik: Algebra 1' },
   { id: 2, message: 'Nowy plik dodany w kategorii Fizyka' },
-  { id: 3, message: 'Twoja notatka została oceniona na 5 gwiazdek' }
+  { id: 3, message: 'Twoja notatka została oceniona na 5 gwiazdek' },
 ])
 
-function goToLogin() {
-  router.push({ name: 'register' })
-}
+// function goToLogin() {
+//   router.push({ name: 'register' })
+// }
 
 // function logout() {
 //   localStorage.removeItem('access')
@@ -58,9 +58,10 @@ const activeButtonKey = computed(() => {
 <template>
   <div class="navbar">
     <!-- Logo -->
-    <div class="logo" @click="goToHome">
+    <picture class="logo" @click="goToHome">
+      <source srcset="/logo-graphic.png" media="(max-width: 1024px)" />
       <img src="/logo-notateq.png" alt="NotateQ Logo" />
-    </div>
+    </picture>
 
     <!-- Menu Buttons -->
     <div class="menu-buttons">
@@ -68,46 +69,42 @@ const activeButtonKey = computed(() => {
         <template #icon>
           <n-icon><HomeIcon /></n-icon>
         </template>
-        Strona główna
+        <p class="visible-text">Strona główna</p>
       </n-button>
 
       <n-button text @click="goToUpload" :class="{ active: activeButtonKey === 'upload' }">
         <template #icon>
           <n-icon><UploadIcon /></n-icon>
         </template>
-        Dodaj notatkę
+        <p class="visible-text">Dodaj notatkę</p>
       </n-button>
 
-      <n-button
-        text
-        v-if="isLoggedIn"
-        @click="goToProfile"
-        :class="{ active: activeButtonKey === 'profile' }"
-      >
+      <n-button text @click="goToProfile" :class="{ active: activeButtonKey === 'profile' }">
         <template #icon>
           <n-icon><PersonIcon /></n-icon>
         </template>
-        Twoje konto
+        <p class="visible-text" v-if="isLoggedIn">Twoje konto</p>
+        <p class="visible-text" v-else>Zaloguj się</p>
       </n-button>
 
       <n-popover v-if="isLoggedIn" trigger="click" placement="bottom-end">
-  <template #trigger>
-    <n-button text>
-      <template #icon>
-        <n-icon size="24"><BellIcon /></n-icon>
-      </template>
-    </n-button>
-  </template>
+        <template #trigger>
+          <n-button text>
+            <template #icon>
+              <n-icon size="24"><BellIcon /></n-icon>
+            </template>
+          </n-button>
+        </template>
 
-  <div class="notifications">
-    <div v-for="notif in mockNotifications" :key="notif.id" class="notification-item">
-      {{ notif.message }}
-    </div>
-    <div v-if="mockNotifications.length === 0" class="notification-empty">
-      Brak powiadomień
-    </div>
-  </div>
-</n-popover>
+        <div class="notifications">
+          <div v-for="notif in mockNotifications" :key="notif.id" class="notification-item">
+            {{ notif.message }}
+          </div>
+          <div v-if="mockNotifications.length === 0" class="notification-empty">
+            Brak powiadomień
+          </div>
+        </div>
+      </n-popover>
     </div>
   </div>
 </template>
@@ -115,24 +112,31 @@ const activeButtonKey = computed(() => {
 <style scoped>
 .navbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   background-color: #14532d;
   padding: 0.5rem 1rem;
   height: 64px;
+
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .logo img {
-  margin-left: 10rem;
-  height: 160px;
+  padding: 0.75rem;
+  height: 64px;
   cursor: pointer;
 }
 
 .menu-buttons {
-  margin-right: 10rem;
   display: flex;
   gap: 2rem;
   align-items: center;
+}
+
+.visible-text {
+  display: none;
 }
 
 .n-button {
@@ -175,5 +179,9 @@ const activeButtonKey = computed(() => {
   font-size: 14px;
 }
 
-
+@media (min-width: 1024px) {
+  .visible-text {
+    display: block;
+  }
+}
 </style>

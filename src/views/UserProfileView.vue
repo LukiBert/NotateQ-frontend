@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
-import SearchBar from '../components/SearchBar.vue'
-import FileList from '../components/FileList.vue'
-import NavBar from '@/components/NavBar.vue'
 import axios from 'axios'
-import { API_URL } from '../constants'
-import { myId, isLoggedIn } from '@/constants/authState'
-import router from '@/router'
 import { NButton } from 'naive-ui'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { ref, onMounted, computed, watch } from 'vue'
+import { API_URL } from '@/constants'
+import { myId, isLoggedIn } from '@/constants/authState'
+import SearchBar from '@/components/SearchBar.vue'
+import FileList from '@/components/FileList.vue'
+import NavBar from '@/components/NavBar.vue'
+
+const props = defineProps<{ id?: string }>()
+
+const router = useRouter()
+const route = useRoute()
 
 const userName = ref('')
 const userId = ref<number | null>(null)
@@ -16,8 +20,6 @@ const userAvatarUrl = ref('')
 const documentsShared = ref(0)
 
 const searchInput = ref('')
-const route = useRoute()
-const props = defineProps<{ id?: string }>()
 
 myId.value = Number(localStorage.getItem('myId'))
 
@@ -33,7 +35,6 @@ function logout() {
   myId.value = null
   router.push({ name: 'home' })
 }
-
 
 function receiveEmit(phrase: string) {
   searchInput.value = phrase
@@ -61,7 +62,6 @@ async function fetchProfile() {
     userName.value = response.data.username
     userId.value = response.data.id
     userAvatarUrl.value = `https://api.dicebear.com/7.x/thumbs/svg?seed=${response.data.username}`
-
   } catch (err) {
     console.error('Błąd podczas pobierania profilu:', err)
   }
@@ -69,13 +69,10 @@ async function fetchProfile() {
 
 onMounted(fetchProfile)
 watch(() => route.params.id, fetchProfile)
-
 </script>
 
 <template>
-  <header>
-    <NavBar />
-  </header>
+  <NavBar />
   <div class="profile-wrapper">
     <!-- INFO O UŻYTKOWNIKU -->
     <div class="user-info-card">
@@ -84,7 +81,12 @@ watch(() => route.params.id, fetchProfile)
         <h2>{{ userName }}</h2>
         <p>{{ documentsShared }} udostępnionych dokumentów</p>
       </div>
-      <n-button v-if="isOwnProfile && isLoggedIn" @click="logout" type="error" style="margin-left: auto">
+      <n-button
+        v-if="isOwnProfile && isLoggedIn"
+        @click="logout"
+        type="error"
+        style="margin-left: auto"
+      >
         Wyloguj się
       </n-button>
     </div>

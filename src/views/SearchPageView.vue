@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import FileList from '../components/FileList.vue'
-import FiltersForm from '../components/FiltersForm.vue'
-import SearchBar from '../components/SearchBar.vue'
-import NavBar from '../components/NavBar.vue'
+import FileList from '@/components/FileList.vue'
+import FiltersForm from '@/components/FiltersForm.vue'
+import SearchBar from '@/components/SearchBar.vue'
+import NavBar from '@/components/NavBar.vue'
 import type { SortOption } from '@/constants'
 
 const route = useRoute()
@@ -36,9 +36,7 @@ watch(
 </script>
 
 <template>
-  <header>
-    <NavBar />
-  </header>
+  <NavBar />
   <div class="search-wrapper">
     <SearchBar mode="manual" @search-phrase="updateSearch" />
     <FiltersForm @sort-option-change="handleSortOptionChange" />

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import { NLoadingBarProvider } from 'naive-ui'
-import NavBar from './components/NavBar.vue'
 </script>
 
 <template>
