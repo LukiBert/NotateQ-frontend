@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import axios from 'axios'
 import { NButton, NIcon, NText } from 'naive-ui'
 import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch } from 'vue'
-import { API_URL } from '@/constants'
+import { API } from '@/constants'
 import { myId, isLoggedIn } from '@/constants/authState'
-import { MdLogOut } from '@vicons/ionicons4'
+import { MdLogOut, MdTrash } from '@vicons/ionicons4'
 import { UserFollow } from '@vicons/carbon'
 
 const props = defineProps<{ id?: number }>()
@@ -42,20 +41,16 @@ async function fetchProfile() {
     console.log(`props.id=${props.id}`)
     if (props.id) {
       // publiczny profil innego użytkownika
-      response = await axios.get(`${API_URL}api/users/${props.id}/`)
-      console.log(`### Profile Fetch ${JSON.stringify(response.data)}`)
+      response = await API.get(`api/users/${props.id}/`)
       documentsShared.value = response.data.files?.length ?? 0
     } else {
       // profil zalogowanego użytkownika
-      response = await axios.get(`${API_URL}api/profile/`, {
+      response = await API.get(`api/profile/`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access')}`,
         },
       })
-      console.log(`### Profile Fetch`, response)
-
       documentsShared.value = response.data.file_count
-      console.log(`### documentsShared=${JSON.stringify(response.data.file_count)}`)
     }
 
     userName.value = response.data.username
@@ -70,25 +65,17 @@ async function fetchProfile() {
 }
 
 async function checkFollowingStatus() {
-  console.log(`Checking following status....`)
-  if (!isLoggedIn.value || isOwnProfile.value || !userId.value) {
-    console.log(`XXX ${userId.value} ${!isLoggedIn.value || isOwnProfile.value || !userId.value}`)
-    return
-  }
+  if (!isLoggedIn.value || isOwnProfile.value || !userId.value) return
 
   try {
-    console.log(`Before my-following...`)
-    const response = await axios.get(`${API_URL}api/follows/my-following/`, {
+    const response = await API.get(`api/follows/my-following/`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('access')}` },
     })
     const found = response.data.find((f: any) => f.followed === userId.value)
     isFollowing.value = !!found
     followId.value = found?.id ?? null
-    console.log(`After my-following`)
   } catch (err) {
     console.error('Błąd sprawdzania obserwacji:', err)
-  } finally {
-    console.log(`Checked following status = ${isFollowing.value}`)
   }
 }
 
@@ -98,14 +85,14 @@ async function toggleFollow() {
   console.log(`BEFORE isFollowing=${isFollowing.value}, followId=${followId.value}`)
   try {
     if (isFollowing.value && followId.value !== null) {
-      await axios.delete(`${API_URL}api/follows/${followId.value}/`, {
+      await API.delete(`api/follows/${followId.value}/`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('access')}` },
       })
       isFollowing.value = false
       followId.value = null
     } else {
-      const res = await axios.post(
-        `${API_URL}api/follows/`,
+      const res = await API.post(
+        `api/follows/`,
         {
           followed: userId.value,
         },
@@ -143,22 +130,26 @@ watch(
           Udostępnionych dokumentów: <n-text strong>{{ documentsShared }}</n-text>
         </p>
       </div>
-      <template v-if="isOwnProfile">
-        <n-button @click="logout" type="error" style="margin-left: auto">
-          <template #icon>
-            <n-icon size="24"><MdLogOut /></n-icon>
-          </template>
-          <p class="button-text">Wyloguj się</p>
-        </n-button>
-      </template>
-      <template v-else-if="isLoggedIn">
-        <n-button @click="toggleFollow" type="primary" style="margin-left: auto">
-          <template #icon>
-            <n-icon size="24"><UserFollow /></n-icon>
-          </template>
-          <p class="button-text">{{ isFollowing ? 'Przestań obserwować' : 'Obserwuj' }}</p>
-        </n-button>
-      </template>
+      <n-button v-if="isOwnProfile" @click="logout" type="error" style="margin-left: auto">
+        <template #icon>
+          <n-icon size="24"><MdLogOut /></n-icon>
+        </template>
+        <p class="button-text">Wyloguj się</p>
+      </n-button>
+      <n-button
+        v-else-if="isLoggedIn"
+        @click="toggleFollow"
+        type="primary"
+        style="margin-left: auto"
+      >
+        <template #icon>
+          <n-icon size="24">
+            <MdTrash v-if="isFollowing" />
+            <UserFollow v-else />
+          </n-icon>
+        </template>
+        <p class="button-text">{{ isFollowing ? 'Przestań obserwować' : 'Obserwuj' }}</p>
+      </n-button>
     </div>
   </div>
 </template>
