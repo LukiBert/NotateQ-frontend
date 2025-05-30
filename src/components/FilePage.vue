@@ -2,15 +2,12 @@
 import { computed, onMounted, ref } from 'vue'
 import {
   type FileData,
-  type Comment,
   getCategoryMap,
   incrementDownload,
   rateFile,
   getUserRating,
-  fetchComments,
-  postComment,
 } from '@/constants'
-import { NTime, NTag, NButton, NRate, NInput, NSpace, NCard, NFlex, NText } from 'naive-ui'
+import { NTime, NTag, NButton, NRate, NSpace, NCard, NFlex, NText } from 'naive-ui'
 import PdfEmbed from 'vue-pdf-embed'
 import CommentSection from '@/components/CommentSection.vue'
 
