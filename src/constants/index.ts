@@ -33,6 +33,13 @@ export interface FileData {
   date: string
 }
 
+export interface Comment {
+  id: number
+  author_username: string
+  created_at: string
+  content: string
+}
+
 export interface Filters {
   title?: string
   author?: string
@@ -164,8 +171,8 @@ export async function getUserRating(fileId: number): Promise<number | null> {
 
   const res = await fetch(`http://127.0.0.1:8000/api/files/${fileId}/user-rating/`, {
     headers: {
-      'Authorization': `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   })
 
   if (!res.ok) return null
@@ -174,24 +181,32 @@ export async function getUserRating(fileId: number): Promise<number | null> {
   return data.rating
 }
 
-export async function fetchComments(fileId: number) {
-  const response = await axios.get(`${API_URL}/api/comments/?file=${fileId}`)
-  return response.data
+export async function fetchComments(fileId: number): Promise<Comment[]> {
+  try {
+    const response = await API.get(`api/comments/?file=${fileId}`)
+    return response.data
+  } catch (error) {
+    console.error(`Error fetching comments [api/comments/?file=${fileId}]:`, error)
+    return []
+  }
 }
 
 export async function postComment(fileId: number, content: string) {
   const token = localStorage.getItem('access')
   if (!token) throw new Error('Brak tokenu autoryzacji')
 
-  const response = await axios.post(`${API_URL}/api/comments/`, {
-    file: fileId,
-    content,
-  }, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    }
-  })
+  const response = await axios.post(
+    `${API_URL}/api/comments/`,
+    {
+      file: fileId,
+      content,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  )
 
   return response.data
 }
-

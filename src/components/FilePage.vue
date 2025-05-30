@@ -1,8 +1,18 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { type FileData, getCategoryMap, incrementDownload, rateFile, getUserRating, fetchComments, postComment } from '../constants'
+import {
+  type FileData,
+  type Comment,
+  getCategoryMap,
+  incrementDownload,
+  rateFile,
+  getUserRating,
+  fetchComments,
+  postComment,
+} from '@/constants'
 import { NTime, NTag, NButton, NRate, NInput, NSpace, NCard, NFlex, NText } from 'naive-ui'
 import PdfEmbed from 'vue-pdf-embed'
+import CommentSection from '@/components/CommentSection.vue'
 
 const props = defineProps<{
   fileData: FileData
@@ -29,21 +39,6 @@ function nextPage() {
 function prevPage() {
   if (currentPage.value > 1) currentPage.value--
 }
-
-onMounted(async () => {
-  categoryMap.value = await getCategoryMap()
-
-  if (localStorage.getItem('access')) {
-    const rating = await getUserRating(props.fileData.id)
-    if (rating !== null) {
-      userRating.value = rating
-      hasRated.value = true
-    }
-  }
-
-  await loadComments()
-})
-
 
 const categoryNames = computed(() => {
   return props.fileData.categories?.map((id) => categoryMap.value[id]).filter(Boolean)
@@ -88,177 +83,117 @@ async function handleRate(value: number) {
   }
 }
 
-const comments = ref<any[]>([])
-const newComment = ref('')
+onMounted(async () => {
+  categoryMap.value = await getCategoryMap()
 
-async function loadComments() {
-  try {
-    comments.value = await fetchComments(props.fileData.id)
-  } catch (err) {
-    console.error('Błąd pobierania komentarzy:', err)
+  if (localStorage.getItem('access')) {
+    const rating = await getUserRating(props.fileData.id)
+    if (rating !== null) {
+      userRating.value = rating
+      hasRated.value = true
+    }
   }
-}
-
-async function handleAddComment() {
-  if (!localStorage.getItem('access')) {
-    alert('Musisz być zalogowany, aby dodać komentarz.')
-    return
-  }
-
-  if (!newComment.value.trim()) {
-    alert('Komentarz nie może być pusty.')
-    return
-  }
-
-  try {
-    await postComment(props.fileData.id, newComment.value)
-    newComment.value = ''
-    await loadComments()
-  } catch (err) {
-    console.error('Błąd podczas dodawania komentarza:', err)
-  }
-}
+})
 </script>
 
 <template>
-  <div class="file-data-wrapper">
-    <n-card
-      v-if="!loading"
-      bordered
-      size="large"
-      :segmented="{ content: true, footer: 'soft' }"
-      class="file-data-info"
-    >
-      <template #header>
-        <h1 style="font-weight: bold">
-          {{ fileData.title }}
-        </h1>
-      </template>
+  <n-card
+    v-if="!loading"
+    bordered
+    size="large"
+    :segmented="{ content: true, footer: 'soft' }"
+    class="file-data-info"
+  >
+    <template #header>
+      <h1 style="font-weight: bold">
+        {{ fileData.title }}
+      </h1>
+    </template>
 
-      <div class="info-grid">
-        <div><n-text strong>Autor:</n-text> {{ fileData.author }}</div>
-        <div><n-text strong>Dotyczy wydarzenia:</n-text> {{ fileData.date }}</div>
-        <div class="span-2">
-          <n-text strong>Dodano: </n-text>
-          <n-time :time="new Date(fileData.upload_date)" format="yyyy-MM-dd" />
-        </div>
-        <div>
-          Pobrano: <n-text strong>{{ fileData.downloads }}</n-text>
-        </div>
-        <div>
-          <n-text v-if="!hasRatedShow">
-            Średnia:
-            <n-text strong>{{ fileData.rating.toFixed(1) }}</n-text>
-            ({{ fileData.rating_count }} ocen)
-          </n-text>
-          <n-text v-else>
-            Dałeś ocenę: {{ userRating }}
-          </n-text>
-          <n-rate v-model:value="userRating" @update:value="handleRate" />
-        </div>
-        <div>
-          <n-text strong>Kategorie:</n-text>
-          <n-space wrap>
-            <n-tag v-for="(cat, index) in categoryNames" :key="'cat-' + index" type="success" round>
-              {{ cat }}
-            </n-tag>
-          </n-space>
-        </div>
-        <div>
-          <n-text strong>Tagi:</n-text>
-          <n-space wrap>
-            <n-tag
-              v-for="(tag, index) in fileData.tag_names"
-              :key="'tag-' + index"
-              type="info"
-              round
-            >
-              {{ tag }}
-            </n-tag>
-          </n-space>
-        </div>
-        <div class="span-2">
-          <n-text strong>Bibliografia:</n-text>
-          <n-space>
-            <n-tag v-if="fileData.bibliography_titles.length <= 0" round>Brak</n-tag>
-            <n-tag
-              v-for="(book, index) in fileData.bibliography_titles"
-              :key="'book-' + index"
-              round
-              style="text-wrap: wrap"
-            >
-              {{ book }}
-            </n-tag>
-          </n-space>
-        </div>
-        <div class="span-2">
-          <n-text strong>Opis:</n-text>
-          <p>{{ fileData.description }}</p>
-        </div>
+    <div class="info-grid">
+      <div><n-text strong>Autor:</n-text> {{ fileData.author }}</div>
+      <div><n-text strong>Dotyczy wydarzenia:</n-text> {{ fileData.date }}</div>
+      <div class="span-2">
+        <n-text strong>Dodano: </n-text>
+        <n-time :time="new Date(fileData.upload_date)" format="yyyy-MM-dd" />
+      </div>
+      <div>
+        Pobrano: <n-text strong>{{ fileData.downloads }}</n-text>
+      </div>
+      <div>
+        <n-text v-if="!hasRatedShow">
+          Średnia:
+          <n-text strong>{{ fileData.rating.toFixed(1) }}</n-text>
+          ({{ fileData.rating_count }} ocen)
+        </n-text>
+        <n-text v-else> Dałeś ocenę: {{ userRating }} </n-text>
+        <n-rate v-model:value="userRating" @update:value="handleRate" />
+      </div>
+      <div>
+        <n-text strong>Kategorie:</n-text>
+        <n-space wrap>
+          <n-tag v-for="(cat, index) in categoryNames" :key="'cat-' + index" type="success" round>
+            {{ cat }}
+          </n-tag>
+        </n-space>
+      </div>
+      <div>
+        <n-text strong>Tagi:</n-text>
+        <n-space wrap>
+          <n-tag v-for="(tag, index) in fileData.tag_names" :key="'tag-' + index" type="info" round>
+            {{ tag }}
+          </n-tag>
+        </n-space>
+      </div>
+      <div class="span-2">
+        <n-text strong>Bibliografia:</n-text>
+        <n-space>
+          <n-tag v-if="fileData.bibliography_titles.length <= 0" round>Brak</n-tag>
+          <n-tag
+            v-for="(book, index) in fileData.bibliography_titles"
+            :key="'book-' + index"
+            round
+            style="text-wrap: wrap"
+          >
+            {{ book }}
+          </n-tag>
+        </n-space>
+      </div>
+      <div class="span-2">
+        <n-text strong>Opis:</n-text>
+        <p>{{ fileData.description }}</p>
+      </div>
+    </div>
+
+    <template #action>
+      <n-flex justify="center">
+        <n-button size="large" type="primary" @click="downloadFile"> Pobierz plik </n-button>
+      </n-flex>
+    </template>
+  </n-card>
+
+  <!-- PDF -->
+  <div class="pdf-wrapper">
+    <div v-if="fileData.file.endsWith('.pdf')" class="pdf-preview-container">
+      <div class="pdf-controls">
+        <n-button @click="prevPage" :disabled="currentPage <= 1">←</n-button>
+        <span>Strona {{ currentPage }} z {{ pageCount }}</span>
+        <n-button @click="nextPage" :disabled="currentPage >= pageCount">→</n-button>
       </div>
 
-      <template #action>
-        <n-flex justify="center">
-          <n-button size="large" type="primary" @click="downloadFile"> Pobierz plik </n-button>
-        </n-flex>
-      </template>
-    </n-card>
-
-    <!-- Nowy kontener lokalny -->
-<div class="pdf-and-comments">
-  <div v-if="fileData.file.endsWith('.pdf')" class="pdf-preview-container">
-    <div class="pdf-controls">
-      <n-button @click="prevPage" :disabled="currentPage <= 1">←</n-button>
-      <span>Strona {{ currentPage }} z {{ pageCount }}</span>
-      <n-button @click="nextPage" :disabled="currentPage >= pageCount">→</n-button>
-    </div>
-
-    <div class="pdf-inner-wrapper">
-      <PdfEmbed
-        ref="pdfRef"
-        :source="pdfUrl"
-        :page="currentPage"
-        @loaded="handleLoaded"
-        class="pdf-embed"
-      />
+      <div class="pdf-inner-wrapper">
+        <PdfEmbed
+          ref="pdfRef"
+          :source="pdfUrl"
+          :page="currentPage"
+          @loaded="handleLoaded"
+          class="pdf-embed"
+        />
+      </div>
     </div>
   </div>
 
-  <!-- Komentarze -->
-<div class="comments-section">
-  <div class="comment-form">
-    <n-input
-      v-model:value="newComment"
-      type="textarea"
-      placeholder="Napisz komentarz..."
-      autosize
-    />
-    <n-button
-      type="primary"
-      style="margin-top: 0.5rem;"
-      @click="handleAddComment"
-    >
-      Dodaj komentarz
-    </n-button>
-  </div>
-
-  <div v-if="comments.length === 0">
-    Brak komentarzy. Bądź pierwszym!
-  </div>
-
-  <div v-for="comment in comments" :key="comment.id" class="comment">
-    <div class="comment-header">
-      <span><strong>{{ comment.author_username }}</strong></span>
-      <span>{{ new Date(comment.created_at).toLocaleDateString() }}</span>
-    </div>
-    <div class="comment-body">
-      {{ comment.content }}
-    </div>
-  </div>
-</div>
-</div>
-</div>
-
+  <CommentSection :file-id="props.fileData.id" />
 </template>
 
 <style scoped>
@@ -269,6 +204,7 @@ async function handleAddComment() {
   flex-wrap: wrap;
   margin: 0 auto;
 }
+
 .file-data-info {
   max-width: 300px;
   margin: auto;
@@ -322,49 +258,6 @@ async function handleAddComment() {
   padding: 0.5rem;
   background-color: #f5f5f5;
   border-radius: 8px;
-}
-
-.comments-section {
-  width: 80%;
-  max-width: 1800px;
-  margin-top: 15rem;
-  padding: 1rem;
-  border-top: 2px solid transparent;
-  padding-left: 15rem;
-  align-self: flex-start;
-  text-align: left;
-}
-
-.comment-form {
-  margin-bottom: 1.5rem;
-}
-
-.comment {
-  padding: 0.75rem;
-  border: 1px solid #eee;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-  background-color: #fafafa;
-}
-
-.comment-header {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-  color: #555;
-}
-
-.comment-body {
-  font-size: 1rem;
-  color: #333;
-}
-
-.pdf-and-comments {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
 }
 
 @media (min-width: 500px) {
