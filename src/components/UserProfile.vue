@@ -24,7 +24,7 @@ const documentsShared = ref(0)
 myId.value = Number(localStorage.getItem('myId'))
 
 const isOwnProfile = computed(() => {
-  return userId.value !== null && myId.value !== null && userId.value === myId.value
+  return userId.value === myId.value
 })
 
 function logout() {
@@ -39,9 +39,11 @@ function logout() {
 async function fetchProfile() {
   try {
     let response
+    console.log(`props.id=${props.id}`)
     if (props.id) {
       // publiczny profil innego użytkownika
       response = await axios.get(`${API_URL}api/users/${props.id}/`)
+      console.log(`### Profile Fetch ${JSON.stringify(response.data)}`)
       documentsShared.value = response.data.files?.length ?? 0
     } else {
       // profil zalogowanego użytkownika
@@ -50,12 +52,17 @@ async function fetchProfile() {
           Authorization: `Bearer ${localStorage.getItem('access')}`,
         },
       })
+      console.log(`### Profile Fetch`, response)
+
       documentsShared.value = response.data.file_count
+      console.log(`### documentsShared=${JSON.stringify(response.data.file_count)}`)
     }
 
     userName.value = response.data.username
     userId.value = response.data.id
     userAvatarUrl.value = `https://api.dicebear.com/7.x/thumbs/svg?seed=${response.data.username}`
+
+    console.log(`userId=${userId.value}`)
   } catch (err: any) {
     router.push({ name: 'notFound' })
     console.error('Błąd podczas pobierania profilu:', err)
@@ -63,22 +70,32 @@ async function fetchProfile() {
 }
 
 async function checkFollowingStatus() {
-  if (!isLoggedIn.value || isOwnProfile.value || !userId.value) return
+  console.log(`Checking following status....`)
+  if (!isLoggedIn.value || isOwnProfile.value || !userId.value) {
+    console.log(`XXX ${userId.value} ${!isLoggedIn.value || isOwnProfile.value || !userId.value}`)
+    return
+  }
+
   try {
+    console.log(`Before my-following...`)
     const response = await axios.get(`${API_URL}api/follows/my-following/`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('access')}` },
     })
     const found = response.data.find((f: any) => f.followed === userId.value)
     isFollowing.value = !!found
     followId.value = found?.id ?? null
+    console.log(`After my-following`)
   } catch (err) {
     console.error('Błąd sprawdzania obserwacji:', err)
+  } finally {
+    console.log(`Checked following status = ${isFollowing.value}`)
   }
 }
 
 async function toggleFollow() {
   if (!isLoggedIn.value || !userId.value) return
 
+  console.log(`BEFORE isFollowing=${isFollowing.value}, followId=${followId.value}`)
   try {
     if (isFollowing.value && followId.value !== null) {
       await axios.delete(`${API_URL}api/follows/${followId.value}/`, {
@@ -101,14 +118,16 @@ async function toggleFollow() {
     }
   } catch (err) {
     console.error('Błąd podczas (od)obserwowania:', err)
+  } finally {
+    console.log(`AFTER isFollowing=${isFollowing.value}, followId=${followId.value}`)
   }
 }
 
 watch(
   () => route.params.id,
-  () => {
-    fetchProfile()
-    checkFollowingStatus()
+  async () => {
+    await fetchProfile()
+    await checkFollowingStatus()
   },
   { immediate: true },
 )
@@ -124,29 +143,22 @@ watch(
           Udostępnionych dokumentów: <n-text strong>{{ documentsShared }}</n-text>
         </p>
       </div>
-      <n-button
-        v-if="isOwnProfile && isLoggedIn"
-        @click="logout"
-        type="error"
-        style="margin-left: auto"
-      >
-        <template #icon>
-          <n-icon size="24"><MdLogOut /></n-icon>
-        </template>
-        <p class="button-text">Wyloguj się</p>
-      </n-button>
-
-      <n-button
-        v-else-if="isLoggedIn"
-        @click="toggleFollow"
-        type="primary"
-        style="margin-left: auto"
-      >
-        <template #icon>
-          <n-icon size="24"><UserFollow /></n-icon>
-        </template>
-        <p class="button-text">{{ isFollowing ? 'Przestań obserwować' : 'Obserwuj' }}</p>
-      </n-button>
+      <template v-if="isOwnProfile">
+        <n-button @click="logout" type="error" style="margin-left: auto">
+          <template #icon>
+            <n-icon size="24"><MdLogOut /></n-icon>
+          </template>
+          <p class="button-text">Wyloguj się</p>
+        </n-button>
+      </template>
+      <template v-else-if="isLoggedIn">
+        <n-button @click="toggleFollow" type="primary" style="margin-left: auto">
+          <template #icon>
+            <n-icon size="24"><UserFollow /></n-icon>
+          </template>
+          <p class="button-text">{{ isFollowing ? 'Przestań obserwować' : 'Obserwuj' }}</p>
+        </n-button>
+      </template>
     </div>
   </div>
 </template>

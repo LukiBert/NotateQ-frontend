@@ -13,6 +13,7 @@ const userId = computed<number>(() => {
   const storageId = Number(localStorage.getItem('myId'))
   const routeId = Number(props.id)
 
+  console.log(`UPView says display id=${routeId ? routeId : storageId}`)
   return routeId ? routeId : storageId
 })
 
