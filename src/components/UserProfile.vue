@@ -6,11 +6,15 @@ import { ref, computed, watch } from 'vue'
 import { API_URL } from '@/constants'
 import { myId, isLoggedIn } from '@/constants/authState'
 import { MdLogOut } from '@vicons/ionicons4'
+import { UserFollow } from '@vicons/carbon'
 
 const props = defineProps<{ id?: number }>()
 
 const router = useRouter()
 const route = useRoute()
+
+const isFollowing = ref(false)
+const followId = ref<number | null>(null)
 
 const userName = ref('')
 const userId = ref<number | null>(null)
@@ -55,13 +59,59 @@ async function fetchProfile() {
   } catch (err: any) {
     router.push({ name: 'notFound' })
     console.error('Błąd podczas pobierania profilu:', err)
-  } finally {
-    console.log(`After profile fetch: props.id=${props.id}`)
-    console.log(`localStorageGet()=${localStorage.getItem('myId')}`)
   }
 }
 
-watch(() => route.params.id, fetchProfile, { immediate: true })
+async function checkFollowingStatus() {
+  if (!isLoggedIn.value || isOwnProfile.value || !userId.value) return
+  try {
+    const response = await axios.get(`${API_URL}api/follows/my-following/`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('access')}` },
+    })
+    const found = response.data.find((f: any) => f.followed === userId.value)
+    isFollowing.value = !!found
+    followId.value = found?.id ?? null
+  } catch (err) {
+    console.error('Błąd sprawdzania obserwacji:', err)
+  }
+}
+
+async function toggleFollow() {
+  if (!isLoggedIn.value || !userId.value) return
+
+  try {
+    if (isFollowing.value && followId.value !== null) {
+      await axios.delete(`${API_URL}api/follows/${followId.value}/`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access')}` },
+      })
+      isFollowing.value = false
+      followId.value = null
+    } else {
+      const res = await axios.post(
+        `${API_URL}api/follows/`,
+        {
+          followed: userId.value,
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('access')}` },
+        },
+      )
+      isFollowing.value = true
+      followId.value = res.data.id
+    }
+  } catch (err) {
+    console.error('Błąd podczas (od)obserwowania:', err)
+  }
+}
+
+watch(
+  () => route.params.id,
+  () => {
+    fetchProfile()
+    checkFollowingStatus()
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -84,6 +134,18 @@ watch(() => route.params.id, fetchProfile, { immediate: true })
           <n-icon size="24"><MdLogOut /></n-icon>
         </template>
         <p class="button-text">Wyloguj się</p>
+      </n-button>
+
+      <n-button
+        v-else-if="isLoggedIn"
+        @click="toggleFollow"
+        type="primary"
+        style="margin-left: auto"
+      >
+        <template #icon>
+          <n-icon size="24"><UserFollow /></n-icon>
+        </template>
+        <p class="button-text">{{ isFollowing ? 'Przestań obserwować' : 'Obserwuj' }}</p>
       </n-button>
     </div>
   </div>

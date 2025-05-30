@@ -24,10 +24,11 @@ async function fetchFileData(id: number) {
     // console.log(res.data)
     fetchedFile.value = res.data
   } catch (err: any) {
-    errorMessage.value = err.toString()
+    console.error('Error loading files: ', err)
     router.push({ name: 'notFound' })
   } finally {
     loadingStatus.value = false
+    console.log(fetchedFile.value)
   }
 }
 </script>
