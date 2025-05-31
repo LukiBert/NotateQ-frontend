@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { NScrollbar, NSkeleton } from 'naive-ui'
-import { type Category, getAllCategories } from '../constants'
+import { type Category } from '../constants'
+import { getAllCategories } from '@/constants/requests'
 import CategoryButton from './CategoryButton.vue'
 
 const fetchedCategories = ref<Category[]>([])

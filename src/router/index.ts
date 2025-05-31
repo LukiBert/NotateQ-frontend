@@ -55,14 +55,13 @@ const { loadingBar } = createDiscreteApi(['loadingBar'])
 router.beforeEach((to, from, next) => {
   loadingBar.start()
 
-  const requiresAuth = to.meta.requiresAuth
-  const isLoggedIn = !!localStorage.getItem('access')
+  const token = localStorage.getItem('access')
 
-  if (requiresAuth && !isLoggedIn) {
-    return next({ name: 'register' })
+  if (to.meta.requiresAuth && !token) {
+    next({ name: 'register' })
+  } else {
+    next()
   }
-
-  next()
 })
 
 router.afterEach(() => {

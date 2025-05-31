@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
-import { API_URL, type FileData } from '@/constants'
+import { type FileData } from '@/constants'
+import { getFileDataById } from '@/constants/requests'
 import FilePage from '@/components/FilePage.vue'
 import NavBar from '@/components/NavBar.vue'
 
@@ -20,9 +20,7 @@ async function fetchFileData(id: number) {
   loadingStatus.value = true
 
   try {
-    const res = await axios.get(`${API_URL}api/files/${id}`)
-    // console.log(res.data)
-    fetchedFile.value = res.data
+    fetchedFile.value = await getFileDataById(id)
   } catch (err: any) {
     console.error('Error loading files: ', err)
     router.push({ name: 'notFound' })

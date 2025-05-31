@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import {
-  type FileData,
-  getCategoryMap,
-  incrementDownload,
-  rateFile,
-  getUserRating,
-} from '@/constants'
+import { type FileData } from '@/constants'
+import { getCategoryMap, incrementDownload, rateFile, getUserRating } from '@/constants/requests'
 import { NTime, NTag, NButton, NRate, NSpace, NCard, NFlex, NText } from 'naive-ui'
 import PdfEmbed from 'vue-pdf-embed'
 import CommentSection from '@/components/CommentSection.vue'
