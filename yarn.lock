@@ -672,6 +672,11 @@
   resolved "https://registry.yarnpkg.com/@types/qs/-/qs-6.14.0.tgz#d8b60cecf62f2db0fb68e5e006077b9178b85de5"
   integrity sha512-eOunJqu0K1923aExK6y8p6fsihYEn/BYuQ4g0CxAAgFc4b/ZLN4CrsRZ55srTdqoiLzU2B2evC+apEIxprEzkQ==
 
+"@vicons/carbon@^0.13.0":
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/@vicons/carbon/-/carbon-0.13.0.tgz#a8fbbbbd4c3f51c8b0b00b268369ef6be2df9bd8"
+  integrity sha512-Z/jExyyS4gsXJc66oTqV/j98nsaiX2JlQ0IUwu9Ms3rztf8VOHEQRuX8Jey1/zbxJpFY/tU+bWvKPRFYGIvCWQ==
+
 "@vicons/ionicons4@^0.13.0":
   version "0.13.0"
   resolved "https://registry.npmjs.org/@vicons/ionicons4/-/ionicons4-0.13.0.tgz"
