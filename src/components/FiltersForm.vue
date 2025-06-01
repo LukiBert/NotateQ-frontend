@@ -11,15 +11,8 @@ import {
   NButton,
   NFlex,
 } from 'naive-ui'
-import {
-  type Category,
-  type Tag,
-  type Filters,
-  getTags,
-  formatDate,
-  getAllCategories,
-  type SortOption,
-} from '../constants'
+import { type Category, type Tag, type Filters, type SortOption, formatDate } from '../constants'
+import { getTags, getAllCategories } from '@/constants/requests'
 import { ref, onMounted, computed, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 

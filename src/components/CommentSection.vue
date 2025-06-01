@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { NButton, NInput, NCard, NTime } from 'naive-ui'
-import { fetchComments, postComment, type Comment } from '@/constants'
+import { type Comment } from '@/constants'
+import { postComment, fetchComments } from '@/constants/requests'
 
 const props = defineProps<{
   fileId: number

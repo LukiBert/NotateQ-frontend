@@ -18,7 +18,7 @@ import {
 import axios from 'axios'
 import type { UploadFileInfo } from 'naive-ui'
 import { useRouter } from 'vue-router'
-import { API_URL } from '../constants'
+import API from '@/constants/api'
 
 const router = useRouter()
 
@@ -41,7 +41,7 @@ const selectedBooks = ref<any[]>([])
 
 const fetchCategories = async () => {
   try {
-    const res = await axios.get(`${API_URL}api/categories/`, {
+    const res = await API.get(`api/categories/`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('access')}`,
       },
@@ -78,7 +78,7 @@ const searchBibliography = async () => {
     return
   }
   try {
-    const res = await axios.get(`${API_URL}api/books/search/${searchQuery.value}`, {
+    const res = await API.get(`api/books/search/${searchQuery.value}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('access')}`,
       },
@@ -136,7 +136,7 @@ const submitForm = async () => {
   }
 
   try {
-    const res = await axios.post(`${API_URL}api/files/`, formData, {
+    const res = await API.post(`api/files/`, formData, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('access')}`,
         'Content-Type': 'multipart/form-data',

@@ -2,7 +2,8 @@
 import { MdFolderOpen } from '@vicons/ionicons4'
 import { NIcon, NCard } from 'naive-ui'
 import { useRouter } from 'vue-router'
-import { type FileData, getCategoryMap } from '../constants'
+import { type FileData } from '../constants'
+import { getCategoryMap } from '@/constants/requests'
 import { computed, onMounted, ref } from 'vue'
 
 const { file } = defineProps<{
@@ -22,12 +23,13 @@ onMounted(async () => {
 })
 
 const categoryNames = computed(() => {
-  return file.categories
-    ?.map((id) => categoryMap.value[id])
-    .filter(Boolean)
-    .join(', ') || 'Brak kategorii'
+  return (
+    file.categories
+      ?.map((id) => categoryMap.value[id])
+      .filter(Boolean)
+      .join(', ') || 'Brak kategorii'
+  )
 })
-
 </script>
 
 <template>

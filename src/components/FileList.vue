@@ -2,7 +2,8 @@
 import { ref, computed, watch } from 'vue'
 import { NEmpty } from 'naive-ui'
 import FileDescriptor from './FileDescriptor.vue'
-import { type FileData, getFilesData, type SortOption } from '../constants'
+import type { FileData, SortOption } from '../constants'
+import { getFilesData } from '@/constants/requests'
 
 const { filters, emptyMessage, sortOption } = defineProps<{
   filters?: Record<string, string | number | boolean>

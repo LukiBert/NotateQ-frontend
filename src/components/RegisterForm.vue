@@ -14,11 +14,10 @@ import {
 } from 'naive-ui'
 import { ref } from 'vue'
 import axios from 'axios'
-import { API_URL } from '@/constants'
+import API from '@/constants/api'
 import { useRouter } from 'vue-router'
 import { isLoggedIn, myId } from '@/constants/authState'
 import { jwtDecode } from 'jwt-decode'
-
 
 const router = useRouter()
 
@@ -32,7 +31,13 @@ const regSecondPassword = ref('')
 const acceptTerms = ref(false)
 
 const submitRegisterForm = async () => {
-  if(!acceptTerms.value || !regEmail.value || !regUsername.value || !regPassword.value || !regSecondPassword.value){
+  if (
+    !acceptTerms.value ||
+    !regEmail.value ||
+    !regUsername.value ||
+    !regPassword.value ||
+    !regSecondPassword.value
+  ) {
     alert('Uzupełnij wymagane pola.')
     return
   }
@@ -40,7 +45,9 @@ const submitRegisterForm = async () => {
   const usernamePattern = /^(?=.*\d)[A-Za-z\d_.-]{8,}$/
 
   if (!usernamePattern.test(regUsername.value)) {
-    alert('Nazwa użytkownika musi mieć co najmniej 8 znaków (litery lub znaki "_", ".", "-") i zawierać cyfrę.')
+    alert(
+      'Nazwa użytkownika musi mieć co najmniej 8 znaków (litery lub znaki "_", ".", "-") i zawierać cyfrę.',
+    )
     return
   }
 
@@ -58,7 +65,7 @@ const submitRegisterForm = async () => {
   formData.append('email', regEmail.value)
 
   try {
-    const res = await axios.post(`${API_URL}register/`, formData, {
+    const res = await API.post(`register/`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -93,20 +100,24 @@ const submitRegisterForm = async () => {
 }
 
 const submitLoginForm = async () => {
-  if(!logUsername.value || !logPassword.value){
+  if (!logUsername.value || !logPassword.value) {
     alert('Uzupełnij wymagane pola.')
     return
   }
 
   try {
-    const login = await axios.post(`${API_URL}api/token/`, {
-      username: logUsername.value,
-      password: logPassword.value,
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
+    const login = await API.post(
+      `api/token/`,
+      {
+        username: logUsername.value,
+        password: logPassword.value,
       },
-    })
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    )
 
     localStorage.setItem('access', login.data.access)
     localStorage.setItem('refresh', login.data.refresh)
