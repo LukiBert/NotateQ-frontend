@@ -2,9 +2,8 @@
 import { MdFolderOpen } from '@vicons/ionicons4'
 import { NIcon, NCard } from 'naive-ui'
 import { useRouter } from 'vue-router'
-import { type FileData } from '../constants'
-import { getCategoryMap } from '@/constants/requests'
-import { computed, onMounted, ref } from 'vue'
+import { joinCategoryNames, type FileData } from '@/constants'
+import { computed } from 'vue'
 
 const { file } = defineProps<{
   file: FileData
@@ -16,19 +15,8 @@ function navToFilePage() {
   router.push({ name: 'filePage', params: { id: file.id } })
 }
 
-const categoryMap = ref<Record<number, string>>({})
-
-onMounted(async () => {
-  categoryMap.value = await getCategoryMap()
-})
-
 const categoryNames = computed(() => {
-  return (
-    file.categories
-      ?.map((id) => categoryMap.value[id])
-      .filter(Boolean)
-      .join(', ') || 'Brak kategorii'
-  )
+  return joinCategoryNames(file.categories)
 })
 </script>
 

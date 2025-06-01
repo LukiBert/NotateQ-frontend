@@ -10,7 +10,7 @@ export interface Category {
 export interface FileData {
   id: number
   title: string
-  categories: number[]
+  categories: Category[]
   tag_names: string[]
   description: string
   author: string
@@ -63,4 +63,15 @@ export function formatDate(date: number): string {
   const month = `${d.getMonth() + 1}`.padStart(2, '0')
   const day = `${d.getDate()}`.padStart(2, '0')
   return `${year}-${month}-${day}`
+}
+
+export function joinCategoryNames(categories: Category[]) {
+  return categories.map((category) => category.name).join(', ')
+}
+
+export function addCategoryLabels(categories: Category[]) {
+  return categories.map((cat) => ({
+    label: cat.name,
+    value: cat.id,
+  }))
 }

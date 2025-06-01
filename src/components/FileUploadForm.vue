@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import {
   NConfigProvider,
   NButton,
@@ -18,6 +18,8 @@ import {
 import axios from 'axios'
 import type { UploadFileInfo } from 'naive-ui'
 import { useRouter } from 'vue-router'
+import { addCategoryLabels, type Category } from '@/constants'
+import { getAllCategories } from '@/constants/requests'
 import API from '@/constants/api'
 
 const router = useRouter()
@@ -30,7 +32,10 @@ const getToday = () => {
 const title = ref('')
 const fileList = ref<UploadFileInfo[]>([])
 const category = ref<number[]>([])
-const categoryOptions = ref<any[]>([])
+const fetchedCategories = ref<Category[]>([])
+const categoryOptions = computed(() => {
+  return addCategoryLabels(fetchedCategories.value)
+})
 const description = ref('')
 const author = ref('')
 const formattedValue = ref(getToday())
@@ -38,27 +43,6 @@ const tags = ref(['your tag'])
 const searchQuery = ref('')
 const searchResults = ref<any[]>([])
 const selectedBooks = ref<any[]>([])
-
-const fetchCategories = async () => {
-  try {
-    const res = await API.get(`api/categories/`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('access')}`,
-      },
-    })
-    categoryOptions.value = res.data.map((category: { id: number; name: string }) => ({
-      label: category.name,
-      value: category.id,
-    }))
-  } catch (err) {
-    console.error('Błąd podczas pobierania kategorii:', err)
-    alert('Błąd podczas pobierania kategorii.')
-  }
-}
-
-onMounted(() => {
-  fetchCategories()
-})
 
 const handleBeforeUpload = (data: { file: UploadFileInfo; fileList: UploadFileInfo[] }) => {
   const allowedExtensions = ['.pdf', '.docx', '.txt']
@@ -167,6 +151,10 @@ const submitForm = async () => {
   searchResults.value = []
   selectedBooks.value = []
 }
+
+onMounted(async () => {
+  fetchedCategories.value = await getAllCategories()
+})
 </script>
 
 <template>

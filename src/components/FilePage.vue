@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { type FileData } from '@/constants'
-import { getCategoryMap, incrementDownload, rateFile, getUserRating } from '@/constants/requests'
+import { incrementDownload, rateFile, getUserRating } from '@/constants/requests'
 import { NTime, NTag, NButton, NRate, NSpace, NCard, NFlex, NText } from 'naive-ui'
 import PdfEmbed from 'vue-pdf-embed'
 import CommentSection from '@/components/CommentSection.vue'
@@ -12,8 +12,6 @@ const props = defineProps<{
 }>()
 
 const userRating = ref(0)
-
-const categoryMap = ref<Record<number, string>>({})
 
 const pdfUrl = computed(() => props.fileData.file)
 const pdfRef = ref<InstanceType<typeof PdfEmbed> | null>(null)
@@ -31,10 +29,6 @@ function nextPage() {
 function prevPage() {
   if (currentPage.value > 1) currentPage.value--
 }
-
-const categoryNames = computed(() => {
-  return props.fileData.categories?.map((id) => categoryMap.value[id]).filter(Boolean)
-})
 
 async function downloadFile() {
   const filename = props.fileData.file.split('/').pop()
@@ -76,8 +70,6 @@ async function handleRate(value: number) {
 }
 
 onMounted(async () => {
-  categoryMap.value = await getCategoryMap()
-
   if (localStorage.getItem('access')) {
     const rating = await getUserRating(props.fileData.id)
     if (rating !== null) {
@@ -124,8 +116,13 @@ onMounted(async () => {
       <div>
         <n-text strong>Kategorie:</n-text>
         <n-space wrap>
-          <n-tag v-for="(cat, index) in categoryNames" :key="'cat-' + index" type="success" round>
-            {{ cat }}
+          <n-tag
+            v-for="(cat, index) in fileData.categories"
+            :key="'cat-' + index"
+            type="success"
+            round
+          >
+            {{ cat.name }}
           </n-tag>
         </n-space>
       </div>
