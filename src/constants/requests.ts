@@ -2,9 +2,9 @@ import qs from 'qs'
 import API from '@/constants/api'
 import type { FileData, Category, Tag, Comment, Book } from '@/constants'
 
-export const getFilesData = async (
+export async function getFilesData(
   filters?: Record<string, string | number | boolean>,
-): Promise<FileData[]> => {
+): Promise<FileData[]> {
   const baseUrl = 'api/files/'
 
   try {
@@ -20,7 +20,7 @@ export const getFilesData = async (
   }
 }
 
-export const getFileDataById = async (id: number): Promise<FileData> => {
+export async function getFileDataById(id: number): Promise<FileData> {
   try {
     const res = await API.get<FileData>(`api/files/${id}`)
     return res.data
@@ -30,7 +30,7 @@ export const getFileDataById = async (id: number): Promise<FileData> => {
   }
 }
 
-export const getAllCategories = async (): Promise<Category[]> => {
+export async function getAllCategories(): Promise<Category[]> {
   try {
     const res = await API.get<Category[]>('api/categories/')
     return res.data
@@ -40,7 +40,7 @@ export const getAllCategories = async (): Promise<Category[]> => {
   }
 }
 
-export const getTags = async (): Promise<Tag[]> => {
+export async function getTags(): Promise<Tag[]> {
   try {
     const res = await API.get<Tag[]>('api/tags/')
     return res.data
@@ -50,7 +50,7 @@ export const getTags = async (): Promise<Tag[]> => {
   }
 }
 
-export const incrementDownload = async (fileId: number): Promise<void> => {
+export async function incrementDownload(fileId: number): Promise<void> {
   try {
     await API.post(`api/files/${fileId}/increment_downloads/`)
   } catch (err) {
@@ -123,6 +123,7 @@ export async function postComment(fileId: number, content: string) {
   return response.data
 }
 
+// API endpoint replaces all '-' with '+'
 export async function searchBibliography(titleToSearch: string): Promise<Book[]> {
   const temp = titleToSearch.trim().replace(/\s+/g, '-')
   try {
