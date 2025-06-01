@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NButton, NText, NIcon, NFlex } from 'naive-ui'
+import { NButton, NText, NIcon, NFlex, useMessage } from 'naive-ui'
 import { MdTrash, MdLogOut } from '@vicons/ionicons4'
 import { UserFollow } from '@vicons/carbon'
 import API from '@/constants/api'
@@ -11,6 +11,8 @@ import FileList from '@/components/FileList.vue'
 import NavBar from '@/components/NavBar.vue'
 
 const props = defineProps<{ id?: string }>()
+
+const message = useMessage()
 
 const route = useRoute()
 const router = useRouter()
@@ -44,6 +46,7 @@ function logout() {
   localStorage.removeItem('myId')
   myId.value = null
   router.push({ name: 'home' })
+  message.success('Pomyślnie wylogowano')
 }
 
 async function fetchProfile() {
@@ -96,6 +99,8 @@ async function toggleFollow() {
       })
       isFollowing.value = false
       followId.value = null
+
+      message.success(`Usunięto obserwację użytkownika: ${userName.value}`)
     } else {
       const res = await API.post(
         `api/follows/`,
@@ -108,6 +113,8 @@ async function toggleFollow() {
       )
       isFollowing.value = true
       followId.value = res.data.id
+
+      message.success(`Obserwujesz użytkownika: ${userName.value}`)
     }
   } catch (err) {
     console.error('Błąd podczas (od)obserwowania:', err)

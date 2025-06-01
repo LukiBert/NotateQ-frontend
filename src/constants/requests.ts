@@ -1,6 +1,6 @@
 import qs from 'qs'
 import API from '@/constants/api'
-import type { FileData, Category, Tag, Comment } from '@/constants'
+import type { FileData, Category, Tag, Comment, Book } from '@/constants'
 
 export const getFilesData = async (
   filters?: Record<string, string | number | boolean>,
@@ -121,4 +121,15 @@ export async function postComment(fileId: number, content: string) {
   )
 
   return response.data
+}
+
+export async function searchBibliography(titleToSearch: string): Promise<Book[]> {
+  const temp = titleToSearch.trim().replace(/\s+/g, '-')
+  try {
+    const res = await API.get(`api/books/search/${temp}`)
+    return res.data
+  } catch (err) {
+    console.error('Błąd podczas wyszukiwania książek:', err)
+    return []
+  }
 }

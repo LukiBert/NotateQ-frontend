@@ -14,13 +14,16 @@ import {
   NDatePicker,
   NDynamicTags,
   NBadge,
+  useMessage,
+  type UploadFileInfo,
 } from 'naive-ui'
 import axios from 'axios'
-import type { UploadFileInfo } from 'naive-ui'
 import { useRouter } from 'vue-router'
 import { addCategoryLabels, type Category } from '@/constants'
-import { getAllCategories } from '@/constants/requests'
+import { getAllCategories, searchBibliography } from '@/constants/requests'
 import API from '@/constants/api'
+
+const message = useMessage()
 
 const router = useRouter()
 
@@ -49,29 +52,19 @@ const handleBeforeUpload = (data: { file: UploadFileInfo; fileList: UploadFileIn
   const isGoodExtension = allowedExtensions.some((ext) => data.file.file?.name?.endsWith(ext))
 
   if (!isGoodExtension) {
-    alert('Dozwolone są tylko pliki PDF, DOCX lub TXT.')
+    message.warning('Dozwolone są tylko pliki PDF, DOCX lub TXT.', { duration: 5000 })
     return false
   }
 
   return true
 }
 
-const searchBibliography = async () => {
+async function fetchBibliography() {
   if (!searchQuery.value) {
-    alert('Wprowadź tytuł książki do wyszukania.')
+    message.info('Wprowadź tytuł książki do wyszukania.', { duration: 5000 })
     return
   }
-  try {
-    const res = await API.get(`api/books/search/${searchQuery.value}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('access')}`,
-      },
-    })
-    searchResults.value = res.data
-  } catch (err) {
-    console.error('Błąd podczas wyszukiwania książek:', err)
-    alert('Błąd podczas wyszukiwania książek.')
-  }
+  searchResults.value = await searchBibliography(searchQuery.value)
 }
 
 const addBook = (book: any) => {
@@ -128,16 +121,14 @@ const submitForm = async () => {
     })
 
     console.log('Wysłano pomyślnie ', res.data)
-    alert('Plik został pomyślnie przesłany.')
     router.push({ name: 'home' })
+    message.success('Plik został pomyślnie przesłany.', { duration: 5000 })
   } catch (err) {
-    console.log('Błąd podczas wysyłania pliku ', err)
-
     if (axios.isAxiosError(err)) {
       console.log('STATUS:', err.response?.status)
       console.log('DATA:', err.response?.data)
-      // alert(err.response?.data?.file[0])
     }
+    message.error('Błąd podczas wysyłania pliku.', { duration: 5000 })
   }
 
   title.value = ''
@@ -255,7 +246,7 @@ onMounted(async () => {
                 placeholder="Wprowadź tytuł książki"
                 style="flex-grow: 1"
               />
-              <n-button @click="searchBibliography" style="flex-shrink: 0">Szukaj</n-button>
+              <n-button @click="fetchBibliography" style="flex-shrink: 0">Szukaj</n-button>
             </div>
           </n-form-item>
 

@@ -55,6 +55,13 @@ export type SortOption =
   | 'date_asc'
   | 'date_desc'
 
+export interface Book {
+  title: string
+  subtitle: string
+  authors: string[]
+  publishedDate: string
+}
+
 export function formatDate(date: number): string {
   if (date === null || date === 0) return ''
 
