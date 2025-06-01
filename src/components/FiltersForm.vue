@@ -11,8 +11,9 @@ import {
   NButton,
   NFlex,
 } from 'naive-ui'
-import { type Category, type Tag, type Filters, type SortOption, formatDate } from '../constants'
+import { type Category, type Tag, type Filters, type SortOption, formatDate } from '@/constants'
 import { getTags, getAllCategories } from '@/constants/requests'
+import { addCategoryLabels } from '@/constants'
 import { ref, onMounted, computed, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -43,10 +44,7 @@ const tagOptions = computed(() => {
 })
 
 const categoriesWithLabels = computed(() => {
-  return fetchedCategories.value.map((cat) => ({
-    label: cat.name,
-    value: cat.id,
-  }))
+  return addCategoryLabels(fetchedCategories.value)
 })
 
 const sortOptions: { label: string; value: SortOption }[] = [
@@ -105,13 +103,7 @@ onMounted(async () => {
   fetchedTags.value = await getTags()
   fetchedCategories.value = await getAllCategories()
 
-  // Populate filters from query parameters
   if (route.query) {
-    const categoryIdToNameMap: Record<number, string> = {}
-    fetchedCategories.value.forEach((cat) => {
-      categoryIdToNameMap[cat.id] = cat.name
-    })
-
     filtersObj.author = (route.query.author as string) || ''
     filtersObj.downloadsMin = Number(route.query.downloads_min) || 0
     filtersObj.downloadsMax = Number(route.query.downloads_max) || 100
