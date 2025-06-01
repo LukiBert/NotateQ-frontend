@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import { NLoadingBarProvider, NMessageProvider } from 'naive-ui'
+import { NMessageProvider } from 'naive-ui'
 </script>
 
 <template>
