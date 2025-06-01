@@ -13,7 +13,7 @@ import {
   NPopover,
 } from 'naive-ui'
 import { ref } from 'vue'
-import axios, { AxiosError } from 'axios'
+import { AxiosError } from 'axios'
 import API from '@/constants/api'
 import { useRouter } from 'vue-router'
 import { isLoggedIn, myId } from '@/constants/authState'
@@ -33,31 +33,56 @@ const regPassword = ref('')
 const regSecondPassword = ref('')
 const acceptTerms = ref(false)
 
+function clearRegForm() {
+  regEmail.value = ''
+  regUsername.value = ''
+  regPassword.value = ''
+  regSecondPassword.value = ''
+  acceptTerms.value = false
+}
+
 const submitRegisterForm = async () => {
-  if (
-    !acceptTerms.value ||
-    !regEmail.value ||
-    !regUsername.value ||
-    !regPassword.value ||
-    !regSecondPassword.value
-  ) {
-    alert('Uzupełnij wymagane pola.')
+  const usernamePattern = /^[A-Za-z][A-Za-z0-9]{7,}$/
+
+  if (!usernamePattern.test(regUsername.value)) {
+    message.info(
+      'Nazwa użytkownika musi mieć conajmniej 8 alfanumerycznych znaków i nie może zaczynać się od cyfry.',
+      { duration: 5000 },
+    )
+    regUsername.value = ''
     return
   }
 
-  const usernamePattern = /^(?=.*\d)[A-Za-z\d_.-]{8,}$/
+  const emailPattern =
+    /[-A-Za-z0-9!#$%&'*+/=?^_`{|}~]+(?:\.[-A-Za-z0-9!#$%&'*+/=?^_`{|}~]+)*@(?:[A-Za-z0-9](?:[-A-Za-z0-9]*[A-Za-z0-9])?\.)+[A-Za-z0-9](?:[-A-Za-z0-9]*[A-Za-z0-9])?/
 
-  if (!usernamePattern.test(regUsername.value)) {
-    alert(
-      'Nazwa użytkownika musi mieć co najmniej 8 znaków (litery lub znaki "_", ".", "-") i zawierać cyfrę.',
-    )
+  if (!emailPattern.test(regEmail.value)) {
+    message.info('Niepoprawny format adresu eamil', { duration: 5000 })
+    regEmail.value = ''
     return
   }
 
   const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?-]).{8,}$/
 
   if (!passwordPattern.test(regPassword.value)) {
-    alert('Hasło musi mieć co najmniej 8 znaków, zawierać dużą literę, cyfrę i znak specjalny.')
+    message.info(
+      'Hasło musi mieć co najmniej 8 znaków, zawierać dużą literę, cyfrę i znak specjalny.',
+      { duration: 5000 },
+    )
+    regPassword.value = ''
+    regSecondPassword.value = ''
+    return
+  }
+
+  if (regPassword.value !== regSecondPassword.value) {
+    message.warning('Nieprawidłowo przepisane hasło', { duration: 5000 })
+    regPassword.value = ''
+    regSecondPassword.value = ''
+    return
+  }
+
+  if (!acceptTerms.value) {
+    message.info('Warunkiem utworzenia konta jest akceptacja regulaminu.', { duration: 5000 })
     return
   }
 
@@ -73,31 +98,33 @@ const submitRegisterForm = async () => {
         'Content-Type': 'multipart/form-data',
       },
     })
-    console.log('Pomyślna rejestracja ', res.data)
-    alert('Aktywuj konto i zaloguj się, aby korzystać z aplikacji.')
+    //console.log('Pomyślna rejestracja ', res.data)
 
     router.push({ name: 'register' })
-  } catch (err) {
-    console.log('Błąd podczas rejestracji ', err)
+    message.success(
+      'Pomyślnie zarejestrowano. Aktywuj konto i zaloguj się, aby korzystać z aplikacji.',
+      { duration: 5000 },
+    )
+  } catch (err: AxiosError) {
+    //console.log('STATUS:', err.response?.status)
+    //console.log('DATA:', err.response?.data)
 
-    if (axios.isAxiosError(err)) {
-      console.log('STATUS:', err.response?.status)
-      console.log('DATA:', err.response?.data)
+    if (err.response?.data?.username) {
+      message.error(`Błąd : ${err.response?.data?.username.join(' ')}`, { duration: 9000 })
+      clearRegForm()
+      return
+    }
 
-      if (err.response?.data?.username) {
-        alert(`Błąd : Użytkownik z tą nazwą już istnieje.`)
-        return
-      }
+    if (err.response?.data?.email) {
+      message.error(`Błąd : ${err.response?.data?.email.join(' ')}`, { duration: 9000 })
+      clearRegForm()
+      return
+    }
 
-      if (err.response?.data?.email) {
-        alert(`Błąd : Błędny format pola email.`)
-        return
-      }
-
-      if (err.response?.data?.non_field_errors) {
-        alert(`Błąd: ${err.response.data.non_field_errors.join(' ')}`)
-        return
-      }
+    if (err.response?.data?.non_field_errors) {
+      message.error(`Błąd: ${err.response.data.non_field_errors.join(' ')}`, { duration: 9000 })
+      clearRegForm()
+      return
     }
   }
 }
