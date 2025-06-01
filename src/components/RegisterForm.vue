@@ -13,11 +13,14 @@ import {
   NPopover,
 } from 'naive-ui'
 import { ref } from 'vue'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import API from '@/constants/api'
 import { useRouter } from 'vue-router'
 import { isLoggedIn, myId } from '@/constants/authState'
 import { jwtDecode } from 'jwt-decode'
+import { useMessage } from 'naive-ui'
+
+const message = useMessage()
 
 const router = useRouter()
 
@@ -100,24 +103,22 @@ const submitRegisterForm = async () => {
 }
 
 const submitLoginForm = async () => {
-  if (!logUsername.value || !logPassword.value) {
-    alert('Uzupełnij wymagane pola.')
+  if (!logUsername.value && !logPassword.value) {
+    message.warning('Uzupełnij nazwę użytkownika i hasło')
+    return
+  } else if (!logUsername.value) {
+    message.warning('Uzupełnij nazwę użytkownika')
+    return
+  } else if (!logPassword.value) {
+    message.warning('Uzupełnij hasło')
     return
   }
 
   try {
-    const login = await API.post(
-      `api/token/`,
-      {
-        username: logUsername.value,
-        password: logPassword.value,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      },
-    )
+    const login = await API.post(`api/token/`, {
+      username: logUsername.value,
+      password: logPassword.value,
+    })
 
     localStorage.setItem('access', login.data.access)
     localStorage.setItem('refresh', login.data.refresh)
@@ -129,14 +130,11 @@ const submitLoginForm = async () => {
     isLoggedIn.value = true
 
     router.push({ name: 'home' })
-    console.log('Pomyślne logowanie ', login.data)
-  } catch (err) {
-    console.log('Błąd podczas logowania ', err)
-
-    if (axios.isAxiosError(err)) {
-      console.log('STATUS:', err.response?.status)
-      console.log('DATA:', err.response?.data)
-    }
+    message.success('Pomyślne logowanie')
+  } catch (err: AxiosError) {
+    logUsername.value = ''
+    logPassword.value = ''
+    message.error(`Błąd podczas logowania\n"${err.response.data.detail}"`)
   }
 }
 </script>
@@ -166,10 +164,19 @@ const submitLoginForm = async () => {
           <n-tab-pane name="signin" tab="Logowanie">
             <n-form @submit.prevent="submitLoginForm">
               <n-form-item-row label="username lub e-mail" required>
-                <n-input v-model:value="logUsername" class="auth-input" />
+                <n-input
+                  v-model:value="logUsername"
+                  class="auth-input"
+                  placeholder="Nazwa użytkownika"
+                />
               </n-form-item-row>
               <n-form-item-row label="hasło" required>
-                <n-input v-model:value="logPassword" type="password" class="auth-input" />
+                <n-input
+                  v-model:value="logPassword"
+                  type="password"
+                  class="auth-input"
+                  placeholder="Hasło"
+                />
               </n-form-item-row>
               <n-button type="primary" attr-type="submit" block secondary strong> Zaloguj</n-button>
             </n-form>
