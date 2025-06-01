@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NButton, NText, NIcon } from 'naive-ui'
+import { NButton, NText, NIcon, NFlex } from 'naive-ui'
 import { MdTrash, MdLogOut } from '@vicons/ionicons4'
 import { UserFollow } from '@vicons/carbon'
 import API from '@/constants/api'
@@ -160,7 +160,9 @@ watch(() => route.params.id, loadProfileAndFollowStatus)
 
   <!-- SEARCHBAR + LISTA -->
   <SearchBar mode="dynamic" @search-phrase="receiveEmit" />
-  <p v-if="searchInput">🔍 Szukasz: "{{ searchInput }}"</p>
+  <n-flex justify="center">
+    <p v-if="searchInput">🔍 Szukasz: "{{ searchInput }}"</p>
+  </n-flex>
 
   <!-- Gotowy komponent z listą -->
   <FileList
