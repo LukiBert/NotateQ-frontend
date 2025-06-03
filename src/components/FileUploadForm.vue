@@ -24,7 +24,7 @@ import {
 import { MdArchive } from '@vicons/ionicons4'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
-import { addCategoryLabels, type Category } from '@/constants'
+import { addCategoryLabels, formatDate, type Category, type Book } from '@/constants'
 import { getAllCategories, searchBibliography } from '@/constants/requests'
 import API from '@/constants/api'
 
@@ -32,38 +32,36 @@ const message = useMessage()
 
 const router = useRouter()
 
-const MAX_MB = 5
+const MAX_MB = 10
 const MAX_FILE_SIZE_MB = MAX_MB * 1024 * 1024
 
-const getToday = () => {
-  const now = new Date()
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-}
+const title = ref<string>('')
+const uploadedFile = ref<UploadFileInfo>()
 
-const title = ref('')
-const fileList = ref<UploadFileInfo[]>([])
-const category = ref<number[]>([])
+const selectedCategories = ref<number[]>([])
 const fetchedCategories = ref<Category[]>([])
 const categoryOptions = computed(() => {
   return addCategoryLabels(fetchedCategories.value)
 })
-const description = ref('')
-const author = ref('')
-const formattedValue = ref(getToday())
+
+const author = ref<string>('')
+const description = ref<string>('')
+const noteDate = ref<number>()
 const tags = ref<string[]>([])
-const searchQuery = ref('')
-const searchResults = ref<any[]>([])
-const selectedBooks = ref<any[]>([])
+
+const searchQuery = ref<string>('')
+const searchResults = ref<Book[]>([])
+const selectedBooks = ref<Book[]>([])
 
 async function fetchBibliography() {
-  if (!searchQuery.value) {
+  if (!searchQuery.value || searchQuery.value === '') {
     message.info('Wprowadź tytuł książki do wyszukania.', { duration: 5000 })
     return
   }
   searchResults.value = await searchBibliography(searchQuery.value)
 }
 
-const addBook = (book: any) => {
+const addBook = (book: Book) => {
   if (!selectedBooks.value.some((b) => b.title === book.title)) {
     selectedBooks.value.push(book)
   } else {
@@ -83,7 +81,7 @@ const handleBeforeUpload = ({ file }: { file: UploadFileInfo }) => {
 
   const allowedExtensions = ['.pdf', '.docx', '.txt']
   const fileName = file.file.name
-  const fileExtension = fileName?.substring(fileName.lastIndexOf('.')).toLowerCase()
+  const fileExtension = fileName.substring(fileName.lastIndexOf('.')).toLowerCase()
   const isGoodExtension = allowedExtensions.some((ext) => fileExtension === ext)
   if (!isGoodExtension) {
     console.log
@@ -96,12 +94,29 @@ const handleBeforeUpload = ({ file }: { file: UploadFileInfo }) => {
     return false
   }
 
-  console.log(`OK`)
   return true
 }
 
+function clearForm() {
+  title.value = ''
+  selectedCategories.value = []
+  uploadedFile.value = undefined
+  description.value = ''
+  author.value = ''
+  noteDate.value = undefined
+  tags.value = ['']
+  searchQuery.value = ''
+  searchResults.value = []
+  selectedBooks.value = []
+}
+
 const submitForm = async () => {
-  if (!title.value || !fileList.value.length || category.value.length === 0) {
+  if (
+    !title.value ||
+    !uploadedFile.value ||
+    !description.value ||
+    selectedCategories.value.length === 0
+  ) {
     alert('Uzupełnij wymagane pola - tytuł, plik oraz przynajmniej jedna kategoria!')
     return
   }
@@ -110,51 +125,46 @@ const submitForm = async () => {
   formData.append('title', title.value)
   formData.append('description', description.value)
   formData.append('author', author.value)
-  formData.append('file', fileList.value[0].file as File)
-  formData.append('date', formattedValue.value.split(' ')[0])
+  formData.append('file', uploadedFile.value.file as File)
+
+  if (!noteDate.value) noteDate.value = Date.now()
+  formData.append('date', formatDate(noteDate.value))
+
   tags.value.forEach((t: string) => {
     formData.append('tags', t.toString())
   })
-  category.value.forEach((cat) => {
+  selectedCategories.value.forEach((cat) => {
     formData.append('categories', cat.toString())
   })
   selectedBooks.value.forEach((b) => {
     formData.append('bibliography', b.title)
   })
 
-  for (const [key, value] of formData.entries()) {
-    console.log(key, value)
-  }
-
-  // try {
-  //   const res = await API.post(`api/files/`, formData, {
-  //     headers: {
-  //       Authorization: `Bearer ${localStorage.getItem('access')}`,
-  //       'Content-Type': 'multipart/form-data',
-  //     },
-  //   })
-
-  //   console.log('Wysłano pomyślnie ', res.data)
-  //   router.push({ name: 'home' })
-  //   message.success('Plik został pomyślnie przesłany.', { duration: 5000 })
-  // } catch (err) {
-  //   if (axios.isAxiosError(err)) {
-  //     console.log('STATUS:', err.response?.status)
-  //     console.log('DATA:', err.response?.data)
-  //   }
-  //   message.error('Błąd podczas wysyłania pliku.', { duration: 5000 })
+  // for (const [key, value] of formData.entries()) {
+  //   console.log(key, value)
   // }
 
-  // title.value = ''
-  // category.value = []
-  // fileList.value = []
-  // description.value = ''
-  // author.value = ''
-  // formattedValue.value = getToday()
-  // tags.value = ['']
-  // searchQuery.value = ''
-  // searchResults.value = []
-  // selectedBooks.value = []
+  try {
+    const res = await API.post(`api/files/`, formData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('access')}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+
+    //console.log('Wysłano pomyślnie ', res.data)
+    router.push({ name: 'home' })
+    message.success('Plik został pomyślnie przesłany.', { duration: 5000 })
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.log('STATUS:', err.response?.status)
+      console.log('DATA:', err.response?.data)
+    }
+    message.error('Błąd podczas wysyłania pliku.', { duration: 5000 })
+    return
+  }
+
+  clearForm()
 }
 
 onMounted(async () => {
@@ -175,12 +185,12 @@ onMounted(async () => {
               require-mark-placement="right-hanging"
               label-width="auto"
               :style="{
-                maxWidth: '640px',
+                maxWidth: '900px',
               }"
             >
               <n-form-item required>
                 <n-upload
-                  v-model:file-list="fileList"
+                  v-model:file="uploadedFile"
                   directory-dnd
                   :max="1"
                   @before-upload="handleBeforeUpload"
@@ -195,7 +205,7 @@ onMounted(async () => {
                       Naciśnij lub przeciągnij wybrany plik w obręb pola
                     </n-text>
                     <n-p depth="3" style="margin: 8px 0 0 0">
-                      Akceptowane są pliki w formacie PDF, DOCX lub TXT mniejsze niż 5MB.
+                      Akceptowane są pliki w formacie PDF, DOCX lub TXT mniejsze niż {{ MAX_MB }}MB.
                     </n-p>
                   </n-upload-dragger>
                 </n-upload>
@@ -212,7 +222,7 @@ onMounted(async () => {
 
               <n-form-item label="Kategorie:" required>
                 <n-select
-                  v-model:value="category"
+                  v-model:value="selectedCategories"
                   :options="categoryOptions"
                   placeholder="Wybierz kategorie"
                   multiple
@@ -233,7 +243,7 @@ onMounted(async () => {
 
               <n-form-item label="Notatka z dnia:">
                 <n-date-picker
-                  v-model:formatted-value="formattedValue"
+                  v-model:value="noteDate"
                   value-format="yyyy-MM-dd"
                   type="date"
                   clearable
@@ -279,19 +289,21 @@ onMounted(async () => {
                     style="margin-bottom: 8px"
                   >
                     <div>
-                      <strong>{{ book.title }}</strong> - {{ book.authors?.join(', ') }} ({{
-                        book.publishedDate
-                      }})
                       <n-button
                         size="small"
                         style="margin-left: 8px; color: black"
                         @click="addBook(book)"
-                        >Dodaj
+                      >
+                        Dodaj
                       </n-button>
+                      <strong>{{ book.title }}</strong> - {{ book.authors?.join(', ') }} ({{
+                        book.publishedDate
+                      }})
                     </div>
                   </li>
                 </ul>
               </div>
+              <n-p v-else>Brak pozycji</n-p>
             </n-form-item>
           </n-form>
         </n-tab-pane>
