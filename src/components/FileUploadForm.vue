@@ -18,10 +18,11 @@ import {
   NUploadDragger,
   NText,
   NP,
+  NSpin,
   useMessage,
   type UploadFileInfo,
 } from 'naive-ui'
-import { MdArchive } from '@vicons/ionicons4'
+import { MdArchive, IosAddCircleOutline } from '@vicons/ionicons4'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { addCategoryLabels, formatDate, type Category, type Book } from '@/constants'
@@ -52,13 +53,19 @@ const tags = ref<string[]>([])
 const searchQuery = ref<string>('')
 const searchResults = ref<Book[]>([])
 const selectedBooks = ref<Book[]>([])
+const searchingForBooks = ref<boolean>(false)
 
 async function fetchBibliography() {
   if (!searchQuery.value || searchQuery.value === '') {
     message.info('Wprowadź tytuł książki do wyszukania.', { duration: 5000 })
     return
   }
-  searchResults.value = await searchBibliography(searchQuery.value)
+  try {
+    searchingForBooks.value = true
+    searchResults.value = await searchBibliography(searchQuery.value)
+  } finally {
+    searchingForBooks.value = false
+  }
 }
 
 const addBook = (book: Book) => {
@@ -273,37 +280,39 @@ onMounted(async () => {
               <ul style="color: black">
                 <li v-for="(book, index) in selectedBooks" :key="index">
                   {{ book.title }}
-                  <n-button size="tiny" style="color: black" @click="removeBook(index)">
-                    Usuń
-                  </n-button>
+                  <n-button size="tiny" style="color: black" @click="removeBook(index)"> </n-button>
                 </li>
               </ul>
             </n-form-item>
 
             <n-form-item label="Wyniki wyszukiwania:">
-              <div v-if="searchResults.length > 0">
-                <ul style="color: black">
-                  <li
-                    v-for="(book, index) in searchResults"
-                    :key="index"
-                    style="margin-bottom: 8px"
-                  >
-                    <div>
-                      <n-button
-                        size="small"
-                        style="margin-left: 8px; color: black"
-                        @click="addBook(book)"
-                      >
-                        Dodaj
-                      </n-button>
-                      <strong>{{ book.title }}</strong> - {{ book.authors?.join(', ') }} ({{
-                        book.publishedDate
-                      }})
-                    </div>
-                  </li>
-                </ul>
-              </div>
-              <n-p v-else>Brak pozycji</n-p>
+              <n-spin :show="searchingForBooks">
+                <div v-if="searchResults.length > 0">
+                  <ul style="color: black">
+                    <li
+                      v-for="(book, index) in searchResults"
+                      :key="index"
+                      style="margin-bottom: 8px"
+                    >
+                      <div>
+                        <n-button
+                          size="small"
+                          style="margin-left: 8px; color: black"
+                          @click="addBook(book)"
+                        >
+                          <n-icon> <IosAddCircleOutline /></n-icon>
+                        </n-button>
+                        <strong>{{ book.title }}</strong> - {{ book.authors?.join(', ') }} ({{
+                          book.publishedDate
+                        }})
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+                <n-p v-else-if="!searchingForBooks" style="margin: 1rem">Brak pozycji</n-p>
+
+                <template #description> Wyszukiwanie... </template>
+              </n-spin>
             </n-form-item>
           </n-form>
         </n-tab-pane>
