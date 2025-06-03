@@ -10,6 +10,7 @@ const API = axios.create({
 API.interceptors.response.use(
   (response) => response,
   async (error) => {
+    console.log('ERROR intercepted: ', error)
     const originalRequest = error.config
 
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -27,6 +28,7 @@ API.interceptors.response.use(
         localStorage.setItem('access', newAccess)
 
         originalRequest.headers['Authorization'] = `Bearer ${newAccess}`
+        console.log('REFRESHED')
         return API(originalRequest)
       } catch (refreshError) {
         console.error('Błąd odświeżania tokena:', refreshError)

@@ -14,9 +14,15 @@ import {
   NDatePicker,
   NDynamicTags,
   NBadge,
+  NFlex,
+  NIcon,
+  NUploadDragger,
+  NText,
+  NP,
   useMessage,
   type UploadFileInfo,
 } from 'naive-ui'
+import { MdArchive } from '@vicons/ionicons4'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { addCategoryLabels, type Category } from '@/constants'
@@ -284,9 +290,157 @@ onMounted(async () => {
       </n-tabs>
     </n-card>
   </n-config-provider>
+
+  <n-flex justify="center">
+    <n-card class="upload-form-wrapper">
+      <template #header>Plik</template>
+      <n-tabs animated>
+        <n-tab-pane name="1" tab="Informacje">
+          <n-form @submit.prevent="submitForm">
+            <n-form-item label="Wybierz plik" required>
+              <n-upload v-model:file-list="fileList" :max="1" @before-upload="handleBeforeUpload">
+                <n-upload-dragger>
+                  <div style="margin-bottom: 12px">
+                    <n-icon size="48" :depth="3">
+                      <MdArchive />
+                    </n-icon>
+                  </div>
+                  <n-text style="font-size: 16px">
+                    Naciśnij lub przeciągnij wybrany plik w obręb pola
+                  </n-text>
+                  <n-p depth="3" style="margin: 8px 0 0 0">
+                    Akceptowanr formaty: PDF, DOCX, TXT.
+                  </n-p>
+                </n-upload-dragger>
+              </n-upload>
+            </n-form-item>
+
+            <n-form-item label="Tytuł:" required>
+              <n-input
+                v-model:value="title"
+                type="text"
+                placeholder="Wprowadź tytuł"
+                class="inputText"
+              />
+            </n-form-item>
+
+            <n-form-item label="Kategorie:" required>
+              <n-select
+                v-model:value="category"
+                :options="categoryOptions"
+                placeholder="Wybierz kategorie"
+                multiple
+                class="gradient-select"
+              />
+            </n-form-item>
+
+            <n-badge style="margin-left: 135px" :value="description.length" :max="500" />
+
+            <n-form-item label="Opis (max 500 znaków):">
+              <n-input
+                v-model:value="description"
+                type="textarea"
+                placeholder="Wprowadź opis"
+                class="inputText"
+                maxlength="500"
+              />
+            </n-form-item>
+
+            <pre>{{ formattedValue }}</pre>
+            <n-form-item label="Ustaw datę:">
+              <n-date-picker
+                v-model:formatted-value="formattedValue"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                type="datetime"
+                clearable
+              />
+            </n-form-item>
+            <n-form-item label="Dodaj tagi:">
+              <n-dynamic-tags class="n-tag" v-model:value="tags" style="margin-top: 16px" />
+            </n-form-item>
+          </n-form>
+        </n-tab-pane>
+        <n-tab-pane name="2" tab="Bibliografia">
+          <n-form>
+            <n-form-item label="Wyszukaj książkę:">
+              <div style="display: flex; width: 100%; align-items: center; gap: 8px">
+                <n-input
+                  v-model:value="searchQuery"
+                  placeholder="Wprowadź tytuł książki"
+                  style="flex-grow: 1"
+                />
+                <n-button @click="fetchBibliography" style="flex-shrink: 0">Szukaj</n-button>
+              </div>
+            </n-form-item>
+
+            <n-form-item label="Wybrane książki:">
+              <ul style="color: black">
+                <li v-for="(book, index) in selectedBooks" :key="index">
+                  {{ book.title }}
+                  <n-button size="tiny" style="color: black" @click="removeBook(index)"
+                    >Usuń</n-button
+                  >
+                </li>
+              </ul>
+            </n-form-item>
+
+            <n-form-item label="Wyniki wyszukiwania:">
+              <div v-if="searchResults.length > 0">
+                <ul style="color: black">
+                  <li
+                    v-for="(book, index) in searchResults"
+                    :key="index"
+                    style="margin-bottom: 8px"
+                  >
+                    <div>
+                      <strong>{{ book.title }}</strong> - {{ book.authors?.join(', ') }} ({{
+                        book.publishedDate
+                      }})
+                      <n-button
+                        size="small"
+                        style="margin-left: 8px; color: black"
+                        @click="addBook(book)"
+                        >Dodaj
+                      </n-button>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </n-form-item>
+          </n-form>
+        </n-tab-pane>
+      </n-tabs>
+      <template #action>
+        <n-flex justify="center"><n-button type="success">Prześlij plik</n-button></n-flex>
+      </template>
+    </n-card>
+  </n-flex>
 </template>
 
 <style scoped>
+.upload-form-wrapper {
+  width: 100%;
+  max-width: 350px;
+}
+
+@media (min-width: 500px) {
+  .upload-form-wrapper {
+    max-width: 450px;
+  }
+}
+
+@media (min-width: 768px) {
+  .upload-form-wrapper {
+    max-width: 700px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .upload-form-wrapper {
+    max-width: 900px;
+  }
+}
+
 .upload-form {
   max-width: 600px;
   min-height: 650px;
