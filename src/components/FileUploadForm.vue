@@ -72,7 +72,9 @@ const addBook = (book: Book) => {
   if (!selectedBooks.value.some((b) => b.title === book.title)) {
     selectedBooks.value.push(book)
   } else {
-    alert('Ta książka została już dodana.')
+    message.info('Ta książka została już dodana.', {
+      duration: 5000,
+    })
   }
 }
 
@@ -128,7 +130,9 @@ const submitForm = async () => {
     !description.value ||
     selectedCategories.value.length === 0
   ) {
-    alert('Uzupełnij wymagane pola - tytuł, plik oraz przynajmniej jedna kategoria!')
+    message.warning('Uzupełnij wszystkie wymagane pola - plik, tytuł, kategoria i opis.', {
+      duration: 7000,
+    })
     return
   }
 
