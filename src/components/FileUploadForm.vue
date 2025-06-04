@@ -122,7 +122,6 @@ function clearForm() {
 }
 
 const submitForm = async () => {
-  console.log(uploadedFile.value)
   if (
     !title.value ||
     !uploadedFile.value?.length ||
@@ -146,7 +145,7 @@ const submitForm = async () => {
     formData.append('tags', t.toString())
   })
   selectedCategories.value.forEach((cat) => {
-    formData.append('categories', cat.toString())
+    formData.append('category_ids', cat.toString())
   })
   selectedBooks.value.forEach((b) => {
     formData.append('bibliography', b.title)
