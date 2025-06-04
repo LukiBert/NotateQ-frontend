@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import {
+  NInputGroup,
   NButton,
   NCard,
   NForm,
@@ -12,7 +13,6 @@ import {
   NTabs,
   NDatePicker,
   NDynamicTags,
-  NBadge,
   NFlex,
   NIcon,
   NUploadDragger,
@@ -22,7 +22,7 @@ import {
   useMessage,
   type UploadFileInfo,
 } from 'naive-ui'
-import { MdArchive, IosAddCircleOutline } from '@vicons/ionicons4'
+import { MdArchive, IosRemoveCircle, MdSearch, IosAddCircle } from '@vicons/ionicons4'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { addCategoryLabels, formatDate, type Category, type Book } from '@/constants'
@@ -37,7 +37,7 @@ const MAX_MB = 10
 const MAX_FILE_SIZE_MB = MAX_MB * 1024 * 1024
 
 const title = ref<string>('')
-const uploadedFile = ref<UploadFileInfo>()
+const uploadedFile = ref<UploadFileInfo[]>()
 
 const selectedCategories = ref<number[]>([])
 const fetchedCategories = ref<Category[]>([])
@@ -80,6 +80,10 @@ const removeBook = (index: number) => {
   selectedBooks.value.splice(index, 1)
 }
 
+const formatAuthors = (authors: string[] | string): string => {
+  return Array.isArray(authors) ? authors.join(', ') : authors
+}
+
 const handleBeforeUpload = ({ file }: { file: UploadFileInfo }) => {
   if (!file.file || !file.file.name) {
     message.error('Nieprawidłowy plik.', { duration: 5000 })
@@ -118,9 +122,10 @@ function clearForm() {
 }
 
 const submitForm = async () => {
+  console.log(uploadedFile.value)
   if (
     !title.value ||
-    !uploadedFile.value ||
+    !uploadedFile.value?.length ||
     !description.value ||
     selectedCategories.value.length === 0
   ) {
@@ -132,7 +137,7 @@ const submitForm = async () => {
   formData.append('title', title.value)
   formData.append('description', description.value)
   formData.append('author', author.value)
-  formData.append('file', uploadedFile.value.file as File)
+  formData.append('file', uploadedFile.value[0].file as File)
 
   if (!noteDate.value) noteDate.value = Date.now()
   formData.append('date', formatDate(noteDate.value))
@@ -197,7 +202,7 @@ onMounted(async () => {
             >
               <n-form-item required>
                 <n-upload
-                  v-model:file="uploadedFile"
+                  v-model:file-list="uploadedFile"
                   directory-dnd
                   :max="1"
                   @before-upload="handleBeforeUpload"
@@ -264,57 +269,60 @@ onMounted(async () => {
           </n-flex>
         </n-tab-pane>
         <n-tab-pane name="2" tab="Bibliografia">
-          <n-form>
-            <n-form-item label="Wyszukaj książkę:">
-              <div style="display: flex; width: 100%; align-items: center; gap: 8px">
-                <n-input
-                  v-model:value="searchQuery"
-                  placeholder="Wprowadź tytuł książki"
-                  style="flex-grow: 1"
-                />
-                <n-button @click="fetchBibliography" style="flex-shrink: 0">Szukaj</n-button>
+          <n-flex justify="center">
+            <n-input-group class="search-input-group">
+              <n-input
+                placeholder="Wprowadź tytuł książki"
+                v-model:value="searchQuery"
+                @keyup.enter="fetchBibliography"
+                round
+              />
+              <n-button @click="fetchBibliography" round>
+                <n-icon><MdSearch /></n-icon>
+              </n-button>
+            </n-input-group>
+          </n-flex>
+
+          <div class="books-wrapper">
+            <n-text strong>Dodane pozycje:</n-text>
+            <div v-if="selectedBooks.length">
+              <div v-for="(book, index) in selectedBooks" :key="index" class="book-container">
+                <n-button @click="removeBook(index)" quaternary type="error">
+                  <template #icon>
+                    <n-icon size="24"> <IosRemoveCircle /> </n-icon>
+                  </template>
+                </n-button>
+                <n-text>
+                  <strong>{{ book.title }}</strong> - {{ formatAuthors(book.authors) }} ({{
+                    book.publishedDate
+                  }})
+                </n-text>
               </div>
-            </n-form-item>
+            </div>
+            <n-p v-else style="margin: 1rem">Nie wybrano pozycji</n-p>
+          </div>
 
-            <n-form-item label="Wybrane książki:">
-              <ul style="color: black">
-                <li v-for="(book, index) in selectedBooks" :key="index">
-                  {{ book.title }}
-                  <n-button size="tiny" style="color: black" @click="removeBook(index)"> </n-button>
-                </li>
-              </ul>
-            </n-form-item>
-
-            <n-form-item label="Wyniki wyszukiwania:">
-              <n-spin :show="searchingForBooks">
-                <div v-if="searchResults.length > 0">
-                  <ul style="color: black">
-                    <li
-                      v-for="(book, index) in searchResults"
-                      :key="index"
-                      style="margin-bottom: 8px"
-                    >
-                      <div>
-                        <n-button
-                          size="small"
-                          style="margin-left: 8px; color: black"
-                          @click="addBook(book)"
-                        >
-                          <n-icon> <IosAddCircleOutline /></n-icon>
-                        </n-button>
-                        <strong>{{ book.title }}</strong> - {{ book.authors?.join(', ') }} ({{
-                          book.publishedDate
-                        }})
-                      </div>
-                    </li>
-                  </ul>
+          <n-spin :show="searchingForBooks">
+            <div class="books-wrapper">
+              <n-text strong>Wyniki wyszukania:</n-text>
+              <div v-if="searchResults.length">
+                <div v-for="(book, index) in searchResults" :key="index" class="book-container">
+                  <n-button @click="addBook(book)" quaternary type="primary">
+                    <template #icon>
+                      <n-icon size="24"> <IosAddCircle /> </n-icon>
+                    </template>
+                  </n-button>
+                  <n-text>
+                    <strong>{{ book.title }}</strong> - {{ formatAuthors(book.authors) }} ({{
+                      book.publishedDate
+                    }})
+                  </n-text>
                 </div>
-                <n-p v-else-if="!searchingForBooks" style="margin: 1rem">Brak pozycji</n-p>
-
-                <template #description> Wyszukiwanie... </template>
-              </n-spin>
-            </n-form-item>
-          </n-form>
+              </div>
+              <n-p v-else-if="!searchingForBooks" style="margin: 1rem">Brak pozycji</n-p>
+            </div>
+            <template #description> Wyszukiwanie... </template>
+          </n-spin>
         </n-tab-pane>
       </n-tabs>
       <template #action>
@@ -331,6 +339,28 @@ onMounted(async () => {
   width: 100%;
   max-width: 350px;
   margin: 1rem;
+}
+
+.search-input-group {
+  width: 100%;
+  max-width: 500px;
+}
+
+.books-wrapper {
+  margin: 1rem 0;
+}
+
+.book-container {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.book-details-text {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 @media (min-width: 500px) {
