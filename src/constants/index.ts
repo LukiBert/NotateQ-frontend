@@ -58,7 +58,7 @@ export type SortOption =
 export interface Book {
   title: string
   subtitle: string
-  authors: string[]
+  authors: string[] | string
   publishedDate: string
 }
 
