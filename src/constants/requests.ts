@@ -12,7 +12,6 @@ export async function getFilesData(
       params: filters,
       paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
     })
-    console.log('Fetched: ', res.data, '\nFrom: ', baseUrl, { params: filters || {} })
     return res.data
   } catch (err) {
     console.error(`Error fetching files [${baseUrl} ${filters}]:`, err)
@@ -50,11 +49,13 @@ export async function getTags(): Promise<Tag[]> {
   }
 }
 
-export async function incrementDownload(fileId: number): Promise<void> {
+export async function incrementDownload(fileId: number): Promise<number> {
   try {
-    await API.post(`api/files/${fileId}/increment_downloads/`)
+    const res = await API.post(`api/files/${fileId}/increment_downloads/`)
+    return res.data.downloads ?? 0
   } catch (err) {
     console.error(`Błąd inkrementacji pobrań pliku ${fileId}:`, err)
+    return 0
   }
 }
 
@@ -81,16 +82,11 @@ export async function getUserRating(fileId: number): Promise<number | null> {
   const token = localStorage.getItem('access')
   if (!token) return null
 
-  const res = await fetch(`http://127.0.0.1:8000/api/files/${fileId}/user-rating/`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+  const res = await API.get(`api/files/${fileId}/user-rating/`, {
+    headers: { Authorization: `Bearer ${token}` },
   })
 
-  if (!res.ok) return null
-
-  const data = await res.json()
-  return data.rating
+  return res.data
 }
 
 export async function fetchComments(fileId: number): Promise<Comment[]> {

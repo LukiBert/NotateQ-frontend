@@ -75,9 +75,7 @@ function applyFilters() {
 
   const filtersToQuery: Record<string, string | string[]> = {}
 
-  //console.log(timestamp.value)
   for (const [key, value] of Object.entries(refToFilters)) {
-    //console.log(`${key}: ${value}`)
     if (value != null && value !== '' && (!Array.isArray(value) || value.length > 0)) {
       filtersToQuery[key] = Array.isArray(value) ? value.map(String) : String(value)
     }

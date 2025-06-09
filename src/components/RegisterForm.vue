@@ -93,22 +93,18 @@ const submitRegisterForm = async () => {
   formData.append('email', regEmail.value)
 
   try {
-    const res = await API.post(`register/`, formData, {
+    const res = await API.post(`api/register/`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     })
-    //console.log('Pomyślna rejestracja ', res.data)
 
-    router.push({ name: 'register' })
+    router.push({ name: 'home' })
     message.success(
       'Pomyślnie zarejestrowano. Aktywuj konto i zaloguj się, aby korzystać z aplikacji.',
       { duration: 5000 },
     )
   } catch (err: AxiosError) {
-    //console.log('STATUS:', err.response?.status)
-    //console.log('DATA:', err.response?.data)
-
     if (err.response?.data?.username) {
       message.error(`Błąd : ${err.response?.data?.username.join(' ')}`, { duration: 9000 })
       clearRegForm()
@@ -142,10 +138,18 @@ const submitLoginForm = async () => {
   }
 
   try {
-    const login = await API.post(`api/token/`, {
-      username: logUsername.value,
-      password: logPassword.value,
-    })
+    const login = await API.post(
+      `api/token/`,
+      {
+        username: logUsername.value,
+        password: logPassword.value,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    )
 
     localStorage.setItem('access', login.data.access)
     localStorage.setItem('refresh', login.data.refresh)

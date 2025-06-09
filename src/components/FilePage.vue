@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { type FileData } from '@/constants'
+import API from '@/constants/api'
 import { incrementDownload, rateFile, getUserRating } from '@/constants/requests'
 import { NTime, NTag, NButton, NRate, NSpace, NCard, NFlex, NText } from 'naive-ui'
 import PdfEmbed from 'vue-pdf-embed'
@@ -32,21 +33,26 @@ function prevPage() {
 
 async function downloadFile() {
   const filename = props.fileData.file.split('/').pop()
-  const downloadUrl = `http://127.0.0.1:8000/download/${filename}`
 
   try {
-    await incrementDownload(props.fileData.id)
-    props.fileData.downloads += 1
-  } catch (err) {
-    console.error('Nie udało się zaktualizować pobrań:', err)
-  }
+    const res = await API.get(`download/${filename}`, { responseType: 'blob' })
 
-  const link = document.createElement('a')
-  link.href = downloadUrl
-  link.setAttribute('download', '')
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
+    let downloadName = filename || 'notateq'
+    const blob = new Blob([res.data])
+    const link = document.createElement('a')
+    link.href = window.URL.createObjectURL(blob)
+    link.download = downloadName
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+
+    const resDownloadNum = await incrementDownload(props.fileData.id)
+    if (resDownloadNum) {
+      props.fileData.downloads = resDownloadNum
+    }
+  } catch (error) {
+    console.error('Cannot download a file')
+  }
 }
 
 const hasRated = ref(false)

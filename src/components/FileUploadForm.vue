@@ -155,10 +155,6 @@ const submitForm = async () => {
     formData.append('bibliography', b.title)
   })
 
-  // for (const [key, value] of formData.entries()) {
-  //   console.log(key, value)
-  // }
-
   try {
     const res = await API.post(`api/files/`, formData, {
       headers: {
@@ -167,7 +163,6 @@ const submitForm = async () => {
       },
     })
 
-    //console.log('Wysłano pomyślnie ', res.data)
     router.push({ name: 'home' })
     message.success('Plik został pomyślnie przesłany.', { duration: 5000 })
   } catch (err) {

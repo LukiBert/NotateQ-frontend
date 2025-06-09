@@ -19,16 +19,6 @@ const mockNotifications = ref([
   { id: 3, message: 'Twoja notatka została oceniona na 5 gwiazdek' },
 ])
 
-// function goToLogin() {
-//   router.push({ name: 'register' })
-// }
-
-// function logout() {
-//   localStorage.removeItem('access')
-//   isLoggedIn.value = false
-//   router.push({ name: 'home' })
-// }
-
 function goToHome() {
   router.push({ name: 'home' })
 }

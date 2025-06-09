@@ -26,7 +26,6 @@ async function fetchFileData(id: number) {
     router.push({ name: 'notFound' })
   } finally {
     loadingStatus.value = false
-    console.log(fetchedFile.value)
   }
 }
 </script>
