@@ -2,37 +2,35 @@ import qs from 'qs'
 import API from '@/constants/api'
 import type { FileData, FileList, Category, Tag, Comment, Book } from '@/constants'
 
-export async function getFilesData(
-  filters?: Record<string, string | number | boolean>,
-): Promise<FileData[]> {
-  const baseUrl = 'api/files/'
-
-  try {
-    const res = await API.get('/api/files/', {
-      params: filters,
-      paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
-    })
-    return res.data
-  } catch (err) {
-    console.error(`Error fetching files [${baseUrl} ${filters}]:`, err)
-    throw err
-  }
-}
-
 export async function getFilesList(
   page?: number,
   filters?: Record<string, string | number | boolean>,
+  isHomePage?: boolean,
 ): Promise<FileList> {
+  let url: string
+  let params: Record<string, any> = {}
+
+  if (isHomePage) {
+    url = '/api/files_list/recent/'
+  } else {
+    url = '/api/files_list/'
+    params = { page, ...filters }
+  }
+
   try {
-    const res = await API.get('/api/files_list/', {
-      params: { page, ...filters },
-      paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
+    const res = await API.get<FileList>(url, {
+      params: params,
+      paramsSerializer: (p) => qs.stringify(p, { arrayFormat: 'repeat' }),
     })
-    console.log(res.data)
     return res.data
   } catch (err) {
-    console.error(`Error fetching files [/api/files_list/ ${filters}]:`, err)
-    return {} as FileList
+    console.error(`Error fetching files from ${url}:`, err)
+    return {
+      count: 0,
+      next: null,
+      previous: null,
+      results: [],
+    }
   }
 }
 

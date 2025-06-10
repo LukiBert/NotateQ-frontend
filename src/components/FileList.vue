@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { NEmpty, NPagination } from 'naive-ui'
 import FileDescriptor from './FileDescriptor.vue'
 import type { FileShort, SortOption } from '../constants'
-import { getFilesData, getFilesList } from '@/constants/requests'
+import { getFilesList } from '@/constants/requests'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 
 const { filters, emptyMessage, sortOption } = defineProps<{
   filters?: Record<string, string | number | boolean>
@@ -21,8 +24,10 @@ const noFiles = computed(() => fetchedFilesShort.value.length <= 0)
 const page = ref(1)
 const pageCount = computed(() => Math.ceil(totalCount.value / 5))
 
+const isHomePage = ref(false)
+
 watch(page, async (newPage) => {
-  const res = await getFilesList(newPage, filters)
+  const res = await getFilesList(newPage, filters, isHomePage.value)
   totalCount.value = res.count
   nextPage.value = res.next
   prevPage.value = res.previous
@@ -33,7 +38,7 @@ watch(
   () => filters,
   async (newFilters) => {
     page.value = 1
-    const res = await getFilesList(1, newFilters)
+    const res = await getFilesList(1, newFilters, isHomePage.value)
     totalCount.value = res.count
     nextPage.value = res.next
     prevPage.value = res.previous
@@ -41,15 +46,21 @@ watch(
   },
   { immediate: true, deep: true },
 )
+
+onMounted(() => {
+  if (route.name === 'home') {
+    isHomePage.value = true
+  }
+})
 </script>
 
 <template>
   <div class="file-list-wrapper">
     <div class="file-list">
-      <n-pagination v-model:page="page" :page-count="pageCount" />
+      <n-pagination v-if="!isHomePage" v-model:page="page" :page-count="pageCount" />
       <n-empty v-if="noFiles" :description="emptyMessage || 'Brak plików do pobrania'" />
       <FileDescriptor v-for="(item, index) in fetchedFilesShort" :key="index" :file="item" />
-      <n-pagination v-if="!noFiles" v-model:page="page" :page-count="pageCount" />
+      <n-pagination v-if="!noFiles && !isHomePage" v-model:page="page" :page-count="pageCount" />
     </div>
   </div>
 </template>

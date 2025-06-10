@@ -19,5 +19,16 @@ function receiveEmit(receivedText: string) {
   <NavBar />
   <SearchBar mode="manual" @search-phrase="receiveEmit" />
   <CategoryHolder />
+  <div id="text-holder">Najnowsze udostępnione dokumenty</div>
   <FileList />
 </template>
+
+<style scoped>
+#text-holder {
+  margin: 10px auto;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1rem;
+  color: rgb(24, 160, 88);
+}
+</style>
