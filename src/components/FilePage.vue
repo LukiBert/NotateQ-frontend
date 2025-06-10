@@ -3,14 +3,17 @@ import { computed, onMounted, ref } from 'vue'
 import { type FileData } from '@/constants'
 import API from '@/constants/api'
 import { incrementDownload, rateFile, getUserRating } from '@/constants/requests'
-import { NTime, NTag, NButton, NRate, NSpace, NCard, NFlex, NText } from 'naive-ui'
+import { NTime, NTag, NButton, NRate, NSpace, NCard, NFlex, NText, NPopover } from 'naive-ui'
 import PdfEmbed from 'vue-pdf-embed'
 import CommentSection from '@/components/CommentSection.vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   fileData: FileData
   loading: boolean
 }>()
+
+const router = useRouter()
 
 const userRating = ref(0)
 
@@ -101,7 +104,22 @@ onMounted(async () => {
     </template>
 
     <div class="info-grid">
-      <div><n-text strong>Autor:</n-text> {{ fileData.author }}</div>
+      <div>
+        <n-text strong>Autor: </n-text>
+        <n-popover trigger="hover">
+          <template #trigger>
+            <n-button
+              tag="a"
+              text
+              @click="router.push({ name: 'public-profile', params: { id: fileData.author.id } })"
+              type="primary"
+            >
+              {{ fileData.author.username }}
+            </n-button>
+          </template>
+          <span>Odwiedź profil użytkownika '{{ fileData.author.username }}'</span>
+        </n-popover>
+      </div>
       <div><n-text strong>Dotyczy wydarzenia:</n-text> {{ fileData.date }}</div>
       <div class="span-2">
         <n-text strong>Dodano: </n-text>

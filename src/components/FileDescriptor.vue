@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { MdFolderOpen } from '@vicons/ionicons4'
-import { NIcon, NCard, NTag } from 'naive-ui'
+import { NIcon, NCard, NTag, NSpace } from 'naive-ui'
 import { useRouter } from 'vue-router'
-import { joinCategoryNames, type FileShort } from '@/constants'
-import { computed } from 'vue'
+import { type FileShort } from '@/constants'
 
 const { file } = defineProps<{
   file: FileShort
@@ -14,10 +13,6 @@ const router = useRouter()
 function navToFilePage() {
   router.push({ name: 'filePage', params: { id: file.id } })
 }
-
-const categoryNames = computed(() => {
-  return joinCategoryNames(file.categories)
-})
 </script>
 
 <template>
