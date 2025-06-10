@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { NEmpty } from 'naive-ui'
+import { ref, computed, watch, onMounted } from 'vue'
+import { NEmpty, NPagination } from 'naive-ui'
 import FileDescriptor from './FileDescriptor.vue'
-import type { FileData, SortOption } from '../constants'
-import { getFilesData } from '@/constants/requests'
+import type { FileShort, SortOption } from '../constants'
+import { getFilesList } from '@/constants/requests'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 
 const { filters, emptyMessage, sortOption } = defineProps<{
   filters?: Record<string, string | number | boolean>
@@ -11,51 +14,53 @@ const { filters, emptyMessage, sortOption } = defineProps<{
   sortOption?: SortOption | null
 }>()
 
-const fetchedFiles = ref<FileData[]>([])
+const totalCount = ref(0)
+const nextPage = ref<string | null>(null)
+const prevPage = ref<string | null>(null)
+const fetchedFilesShort = ref<FileShort[]>([])
 
-const noFiles = computed(() => fetchedFiles.value.length <= 0)
+const noFiles = computed(() => fetchedFilesShort.value.length <= 0)
 
-const sortedFiles = computed(() => {
-  if (!fetchedFiles.value.length) return []
+const page = ref(1)
+const pageCount = computed(() => Math.ceil(totalCount.value / 5))
 
-  if (!sortOption) {
-    return fetchedFiles.value
-  }
+const isHomePage = ref(false)
 
-  return [...fetchedFiles.value].sort((a, b) => {
-    switch (sortOption) {
-      case 'downloads_asc':
-        return a.downloads - b.downloads
-      case 'downloads_desc':
-        return b.downloads - a.downloads
-      case 'rating_asc':
-        return a.rating - b.rating
-      case 'rating_desc':
-        return b.rating - a.rating
-      case 'date_asc':
-        return new Date(a.upload_date).getTime() - new Date(b.upload_date).getTime()
-      case 'date_desc':
-        return new Date(b.upload_date).getTime() - new Date(a.upload_date).getTime()
-      default:
-        return 0
-    }
-  })
+watch(page, async (newPage) => {
+  const res = await getFilesList(newPage, filters, isHomePage.value)
+  totalCount.value = res.count
+  nextPage.value = res.next
+  prevPage.value = res.previous
+  fetchedFilesShort.value = res.results
 })
 
 watch(
   () => filters,
   async (newFilters) => {
-    fetchedFiles.value = await getFilesData(newFilters)
+    page.value = 1
+    const res = await getFilesList(1, newFilters, isHomePage.value)
+    totalCount.value = res.count
+    nextPage.value = res.next
+    prevPage.value = res.previous
+    fetchedFilesShort.value = res.results
   },
   { immediate: true, deep: true },
 )
+
+onMounted(() => {
+  if (route.name === 'home') {
+    isHomePage.value = true
+  }
+})
 </script>
 
 <template>
   <div class="file-list-wrapper">
     <div class="file-list">
+      <n-pagination v-if="!isHomePage" v-model:page="page" :page-count="pageCount" />
       <n-empty v-if="noFiles" :description="emptyMessage || 'Brak plików do pobrania'" />
-      <FileDescriptor v-for="(item, index) in sortedFiles" :key="index" :file="item" />
+      <FileDescriptor v-for="(item, index) in fetchedFilesShort" :key="index" :file="item" />
+      <n-pagination v-if="!noFiles && !isHomePage" v-model:page="page" :page-count="pageCount" />
     </div>
   </div>
 </template>

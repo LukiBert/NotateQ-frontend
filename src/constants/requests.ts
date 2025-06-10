@@ -1,21 +1,36 @@
 import qs from 'qs'
 import API from '@/constants/api'
-import type { FileData, Category, Tag, Comment, Book } from '@/constants'
+import type { FileData, FileList, Category, Tag, Comment, Book } from '@/constants'
 
-export async function getFilesData(
+export async function getFilesList(
+  page?: number,
   filters?: Record<string, string | number | boolean>,
-): Promise<FileData[]> {
-  const baseUrl = 'api/files/'
+  isHomePage?: boolean,
+): Promise<FileList> {
+  let url: string
+  let params: Record<string, any> = {}
+
+  if (isHomePage) {
+    url = '/api/files_list/recent/'
+  } else {
+    url = '/api/files_list/'
+    params = { page, ...filters }
+  }
 
   try {
-    const res = await API.get('/api/files/', {
-      params: filters,
-      paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
+    const res = await API.get<FileList>(url, {
+      params: params,
+      paramsSerializer: (p) => qs.stringify(p, { arrayFormat: 'repeat' }),
     })
     return res.data
   } catch (err) {
-    console.error(`Error fetching files [${baseUrl} ${filters}]:`, err)
-    throw err
+    console.error(`Error fetching files from ${url}:`, err)
+    return {
+      count: 0,
+      next: null,
+      previous: null,
+      results: [],
+    }
   }
 }
 

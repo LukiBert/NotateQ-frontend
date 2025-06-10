@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { MdFolderOpen } from '@vicons/ionicons4'
-import { NIcon, NCard } from 'naive-ui'
+import { NIcon, NCard, NTag, NSpace } from 'naive-ui'
 import { useRouter } from 'vue-router'
-import { joinCategoryNames, type FileData } from '@/constants'
-import { computed } from 'vue'
+import { type FileShort } from '@/constants'
 
 const { file } = defineProps<{
-  file: FileData
+  file: FileShort
 }>()
 
 const router = useRouter()
@@ -14,10 +13,6 @@ const router = useRouter()
 function navToFilePage() {
   router.push({ name: 'filePage', params: { id: file.id } })
 }
-
-const categoryNames = computed(() => {
-  return joinCategoryNames(file.categories)
-})
 </script>
 
 <template>
@@ -28,18 +23,28 @@ const categoryNames = computed(() => {
 
         <div class="card-content">
           <h3 class="card-title">{{ file.title }}</h3>
+          <h5 class="card-author">Autor: {{ file.author }}</h5>
 
           <div class="card-description">
-            <span class="left-info">{{ categoryNames }}</span>
+            <n-space wrap>
+              <n-tag
+                v-for="(cat, index) in file.categories"
+                :key="'cat-' + index"
+                type="success"
+                round
+              >
+                {{ cat.name }}
+              </n-tag>
+              <n-tag v-for="(tag, index) in file.tag_names" :key="'tag-' + index" type="info" round>
+                {{ tag }}
+              </n-tag>
+            </n-space>
             <div class="right-info">
-              <span class="rating-info">
-                Średnia: {{ file.rating.toFixed(1) }} ({{ file.rating_count }} ocen)
-              </span>
-              <span class="size-info">{{ file.downloads }} pobrań</span>
+              <span class="rating-info">Napisano '{{ file.date }}'</span>
+              <span class="rating-info"> Ocena: {{ file.rating.toFixed(1) }} </span>
+              <span class="rating-info">{{ file.downloads }} pobrań</span>
             </div>
           </div>
-
-          <h5 class="card-author">{{ file.author }}</h5>
         </div>
       </div>
     </n-card>
@@ -81,20 +86,16 @@ const categoryNames = computed(() => {
 .card-description {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
+  align-items: left;
+  flex-direction: column;
   margin: 4px 0;
   font-size: 14px;
 }
 
-.left-info {
-  flex: 1;
-}
-
 .right-info {
   display: flex;
-  gap: 12px;
-  align-items: center;
+  align-items: left;
+  flex-direction: column;
 }
 
 .size-info {
@@ -126,6 +127,12 @@ const categoryNames = computed(() => {
     font-size: 15px;
   }
 
+  .right-info {
+    gap: 12px;
+    align-items: center;
+    flex-direction: row;
+  }
+
   .size-info,
   .card-author {
     font-size: 14px;
@@ -147,6 +154,9 @@ const categoryNames = computed(() => {
   }
 
   .card-description {
+    align-items: center;
+    flex-wrap: wrap;
+    flex-direction: row;
     font-size: 16px;
   }
 
