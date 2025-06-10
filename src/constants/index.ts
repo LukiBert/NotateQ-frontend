@@ -13,7 +13,10 @@ export interface FileData {
   categories: Category[]
   tag_names: string[]
   description: string
-  author: string
+  author: {
+    id: number
+    username: string
+  }
   upload_date: string
   delete_time: string
   downloads: number
@@ -22,6 +25,24 @@ export interface FileData {
   rating_count: number
   bibliography_titles: string[]
   date: string
+}
+
+export interface FileShort {
+  id: number
+  title: string
+  categories: Category[]
+  tag_names: string[]
+  author: string
+  date: string
+  downloads: number
+  rating: number
+}
+
+export interface FileList {
+  count: number
+  next: string | null
+  previous: string | null
+  results: FileShort[]
 }
 
 export interface Comment {
