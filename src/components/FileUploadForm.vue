@@ -136,10 +136,16 @@ const submitForm = async () => {
     return
   }
 
+  const myIdStr = localStorage.getItem('myId')
+  if (!myIdStr) {
+    message.warning('Nie jesteś zalogowany.', { duration: 7000 })
+    return
+  }
+
   const formData = new FormData()
   formData.append('title', title.value)
   formData.append('description', description.value)
-  formData.append('author', author.value)
+  formData.append('author_id', myIdStr)
   formData.append('file', uploadedFile.value[0].file as File)
 
   if (!noteDate.value) noteDate.value = Date.now()
