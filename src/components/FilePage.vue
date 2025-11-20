@@ -7,6 +7,8 @@ import { NTime, NTag, NButton, NRate, NSpace, NCard, NFlex, NText, NPopover } fr
 import PdfEmbed from 'vue-pdf-embed'
 import CommentSection from '@/components/CommentSection.vue'
 import { useRouter } from 'vue-router'
+import { jwtDecode } from 'jwt-decode'
+import { myId } from '@/constants/authState.ts'
 
 const props = defineProps<{
   fileData: FileData
@@ -87,6 +89,35 @@ onMounted(async () => {
     }
   }
 })
+
+myId.value = Number(localStorage.getItem('myId'))
+
+async function deleteFile() {
+  if (!confirm('Czy na pewno chcesz usunąć ten plik?')) return
+
+  const token = localStorage.getItem('access')
+  if (!token) {
+    alert('Musisz być zalogowany.')
+    return
+  }
+
+  try {
+    await API.delete(`api/files/${props.fileData.id}/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    router.push('/404')
+  } catch (err) {
+    console.error('Błąd podczas usuwania pliku:', err)
+    alert('Nie udało się usunąć pliku.')
+  }
+}
+
+
+
+
 </script>
 
 <template>
@@ -98,10 +129,23 @@ onMounted(async () => {
     class="file-data-info"
   >
     <template #header>
-      <h1 style="font-weight: bold">
-        {{ fileData.title }}
-      </h1>
-    </template>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h1 style="font-weight: bold; margin: 0;">
+      {{ fileData.title }}
+    </h1>
+
+    <!-- PRZYCISK USUWANIA – tylko autor widzi -->
+    <n-button
+      v-if="myId === fileData.author.id"
+      type="error"
+      size="small"
+      @click="deleteFile"
+    >
+      Usuń
+    </n-button>
+  </div>
+</template>
+
 
     <div class="info-grid">
       <div>
