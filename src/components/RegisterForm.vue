@@ -42,7 +42,8 @@ function clearRegForm() {
 }
 
 const submitRegisterForm = async () => {
-  const usernamePattern = /^[A-Za-z][A-Za-z0-9]{7,}$/
+  //const usernamePattern = /^[A-Za-z][A-Za-z0-9]{7,}$/
+  const usernamePattern = /^[A-Za-z][A-Za-z0-9]{1,}$/
 
   if (!usernamePattern.test(regUsername.value)) {
     message.info(
@@ -53,8 +54,9 @@ const submitRegisterForm = async () => {
     return
   }
 
-  const emailPattern =
-    /[-A-Za-z0-9!#$%&'*+/=?^_`{|}~]+(?:\.[-A-Za-z0-9!#$%&'*+/=?^_`{|}~]+)*@(?:[A-Za-z0-9](?:[-A-Za-z0-9]*[A-Za-z0-9])?\.)+[A-Za-z0-9](?:[-A-Za-z0-9]*[A-Za-z0-9])?/
+  //const emailPattern =
+  //  /[-A-Za-z0-9!#$%&'*+/=?^_`{|}~]+(?:\.[-A-Za-z0-9!#$%&'*+/=?^_`{|}~]+)*@(?:[A-Za-z0-9](?:[-A-Za-z0-9]*[A-Za-z0-9])?\.)+[A-Za-z0-9](?:[-A-Za-z0-9]*[A-Za-z0-9])?/
+  const emailPattern = /^[^@]+@[^@]+$/
 
   if (!emailPattern.test(regEmail.value)) {
     message.info('Niepoprawny format adresu eamil', { duration: 5000 })
@@ -62,7 +64,8 @@ const submitRegisterForm = async () => {
     return
   }
 
-  const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?-]).{8,}$/
+  //const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?-]).{8,}$/
+  const passwordPattern = /^.{2,}$/
 
   if (!passwordPattern.test(regPassword.value)) {
     message.info(
