@@ -8,6 +8,8 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 
+const isHomePage = ref(route.name === 'home')
+
 const { filters, emptyMessage, sortOption } = defineProps<{
   filters?: Record<string, string | number | boolean>
   emptyMessage?: string
@@ -24,7 +26,6 @@ const noFiles = computed(() => fetchedFilesShort.value.length <= 0)
 const page = ref(1)
 const pageCount = computed(() => Math.ceil(totalCount.value / 5))
 
-const isHomePage = ref(false)
 
 watch(page, async (newPage) => {
   const res = await getFilesList(newPage, filters, isHomePage.value)
@@ -47,11 +48,6 @@ watch(
   { immediate: true, deep: true },
 )
 
-onMounted(() => {
-  if (route.name === 'home') {
-    isHomePage.value = true
-  }
-})
 </script>
 
 <template>
