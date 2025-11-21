@@ -101,8 +101,9 @@ export async function getUserRating(fileId: number): Promise<number | null> {
     headers: { Authorization: `Bearer ${token}` },
   })
 
-  return res.data
+  return res.data.rating   // <-- TUTAJ POPRAWKA
 }
+
 
 export async function fetchComments(fileId: number): Promise<Comment[]> {
   try {
