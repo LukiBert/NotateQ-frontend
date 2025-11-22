@@ -40,7 +40,13 @@ async function downloadFile() {
   const filename = props.fileData.file.split('/').pop()
 
   try {
-    const res = await API.get(`download/${filename}`, { responseType: 'blob' })
+    const res = await API.get(`download/${filename}`, {
+  responseType: 'blob',
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem('access')}`
+  }
+})
+
 
     let downloadName = filename || 'notateq'
     const blob = new Blob([res.data])
