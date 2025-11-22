@@ -33,3 +33,4 @@ coverage
 
 *.sh
 *.zip
+.env

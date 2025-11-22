@@ -3,12 +3,13 @@ import { computed, onMounted, ref } from 'vue'
 import { type FileData } from '@/constants'
 import API from '@/constants/api'
 import { incrementDownload, rateFile, getUserRating } from '@/constants/requests'
-import { NTime, NTag, NButton, NRate, NSpace, NCard, NFlex, NText, NPopover } from 'naive-ui'
+import { NTime, NTag, NButton, NRate, NSpace, NCard, NFlex, NText, NPopover, NModal } from 'naive-ui'
 import PdfEmbed from 'vue-pdf-embed'
 import CommentSection from '@/components/CommentSection.vue'
 import { useRouter } from 'vue-router'
 import { jwtDecode } from 'jwt-decode'
 import { myId } from '@/constants/authState.ts'
+import { loadStripe } from "@stripe/stripe-js";
 
 const props = defineProps<{
   fileData: FileData
@@ -23,6 +24,9 @@ const pdfUrl = computed(() => props.fileData.file)
 const pdfRef = ref<InstanceType<typeof PdfEmbed> | null>(null)
 const currentPage = ref(1)
 const pageCount = ref(1)
+
+const showPremiumModal = ref(false)
+
 
 function handleLoaded(pdf: any) {
   pageCount.value = pdf.numPages
@@ -41,11 +45,11 @@ async function downloadFile() {
 
   try {
     const res = await API.get(`download/${filename}`, {
-  responseType: 'blob',
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem('access')}`
-  }
-})
+      responseType: 'blob',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('access')}`
+      }
+    })
 
 
     let downloadName = filename || 'notateq'
@@ -61,10 +65,50 @@ async function downloadFile() {
     if (resDownloadNum) {
       props.fileData.downloads = resDownloadNum
     }
-  } catch (error) {
-    console.error('Cannot download a file')
+  } catch (error: any) {
+    if (
+        error.response &&
+        (error.response.status === 402 ||
+            error.response.data?.error?.includes("Limit"))
+    ) {
+      showPremiumModal.value = true;
+    } else {
+      console.error("Error downloading file:", error);
+    }
   }
 }
+
+async function buyPremium() {
+  try {
+    // Wywołanie endpointu backendowego z tokenem JWT
+    const res = await API.post(
+      "/create-checkout-session/",
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access')}`,
+        },
+      }
+    );
+
+    const checkoutUrl = res.data.url; // backend teraz zwraca pełny URL
+
+    if (!checkoutUrl) {
+      throw new Error("Brak URL do Stripe Checkout");
+    }
+
+    // Proste przekierowanie do Stripe
+    window.location.href = checkoutUrl;
+
+  } catch (err) {
+    console.error("Błąd płatności:", err);
+    alert("Nie udało się rozpocząć płatności. Spróbuj ponownie.");
+  }
+}
+
+
+
+
 
 const hasRated = ref(false)
 const hasRatedShow = ref(false)
@@ -257,6 +301,28 @@ async function deleteFile() {
   </div>
 
   <CommentSection :file-id="props.fileData.id" />
+  <n-modal v-model:show="showPremiumModal">
+  <n-card
+    style="max-width: 400px"
+    title="Limit pobrań osiągnięty"
+    size="huge"
+    :bordered="false"
+  >
+    <div style="margin-bottom: 12px;">
+      Osiągnąłeś limit darmowych pobrań.
+      Aby pobierać bez ograniczeń, wykup dostęp Premium.
+    </div>
+
+    <n-button type="success" block @click="buyPremium">
+      Kup Premium
+    </n-button>
+
+    <template #footer>
+      <n-button block @click="showPremiumModal = false">Anuluj</n-button>
+    </template>
+  </n-card>
+</n-modal>
+
 </template>
 
 <style scoped>
