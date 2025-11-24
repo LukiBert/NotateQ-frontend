@@ -186,6 +186,44 @@ const submitForm = async () => {
 onMounted(async () => {
   fetchedCategories.value = await getAllCategories()
 })
+
+const generatingDescription = ref(false)
+
+async function generateDescriptionWithAI() {
+  if (!uploadedFile.value?.length) {
+    message.warning('Najpierw załącz plik.', { duration: 5000 })
+    return
+  }
+
+  const formData = new FormData()
+  formData.append('file', uploadedFile.value[0].file as File)
+
+  try {
+    generatingDescription.value = true
+
+    const res = await API.post(
+      'api/generate-description/',
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access')}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+
+    description.value = res.data.description
+    message.success('Opis został wygenerowany przez AI.', { duration: 5000 })
+  } catch (err) {
+    console.error(err)
+    message.error('Nie udało się wygenerować opisu.', { duration: 5000 })
+  } finally {
+    generatingDescription.value = false
+  }
+}
+
+
+
 </script>
 
 <template>
@@ -226,6 +264,19 @@ onMounted(async () => {
                   </n-upload-dragger>
                 </n-upload>
               </n-form-item>
+
+              <n-form-item>
+                <n-button
+                  type="info"
+                  @click="generateDescriptionWithAI"
+                  :disabled="!uploadedFile || !uploadedFile.length || generatingDescription"
+                >
+                  <n-spin :show="generatingDescription" :stroke-width="5">
+                    Wygeneruj opis AI
+                  </n-spin>
+                </n-button>
+              </n-form-item>
+
 
               <n-form-item label="Tytuł:" required>
                 <n-input
