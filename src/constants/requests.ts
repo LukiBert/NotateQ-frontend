@@ -137,9 +137,28 @@ export async function postComment(fileId: number, content: string) {
 
 // API endpoint replaces all '-' with '+'
 export async function searchBibliography(titleToSearch: string): Promise<Book[]> {
-  const temp = titleToSearch.trim().replace(/\s+/g, '-')
+  let processedTitle = titleToSearch.toLowerCase();
+
+  processedTitle = processedTitle.replace(/[ąćęłńóśźż]/g, (char) => {
+    switch (char) {
+      case 'ą': return 'a';
+      case 'ć': return 'c';
+      case 'ę': return 'e';
+      case 'ł': return 'l';
+      case 'ń': return 'n';
+      case 'ó': return 'o';
+      case 'ś': return 's';
+      case 'ź': return 'z';
+      case 'ż': return 'z';
+      default: return char;
+    }
+  });
+
+  processedTitle = processedTitle.trim().replace(/\s+/g, '-');
+  processedTitle = processedTitle.replace(/[^a-z0-9-]/g, '');
+
   try {
-    const res = await API.get(`api/books/search/${temp}`)
+    const res = await API.get(`api/books/search/${processedTitle}`)
     return res.data
   } catch (err) {
     console.error('Błąd podczas wyszukiwania książek:', err)
