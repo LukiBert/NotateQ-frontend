@@ -24,11 +24,43 @@ const fetchedFilesShort = ref<FileShort[]>([])
 const noFiles = computed(() => fetchedFilesShort.value.length <= 0)
 
 const page = ref(1)
-const pageCount = computed(() => Math.ceil(totalCount.value / 5))
+const pageSize = ref(5)
+const pageCount = computed(() => Math.ceil(totalCount.value / pageSize.value))
 
+const pageSizesList = [
+  {
+    label: '5 na stronę',
+    value: 5
+  },
+  {
+    label: '10 na stronę',
+    value: 10
+  },
+  {
+    label: '20 na stronę',
+    value: 20
+  },
+  {
+    label: '30 na stronę',
+    value: 30
+  },
+  {
+    label: '50 na stronę',
+    value: 50
+  }
+]
 
 watch(page, async (newPage) => {
-  const res = await getFilesList(newPage, filters, isHomePage.value)
+  const res = await getFilesList(newPage, filters, isHomePage.value, pageSize.value)
+  totalCount.value = res.count
+  nextPage.value = res.next
+  prevPage.value = res.previous
+  fetchedFilesShort.value = res.results
+})
+
+watch(pageSize, async (newPageSize) => {
+  page.value = 1
+  const res = await getFilesList(page.value, filters, isHomePage.value, newPageSize)
   totalCount.value = res.count
   nextPage.value = res.next
   prevPage.value = res.previous
@@ -39,7 +71,7 @@ watch(
   () => filters,
   async (newFilters) => {
     page.value = 1
-    const res = await getFilesList(1, newFilters, isHomePage.value)
+    const res = await getFilesList(1, newFilters, isHomePage.value, pageSize.value)
     totalCount.value = res.count
     nextPage.value = res.next
     prevPage.value = res.previous
@@ -53,10 +85,22 @@ watch(
 <template>
   <div class="file-list-wrapper">
     <div class="file-list">
-      <n-pagination v-if="!isHomePage" v-model:page="page" :page-count="pageCount" />
+      <n-pagination v-if="!noFiles && !isHomePage" 
+        v-model:page="page"
+        v-model:page-size="pageSize"  
+        :page-count="pageCount" 
+        show-size-picker
+        :page-sizes="pageSizesList"
+      />
       <n-empty v-if="noFiles" :description="emptyMessage || 'Brak plików do pobrania'" />
       <FileDescriptor v-for="(item, index) in fetchedFilesShort" :key="index" :file="item" />
-      <n-pagination v-if="!noFiles && !isHomePage" v-model:page="page" :page-count="pageCount" />
+      <n-pagination v-if="!noFiles && !isHomePage" 
+        v-model:page="page"
+        v-model:page-size="pageSize"  
+        :page-count="pageCount" 
+        show-size-picker
+        :page-sizes="pageSizesList"
+      />
     </div>
   </div>
 </template>

@@ -6,6 +6,7 @@ export async function getFilesList(
   page?: number,
   filters?: Record<string, string | number | boolean>,
   isHomePage?: boolean,
+  pageSize?: number,
 ): Promise<FileList> {
   let url: string
   let params: Record<string, any> = {}
@@ -14,7 +15,7 @@ export async function getFilesList(
     url = '/api/files_list/recent/'
   } else {
     url = '/api/files_list/'
-    params = { page, ...filters }
+    params = { page, page_size: pageSize, ...filters }
   }
 
   try {
