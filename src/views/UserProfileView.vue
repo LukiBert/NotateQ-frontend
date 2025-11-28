@@ -191,14 +191,37 @@ watch(() => route.params.id, () => {
           Udostępnionych dokumentów: <n-text strong>{{ documentsShared }}</n-text>
         </p>
         <div class="follow-stats">
-          <n-text class="follow-item" @click="showFollowingModal = true">
-            Obserwuje: <b>{{ followingCount }}</b>
-          </n-text>
+  <!-- OBSERWOWANYCH -->
+          <n-popover trigger="hover">
+            <template #trigger>
+              <n-button
+                tag="a"
+                text
+                @click="showFollowingModal = true"
+                type="primary"
+              >
+                Obserwuje:&nbsp;<b>{{ followingCount }}</b>
+              </n-button>
+            </template>
+            <span>Zobacz listę obserwowanych użytkowników</span>
+          </n-popover>
 
-          <n-text class="follow-item" @click="showFollowersModal = true">
-            Obserwujących: <b>{{ followersCount }}</b>
-          </n-text>
+          <!-- OBSERWUJĄCYCH -->
+          <n-popover trigger="hover">
+            <template #trigger>
+              <n-button
+                tag="a"
+                text
+                @click="showFollowersModal = true"
+                type="primary"
+              >
+                Obserwujących:&nbsp;<b>{{ followersCount }}</b>
+              </n-button>
+            </template>
+            <span>Zobacz listę obserwujących użytkowników</span>
+          </n-popover>
         </div>
+
 
       </div>
       <n-button v-if="isOwnProfile" @click="logout" type="error" style="margin-left: auto">
@@ -236,33 +259,59 @@ watch(() => route.params.id, () => {
     :filters="{ author: userId, title: searchInput }"
     empty-message="Brak plików spełniających kryteria"
   />
-  <n-modal v-model:show="showFollowersModal" preset="dialog" title="Obserwują Cię:">
+  <n-modal v-model:show="showFollowersModal" preset="dialog" title="Obserwują:">
   <div v-if="followersList.length">
     <div
       v-for="item in followersList"
       :key="item.id"
       class="user-link"
-      @click="router.push('/profile/' + item.follower)"
     >
-      {{ item.follower_username }}
+      <n-popover trigger="hover">
+        <template #trigger>
+          <n-button
+            tag="a"
+            text
+            type="primary"
+            class="user-link-button"
+            @click="router.push({ name: 'public-profile', params: { id: item.follower } })"
+          >
+            {{ item.follower_username }}
+          </n-button>
+        </template>
+        <span>Odwiedź profil użytkownika '{{ item.follower_username }}'</span>
+      </n-popover>
     </div>
   </div>
   <div v-else>Brak obserwujących</div>
 </n-modal>
 
-<n-modal v-model:show="showFollowingModal" preset="dialog" title="Obserwujesz:">
+
+<n-modal v-model:show="showFollowingModal" preset="dialog" title="Obserwuje:">
   <div v-if="followingList.length">
     <div
       v-for="item in followingList"
       :key="item.id"
       class="user-link"
-      @click="router.push('/profile/' + item.followed)"
     >
-      {{ item.followed_username }}
+      <n-popover trigger="hover">
+        <template #trigger>
+          <n-button
+            tag="a"
+            text
+            type="primary"
+            class="user-link-button"
+            @click="router.push({ name: 'public-profile', params: { id: item.followed } })"
+          >
+            {{ item.followed_username }}
+          </n-button>
+        </template>
+        <span>Odwiedź profil użytkownika '{{ item.followed_username }}'</span>
+      </n-popover>
     </div>
   </div>
   <div v-else>Nie obserwujesz nikogo</div>
 </n-modal>
+
 
 </template>
 
@@ -299,6 +348,7 @@ watch(() => route.params.id, () => {
 .user-details {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
 }
 
 .user-details h2 {
@@ -342,19 +392,9 @@ watch(() => route.params.id, () => {
 
 .follow-stats {
   display: flex;
-  flex-direction: column;
-  margin-left: 1.5rem;
-  cursor: pointer;
-}
-
-.follow-item {
-  margin-bottom: 4px;
-  cursor: pointer;
-  color: #0077ff;
-}
-
-.follow-item:hover {
-  text-decoration: underline;
+  flex-direction: row;
+  margin-top: 0.75rem;
+  gap: 2rem;
 }
 
 .user-link {
