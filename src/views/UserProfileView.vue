@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NButton, NText, NIcon, NFlex, useMessage } from 'naive-ui'
+import { NButton, NText, NIcon, NFlex, useMessage, NPopover, NModal, NDialogProvider } from 'naive-ui'
 import { MdTrash, MdLogOut } from '@vicons/ionicons4'
 import { UserFollow } from '@vicons/carbon'
 import API from '@/constants/api'
@@ -11,6 +11,17 @@ import FileList from '@/components/FileList.vue'
 import NavBar from '@/components/NavBar.vue'
 
 const props = defineProps<{ id?: string }>()
+
+const followersCount = ref(0)
+const followingCount = ref(0)
+
+const showFollowersModal = ref(false)
+const showFollowingModal = ref(false)
+
+const followersList = ref<any[]>([])
+const followingList = ref<any[]>([])
+
+
 
 const message = useMessage()
 
@@ -121,13 +132,51 @@ async function toggleFollow() {
   }
 }
 
+async function loadFollowers() {
+  if (!userId.value) return
+  try {
+    const res = await API.get(`/api/follows/user/${userId.value}/followers/`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('access')}` },
+    })
+    followersList.value = res.data
+    followersCount.value = res.data.length
+  } catch (e) {
+    console.error("Błąd followers:", e)
+  }
+}
+
+async function loadFollowing() {
+  if (!userId.value) return
+  try {
+    const res = await API.get(`/api/follows/user/${userId.value}/following/`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('access')}` },
+    })
+    followingList.value = res.data
+    followingCount.value = res.data.length
+  } catch (e) {
+    console.error("Błąd following:", e)
+  }
+}
+
+
+
+
 async function loadProfileAndFollowStatus() {
   await fetchProfile()
   await checkFollowingStatus()
+  await loadFollowers()
+  await loadFollowing()
+
 }
 
+
 onMounted(loadProfileAndFollowStatus)
-watch(() => route.params.id, loadProfileAndFollowStatus)
+watch(() => route.params.id, () => {
+  showFollowersModal.value = false
+  showFollowingModal.value = false
+  loadProfileAndFollowStatus()
+})
+
 </script>
 
 <template>
@@ -141,6 +190,16 @@ watch(() => route.params.id, loadProfileAndFollowStatus)
         <p>
           Udostępnionych dokumentów: <n-text strong>{{ documentsShared }}</n-text>
         </p>
+        <div class="follow-stats">
+          <n-text class="follow-item" @click="showFollowingModal = true">
+            Obserwuje: <b>{{ followingCount }}</b>
+          </n-text>
+
+          <n-text class="follow-item" @click="showFollowersModal = true">
+            Obserwujących: <b>{{ followersCount }}</b>
+          </n-text>
+        </div>
+
       </div>
       <n-button v-if="isOwnProfile" @click="logout" type="error" style="margin-left: auto">
         <template #icon>
@@ -177,6 +236,34 @@ watch(() => route.params.id, loadProfileAndFollowStatus)
     :filters="{ author: userId, title: searchInput }"
     empty-message="Brak plików spełniających kryteria"
   />
+  <n-modal v-model:show="showFollowersModal" preset="dialog" title="Obserwują Cię:">
+  <div v-if="followersList.length">
+    <div
+      v-for="item in followersList"
+      :key="item.id"
+      class="user-link"
+      @click="router.push('/profile/' + item.follower)"
+    >
+      {{ item.follower_username }}
+    </div>
+  </div>
+  <div v-else>Brak obserwujących</div>
+</n-modal>
+
+<n-modal v-model:show="showFollowingModal" preset="dialog" title="Obserwujesz:">
+  <div v-if="followingList.length">
+    <div
+      v-for="item in followingList"
+      :key="item.id"
+      class="user-link"
+      @click="router.push('/profile/' + item.followed)"
+    >
+      {{ item.followed_username }}
+    </div>
+  </div>
+  <div v-else>Nie obserwujesz nikogo</div>
+</n-modal>
+
 </template>
 
 <style scoped>
@@ -252,4 +339,33 @@ watch(() => route.params.id, loadProfileAndFollowStatus)
     max-width: 900px;
   }
 }
+
+.follow-stats {
+  display: flex;
+  flex-direction: column;
+  margin-left: 1.5rem;
+  cursor: pointer;
+}
+
+.follow-item {
+  margin-bottom: 4px;
+  cursor: pointer;
+  color: #0077ff;
+}
+
+.follow-item:hover {
+  text-decoration: underline;
+}
+
+.user-link {
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.user-link:hover {
+  color: #0077ff;
+  text-decoration: underline;
+}
+
+
 </style>
