@@ -83,6 +83,13 @@ export interface Book {
   publishedDate: string
 }
 
+export interface Notification {
+  id: number
+  sender: { id: number; username: string }
+  file: { id: number; title: string }
+}
+
+
 export function formatDate(date: number): string {
   if (date === null || date === 0) return ''
 

@@ -10,11 +10,12 @@ import {
 } from '@vicons/ionicons4'
 import { isLoggedIn } from '@/constants/authState'
 import API from "@/constants/api.ts";
+import type { Notification } from '../constants'
 
 const router = useRouter()
 const route = useRoute()
 
-const notifications = ref([])
+const notifications = ref<Notification[]>([])
 
 async function loadNotifications() {
   if (!isLoggedIn.value) return
