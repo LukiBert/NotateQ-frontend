@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router'
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { NButton, NIcon, NPopover } from 'naive-ui'
 import {
   IosHome as HomeIcon,
@@ -9,15 +9,35 @@ import {
   MdNotificationsOutline as BellIcon,
 } from '@vicons/ionicons4'
 import { isLoggedIn } from '@/constants/authState'
+import API from "@/constants/api.ts";
 
 const router = useRouter()
 const route = useRoute()
 
-const mockNotifications = ref([
-  { id: 1, message: 'Użytkownik JanKowalski udostępnił plik: Algebra 1' },
-  { id: 2, message: 'Nowy plik dodany w kategorii Fizyka' },
-  { id: 3, message: 'Twoja notatka została oceniona na 5 gwiazdek' },
-])
+const notifications = ref([])
+
+async function loadNotifications() {
+  if (!isLoggedIn.value) return
+
+  try {
+    const response = await API.get('/notifications/', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('access')}` },
+    })
+    notifications.value = response.data
+  } catch (err) {
+    console.error('Błąd ładowania powiadomień:', err)
+  }
+}
+
+function goToSender(userId: number) {
+  router.push({ name: 'public-profile', params: { id: userId } })
+}
+
+function goToFile(fileId: number) {
+  router.push({ name: 'filePage', params: { id: fileId } })
+}
+
+
 
 function goToHome() {
   router.push({ name: 'home' })
@@ -43,6 +63,12 @@ const activeButtonKey = computed(() => {
       return ''
   }
 })
+
+onMounted(() => {
+  loadNotifications()
+})
+
+
 </script>
 
 <template>
@@ -78,23 +104,35 @@ const activeButtonKey = computed(() => {
       </n-button>
 
       <n-popover v-if="isLoggedIn" trigger="click" placement="bottom-end">
-        <template #trigger>
-          <n-button text>
-            <template #icon>
-              <n-icon size="24"><BellIcon /></n-icon>
-            </template>
-          </n-button>
-        </template>
+  <template #trigger>
+    <n-button text>
+      <template #icon>
+        <n-icon size="24"><BellIcon /></n-icon>
+      </template>
+    </n-button>
+  </template>
 
-        <div class="notifications">
-          <div v-for="notif in mockNotifications" :key="notif.id" class="notification-item">
-            {{ notif.message }}
-          </div>
-          <div v-if="mockNotifications.length === 0" class="notification-empty">
-            Brak powiadomień
-          </div>
-        </div>
-      </n-popover>
+  <div class="notifications">
+    <div
+      v-for="notif in notifications"
+      :key="notif.id"
+      class="notification-item"
+    >
+      <span class="notif-user" @click="goToSender(notif.sender.id)">
+        {{ notif.sender.username }}
+      </span>
+      dodał nowy plik:
+      <span class="notif-file" @click="goToFile(notif.file.id)">
+        {{ notif.file.title }}
+      </span>
+    </div>
+
+    <div v-if="notifications.length === 0" class="notification-empty">
+      Brak powiadomień
+    </div>
+  </div>
+</n-popover>
+
     </div>
   </div>
 </template>
@@ -174,4 +212,18 @@ const activeButtonKey = computed(() => {
     display: block;
   }
 }
+
+.notif-user,
+.notif-file {
+  color: #14532d;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.notif-user:hover,
+.notif-file:hover {
+  text-decoration: underline;
+}
+
+
 </style>
