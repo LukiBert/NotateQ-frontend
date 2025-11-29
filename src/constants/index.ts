@@ -87,6 +87,7 @@ export interface Notification {
   id: number
   sender: { id: number; username: string }
   file: { id: number; title: string }
+  is_read: boolean
 }
 
 

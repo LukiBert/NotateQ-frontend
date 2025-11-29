@@ -38,6 +38,33 @@ function goToFile(fileId: number) {
   router.push({ name: 'filePage', params: { id: fileId } })
 }
 
+async function onPopoverToggle(show: boolean) {
+  if (!show) return;
+
+
+  for (const notif of notifications.value) {
+    if (!notif.is_read) {
+      await API.patch(`/notifications/${notif.id}/read/`, {
+        is_read: true
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access')}` }
+      })
+
+      notif.is_read = true
+    }
+  }
+}
+
+async function deleteNotification(id: number) {
+  try {
+    await API.delete(`/notifications/${id}/delete/`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('access')}` },
+    });
+    notifications.value = notifications.value.filter(n => n.id !== id)
+  } catch (e) {
+    console.error("Błąd usuwania powiadomienia:", e)
+  }
+}
 
 
 function goToHome() {
@@ -64,6 +91,11 @@ const activeButtonKey = computed(() => {
       return ''
   }
 })
+
+const unreadCount = computed(() =>
+  notifications.value.filter(n => !n.is_read).length
+)
+
 
 onMounted(() => {
   loadNotifications()
@@ -104,33 +136,44 @@ onMounted(() => {
         <p class="visible-text" v-else>Zaloguj się</p>
       </n-button>
 
-      <n-popover v-if="isLoggedIn" trigger="click" placement="bottom-end">
-  <template #trigger>
-    <n-button text>
-      <template #icon>
-        <n-icon size="24"><BellIcon /></n-icon>
+      <n-popover v-if="isLoggedIn" trigger="click" placement="bottom-end" @update:show="onPopoverToggle">
+      <template #trigger>
+        <n-button text class="notif-bell-btn">
+          <template #icon>
+            <n-icon size="24"><BellIcon /></n-icon>
+            <span v-if="unreadCount > 0" class="notif-dot"></span>
+          </template>
+       </n-button>
       </template>
-    </n-button>
-  </template>
 
   <div class="notifications">
+
     <div
       v-for="notif in notifications"
       :key="notif.id"
       class="notification-item"
     >
-      <span class="notif-user" @click="goToSender(notif.sender.id)">
-        {{ notif.sender.username }}
-      </span>
-      dodał nowy plik:
-      <span class="notif-file" @click="goToFile(notif.file.id)">
-        {{ notif.file.title }}
-      </span>
+
+      <div class="notification-text">
+        <span class="notif-user" @click="goToSender(notif.sender.id)">
+          {{ notif.sender.username }}
+        </span>
+        dodał nowy plik:
+        <span class="notif-file" @click="goToFile(notif.file.id)">
+          {{ notif.file.title }}
+        </span>
+      </div>
+
+
+      <button class="notif-delete" @click.stop="deleteNotification(notif.id)">
+        Usuń
+      </button>
     </div>
 
     <div v-if="notifications.length === 0" class="notification-empty">
       Brak powiadomień
     </div>
+
   </div>
 </n-popover>
 
@@ -184,8 +227,8 @@ onMounted(() => {
 }
 
 .notifications {
-  width: 300px;
-  max-height: 300px;
+  width: 350px;
+  max-height: 400px;
   overflow-y: auto;
   background-color: white;
   border: 1px solid #eee;
@@ -195,10 +238,11 @@ onMounted(() => {
 }
 
 .notification-item {
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f0f0f0;
-  font-size: 14px;
-  color: #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem;
+  border-bottom: 1px solid #eee;
 }
 
 .notification-empty {
@@ -225,6 +269,39 @@ onMounted(() => {
 .notif-file:hover {
   text-decoration: underline;
 }
+.notif-bell-btn {
+  position: relative;
+}
+
+.notif-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  background: red;
+  border-radius: 50%;
+}
+
+.notification-text {
+  flex: 1;
+  font-size: 14px;
+}
+
+.notif-delete {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #b91c1c;
+  padding: 4px;
+}
+
+.notif-delete:hover {
+  color: #dc2626;
+  text-decoration: underline;
+}
+
 
 
 </style>
