@@ -5,6 +5,8 @@ import SearchBar from '../components/SearchBar.vue'
 import CategoryHolder from '../components/CategoryHolder.vue'
 import FileList from '../components/FileList.vue'
 import NavBar from '@/components/NavBar.vue'
+import AiChatWidget from '../components/AiChatWidget.vue'
+
 
 const router = useRouter()
 
@@ -21,7 +23,9 @@ function receiveEmit(receivedText: string) {
   <CategoryHolder />
   <div id="text-holder">Najnowsze udostępnione dokumenty</div>
   <FileList />
+  <AiChatWidget />
 </template>
+
 
 <style scoped>
 #text-holder {
