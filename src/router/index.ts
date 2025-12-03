@@ -37,6 +37,11 @@ const routes = [
     },
   },
   {
+  path: '/payment-return',
+  name: 'payment-return',
+  component: () => import('@/views/PaymentReturn.vue'),
+  },
+  {
     path: '/:pathMatch(.*)',
     redirect: '/404',
     meta: {

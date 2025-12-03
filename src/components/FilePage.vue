@@ -80,10 +80,11 @@ async function downloadFile() {
 
 async function buyPremium() {
   try {
-    // Wywołanie endpointu backendowego z tokenem JWT
     const res = await API.post(
       "/create-checkout-session/",
-      {},
+      {
+        file_id: props.fileData.id
+      },
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access')}`,
@@ -91,14 +92,7 @@ async function buyPremium() {
       }
     );
 
-    const checkoutUrl = res.data.url; // backend teraz zwraca pełny URL
-
-    if (!checkoutUrl) {
-      throw new Error("Brak URL do Stripe Checkout");
-    }
-
-    // Proste przekierowanie do Stripe
-    window.location.href = checkoutUrl;
+    window.location.href = res.data.url;
 
   } catch (err) {
     console.error("Błąd płatności:", err);
